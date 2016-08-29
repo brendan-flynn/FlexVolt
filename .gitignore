@@ -2,7 +2,7 @@
 plugins
 
 # library - this can also be generated at any point from the package.json
-www/lib
+node_modules
 
 # Build platforms
 platforms
