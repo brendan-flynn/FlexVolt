@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div ng-controller="RecordCtrl" 
+     style="text-align:right; height: 45px;" 
+     class="row" 
+     ng-if="!mobile && demo || (flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on')">
+    <!--<div class="col text-right">-->
+        <button title="Record Data"
+                class="button button-icon icon ion-record record-icon" 
+                ng-disabled="!recordControls.live || !!recordControls.recording"
+                ng-click="startRecording()"></button>
+        <button title="Stop" 
+                ng-disabled="!recordControls.recording && !recordControls.playingBack" 
+                class="button button-icon icon ion-stop record-icon" 
+                ng-click="stopRecording()">
+        </button>
+        <div title="Current Record Length" 
+             style="display:inline-block; font-size: 16px; vertical-align:middle; line-height:16px;"
+             ng-style=" recordControls.recording ? {'color': 'black'} : {'color': 'gray'} ">
+            <p>Recording</p><p>{{recordControls.recordTimer}}s</p>
+        </div>
+    <!--</div>-->
+</div>

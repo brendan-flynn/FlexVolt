@@ -1,0 +1,17 @@
+# Plugins Directory - this can be generated at any point from the package.json
+plugins
+
+# library - this can also be generated at any point from the package.json
+www/lib
+
+# Build platforms
+platforms
+
+# Builds
+**/*.crx
+**/*.zip
+**/*.apk
+**/*.ap_
+
+# Log files
+**/*.log

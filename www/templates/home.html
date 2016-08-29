@@ -1,0 +1,12 @@
+<ion-view title="Home">
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+    </ion-nav-buttons>
+    <ion-content class="has-header padding">
+        <div ng-repeat="row in apps" class="row my-icon-row">
+            <div ng-repeat="icon in row" class="col my-icon-col">
+                    <button class="button-icon" ui-sref="{{icon.ref}}"><i class="icon {{icon.icon}} home-page-icons"></i>{{icon.btnName}}</button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

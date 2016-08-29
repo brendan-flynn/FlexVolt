@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<widget id="org.flexvolt" android-versionCode="6" version="0.1.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <name>FlexVolt</name>
+  <description>
+        An Ionic Framework and Cordova project.
+    </description>
+  <author email="hi@ionicframework" href="http://ionicframework.com/">
+      Ionic Framework Team
+    </author>
+  <content src="index.html"/>
+  <access origin="*"/>
+  <preference name="webviewbounce" value="false"/>
+  <preference name="UIWebViewBounce" value="false"/>
+  <preference name="DisallowOverscroll" value="true"/>
+  <preference name="BackupWebStorage" value="none"/>
+  <feature name="StatusBar">
+    <param name="ios-package" value="CDVStatusBar" onload="true"/>
+  </feature>
+  <icon src="www/img/FlexVoltIcon.png" />
+  <preference name="SplashScreen" value="screen" />
+  <preference name="SplashScreenDelay" value="1000" />
+  <platform name="android">
+    <icon src="www/img/FlexVoltIcon.png" platform="android" density="ldpi" />
+    <icon src="www/img/FlexVoltIcon.png" platform="android" density="mdpi" />
+    <icon src="www/img/FlexVoltIcon.png" platform="android" density="hdpi" />
+    <icon src="www/img/FlexVoltIcon.png" platform="android" density="xhdpi" />
+    
+    <splash src="www/img/fv_sc.png" platform="android" density="land-ldpi" />
+    <splash src="www/img/fv_sc.png" platform="android" density="land-mdpi" />
+    <splash src="www/img/fv_sc.png" platform="android" density="land-hdpi" />
+    <splash src="www/img/fv_sc.png" platform="android" density="land-xhdpi" />
+    
+    <splash src="www/img/fv_sc.png" platform="android" density="port-ldpi" />
+    <splash src="www/img/fv_sc.png" platform="android" density="port-mdpi" />
+    <splash src="www/img/fv_sc.png" platform="android" density="port-hdpi" />
+    <splash src="www/img/fv_sc.png" platform="android" density="port-xhdpi" />
+  </platform>
+  
+</widget>

@@ -1,0 +1,80 @@
+
+
+<ion-view title="Trace">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+        <filters-popover ng-if="!mobile"></filters-popover>
+        <settings-popover></settings-popover>
+    </ion-nav-buttons>
+  <ion-content class="has-header" scroll="false">
+      <save-panel></save-panel>
+      <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
+      <div ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
+          <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
+          <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
+      </div>
+      <div id="traceWindow"></div>
+      
+  </ion-content>
+</ion-view>
+
+<script id="trace-settings.html" type="text/ng-template">
+    <ion-popover-view style="width: 262px">
+<!--        <ion-header-bar>
+            <h1 class="title">Plot Settings</h1>
+        </ion-header-bar>-->
+        <ion-content>
+            <div style="padding: 8px 8px">
+                <h3 style="text-align:center">
+                    # Channels
+                </h3>
+<!--                <div class="item item-divider"> 
+                    <center># Channels</center>
+                </div>-->
+                <p>&nbsp&nbsp&nbsp
+                    <label ng-repeat="item in hardwareLogic.availableChannelList()">
+                        <input type="radio" ng-model="pageLogic.settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+                    </label>
+                </p>
+<!--                <div class="item item-divider"> 
+                    <center># Channels Dropdown</center>
+                </div>
+                <select ng-change="onChange()" ng-model="pageLogic.settings.nChannels" ng-options="opt.value as opt.text for opt in hardwareLogic.availableChannelList()"></select>-->
+                
+<!--                <div class="item item-divider"> 
+                    <center>Gain Radio</center>
+                </div>
+                <p>&nbsp&nbsp&nbsp
+                    <label ng-repeat="item in pageLogic.gainList">
+                        <input type="radio" ng-model="pageLogic.settings.gain" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+                    </label>
+                </p>
+                <div class="item item-divider"> 
+                    <center>Gain Dropdown</center>
+                </div>
+                <select ng-change="onChange()" ng-model="pageLogic.settings.gain" ng-options="opt.value as opt.text for opt in pageLogic.gainList"></select>-->
+                
+                <filter-options ng-if="mobile"></filter-options>
+
+            </div>
+        </ion-content>
+    </ion-popover-view>
+</script>
+
+<script id="trace-help.html" type="text/ng-template">
+  <!--<ion-popover-view style="width: 250px; height: 300px;">-->
+  <ion-popover-view>
+    <ion-header-bar>
+      <h1 class="title">Trace Help</h1>
+    </ion-header-bar>
+    <ion-content>
+        <div>
+            This task plots the real-time data being measured by your FlexVolt sensor.
+            You can change the number of channels to plot in the settings menu.
+        </div>
+    </ion-content>
+  </ion-popover-view>
+</script>

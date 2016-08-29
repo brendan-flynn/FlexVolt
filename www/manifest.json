@@ -1,0 +1,22 @@
+{
+    "name": "FlexVolt Viewer",
+    "description": "This app connects to your FlexVolt Biosensor.  See www.flexvoltbiosensor.com for more information.",
+    "version": "0.1.5",
+    "manifest_version": 2,
+    "permissions": [
+        "serial",
+        "storage",
+        {"fileSystem": ["directory", "write", "retainEntries"]}
+    ],
+    "icons": {
+        "48": "img/fv_ic_main_48.png",
+        "128": "img/fv_ic_main_128.png"
+    },
+    "app": {
+        "background": {
+            "scripts": [
+                "background.js"
+            ]
+        }
+    }
+}

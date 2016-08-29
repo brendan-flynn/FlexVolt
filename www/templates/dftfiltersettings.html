@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div class="item item-divider"> 
+    <center>Filter Type</center>
+</div>
+<div ng-if="!mobile">
+    <p>&nbsp&nbsp
+        <label ng-repeat="item in filterTypes">
+            <input type="radio" ng-model="settings.fsFilter.filterType" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+        </label>
+    </p>
+</div>
+<div ng-if="mobile">
+    <select ng-change="onChange()" ng-model="settings.fsFilter.filterType" ng-options="opt.value as opt.text for opt in filterTypes"></select>
+</div>
+
+<div>
+    <center class="item item-divider">Cut-on Frequency: {{settings.fsFilter.f1}}</center>
+    0<input type="range" min="0" max="100" 
+            ng-disabled="settings.fsFilter.filterType === 'LOW_PASS' || settings.fsFilter.filterType === 'NONE' " 
+            ng-model="settings.fsFilter.f1" ng-change="onChange()"  style="vertical-align:middle">100<br/>
+</div>
+<div>
+    <center class="item item-divider">Cut-off Frequency: {{settings.fsFilter.f2}}</center>
+    0<input type="range" min="0" max="50" 
+            ng-disabled="settings.fsFilter.filterType === 'HIGH_PASS' || settings.fsFilter.filterType === 'NONE' " 
+            ng-model="settings.fsFilter.f2" ng-change="onChange()"  style="vertical-align:middle">50<br/>
+</div>

@@ -1,0 +1,44 @@
+<ion-view title="Settings">
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+    </ion-nav-buttons>
+    
+    <ion-content class="has-header padding">
+      <h3 align="center">App Version: {{app.version}}</h3>
+        <h3 align="center">Channels</h3>
+        <p>&nbsp&nbsp&nbsp
+            <label ng-repeat="item in channelList">
+                <input type="radio" ng-model="settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+            </label>
+        </p>
+        <h3 align="center">Sampling Frequency</h3>
+        <p>&nbsp&nbsp&nbsp
+            <label ng-repeat="item in frequencyList">
+                <input type="radio" ng-model="settings.frequency" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+            </label>
+        </p>
+        <h3 align="center">Sampling Depth</h3>
+        <ion-toggle ng-model="settings.bitDepth10" ng-change="onChange()" ng-checked="settings.bitDepth10">
+            <span ng-if="settings.bitDepth10"> High Res - 10 bits </span>
+            <span ng-if="!settings.bitDepth10"> Low Res - 8 bits </span>
+        </ion-toggle>
+        <h3 align="center">Raw/Filtered Data</h3>
+        <ion-toggle ng-model="settings.smoothFilterFlag" ng-change="onChange()" ng-checked="settings.smoothFilterFlag">
+            <span ng-if="settings.smoothFilterFlag"> Send smoothed data </span>
+            <span ng-if="!settings.smoothFilterFlag"> Send raw data </span>
+        </ion-toggle>
+        <h3 align="center">Smoothing Level: {{settings.smoothFilterVal}}</h3>
+        <p>&nbsp&nbsp&nbsp
+            0&nbsp&nbsp<input type="range" min=0 max=30 step=1 ng-model="settings.smoothFilterVal" ng-change="onChange()" style="vertical-align:middle">&nbsp&nbsp30<br/>
+        </p>
+        <div ng-if="!mobile">
+        <h3 align="center">Data Save Directory</h3>
+        <p>Current: {{file.path}} &nbsp&nbsp <button ng-click="file.getDirectory()">Change</button>
+        </p>
+        </div>
+<!--        <h3 align="center">Data</h3>
+        <div>
+            <button ng-click="createFile()">create test file</button>
+        </div>-->
+    </ion-content>
+</ion-view>
