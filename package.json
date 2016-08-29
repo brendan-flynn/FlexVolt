@@ -8,18 +8,16 @@
     "url": "https://github.com/CatabeeScienceAndDesign/FlexVolt.git"
   },
   "dependencies": {
-    "ionic": "^1.2.4",
-    "d3": "~3.5.10",
-    "jquery": "~2.1.4"
-  },
-  "devDependencies": {
-    "gulp-util": "^3.0.7",
-    "shelljs": "^0.7.0",
     "gulp": "^3.9.1",
     "gulp-clean-css": "^2.0.10",
     "gulp-concat": "^2.6.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.3.2"
+  },
+  "devDependencies": {
+    "bower": "^1.7.9",
+    "gulp-util": "^3.0.7",
+    "shelljs": "^0.7.0"
   },
   "cordovaPlatforms": [
     "android@5.1"
@@ -28,8 +26,5 @@
     "ionic-plugin-keyboard",
     "cordova-plugin-bluetooth-serial",
     "cordova-plugin-device"
-  ],
-  "scripts": {
-    "postinstall": "ionic state restore"
-  }
+  ]
 }

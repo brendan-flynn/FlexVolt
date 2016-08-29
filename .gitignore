@@ -2,7 +2,9 @@
 plugins
 
 # library - this can also be generated at any point from the package.json
+bower_components
 node_modules
+www/lib
 
 # Build platforms
 platforms
