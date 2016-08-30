@@ -72,7 +72,7 @@
                     },
                     b4:{
                         icon:"icon ion-ios-pulse",
-                        ref:"rms-time",
+                        ref:"rms",
                         btnName:"RMS Plot"
                     }
 //                    b4:{
@@ -148,7 +148,7 @@
                     },
                     b3:{
                         icon:"icon ion-ios-pulse",
-                        ref:"rms-time({demo: true})",
+                        ref:"rms({demo: true})",
                         btnName:"RMS Plot Demo"
                     },
                     b4:{
@@ -163,72 +163,6 @@
 //                    }
                 }
             };
-    }])
-    .controller('XYCtrl', ['$stateParams', '$scope', '$state', '$timeout', '$ionicPopover', 'flexvolt', 'xyDot', 'xyLogic',
-    function($stateParams, $scope, $state, $timeout, $ionicPopover, flexvolt, xyDot, xyLogic) {
-        
-        var currentUrl = $state.current.url;
-        console.log('currentUrl = '+currentUrl);
-        
-        $scope.demo = $stateParams.demo;
-
-        addPopover($ionicPopover, $scope, 'popover', 'xy-settings.html',xyLogic.updateSettings);
-        addPopover($ionicPopover, $scope, 'helpover','xy-help.html');
-        
-        var afID;
-        var frameCounts = 0;
-  
-        $scope.bounds = xyLogic.settings.bounds;
-        
-//        $scope.disp = {
-//            mode : xyLogic.settings.threshMode
-//        };
-        
-        
-        // $timeout hack because the slider doesn't initialize properly
-        $timeout(function(){
-            $scope.thresh = xyLogic.settings.thresh;
-            $scope.fakeData = xyLogic.settings.fakeData;
-            $scope.plot = xyLogic.settings.plot;
-            //console.log(xyLogic.settings);
-            //console.log('threshMode:'+$scope.plot.thresh+', xy version:'+xyLogic.settings.plot.thresh);
-        },20);
-        
-        $scope.onChange = function(){
-            //console.log('threshMode:'+$scope.plot.thresh+', xy version:'+xyLogic.settings.plot.thresh);
-            //console.log('VH:'+$scope.thresh.yH+'HH:'+$scope.thresh.xH);
-            //xyLogic.updateSettings();
-            console.log('INFO: Settings changed: '+angular.toJson($scope.settings));
-        };
-
-        function paintStep(timestamp){
-            if ($state.current.url === currentUrl){
-                afID = window.requestAnimationFrame(paintStep);
-                frameCounts++;
-                if (frameCounts > 5){
-                    frameCounts = 0;
-                    xyLogic.updateAnimate($stateParams.demo);
-                }
-            } else if ($state.current.url === '/connection'){
-                afID = window.requestAnimationFrame(paintStep);
-            }
-        }
-        
-        window.onresize = function(){
-            if (afID){
-              window.cancelAnimationFrame(afID);
-            }
-            afID = undefined;
-            $scope.updating  = true;
-            console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
-            xyDot.resize();
-            $scope.updating  = false;
-            paintStep();
-        };
-
-        xyDot.init('#xyWindow');
-        paintStep();
-
     }])
     .controller('SnakeCtrl', ['$scope', '$state', 'xyDot', '$ionicPopover', 
     function($scope, $state, xyDot, $ionicPopover) {
@@ -632,14 +566,14 @@
         console.log('currentUrl = '+currentUrl);
         addPopover($ionicPopover, $scope, 'popover', 'ekg-settings.html');
         addPopover($ionicPopover, $scope, 'helpover','ekg-help.html');
-        
-        
+
+
         var afID;
-        
+
 
         function updateAnimate(){
             if ($scope.updating) return;
-            
+
         }
 
         function paintStep(timestamp){
@@ -651,178 +585,6 @@
         }
 
         paintStep();
-    }])
-    .controller('TraceCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopover', 'tracePlot', 'traceLogic', 'dataHandler', 'hardwareLogic', 'logicOptions',
-    function($stateParams, $scope, $state, flexvolt, $ionicPopover, tracePlot, traceLogic, dataHandler, hardwareLogic) {
-        var currentUrl = $state.current.url;
-        console.log('currentUrl = '+currentUrl);
-        $scope.demo = $stateParams.demo;
-        var afID = undefined;
-        
-        addPopover($ionicPopover, $scope, 'popover', 'trace-settings.html',traceLogic.updateSettings);
-        addPopover($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',traceLogic.updateSettings);
-        addPopover($ionicPopover, $scope, 'helpover','trace-help.html');
-                
-        $scope.pageLogic = traceLogic;
-        $scope.hardwareLogic = hardwareLogic;
-        $scope.updating = false;
-
-        $scope.onChange = function(){
-            if (afID){
-              window.cancelAnimationFrame(afID);
-            }
-            afID = undefined;
-            $scope.updating  = true;
-            console.log('INFO: Settings changed');
-            init();
-            $scope.updating  = false;
-            paintStep();
-        };
-
-        function updateAnimate(){
-            if ($scope.updating)return; // don't try to draw any graphics while the settings are being changed
-            
-            var dataIn = dataHandler.getData();
-            //console.log(dataIn);
-            if (dataIn === null || dataIn === angular.undefined || 
-                dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
-            tracePlot.update(dataIn);
-        }
-
-        function paintStep(){
-            //console.log('state = '+$state.current.url);
-            if ($state.current.url === currentUrl){
-                afID = window.requestAnimationFrame(paintStep);
-                updateAnimate();
-            } else if ($state.current.url === '/connection'){
-                afID = window.requestAnimationFrame(paintStep);
-            }
-        }
-        
-        function init() {
-            traceLogic.ready()
-                .then(function(){
-                    traceLogic.settings.nChannels = Math.min(traceLogic.settings.nChannels,hardwareLogic.settings.nChannels);
-                    //console.log('INFO: Settings: '+angular.toJson(traceLogic.settings));
-                    dataHandler.init(traceLogic.settings.nChannels);
-                    for (var i= 0; i < traceLogic.settings.filters.length; i++){
-                        dataHandler.addFilter(traceLogic.settings.filters[i]);
-                    }
-        //            dataHandler.setMetrics(60);
-                    tracePlot.init('#traceWindow',traceLogic.settings.nChannels);
-                    paintStep();
-                });
-        }
-        
-        window.onresize = function(){ 
-            if (afID){
-              window.cancelAnimationFrame(afID);
-            }
-            afID = undefined;
-            $scope.updating  = true;
-            console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
-            tracePlot.resize();
-            $scope.updating  = false;
-            paintStep();
-        };
-
-        init();
-    }])
-    .controller('RMSTimeCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopover', 'rmsTimePlot', 'rmsTimeLogic', 'dataHandler', 'hardwareLogic',
-    function($stateParams, $scope, $state, flexvolt, $ionicPopover, rmsTimePlot, rmsTimeLogic, dataHandler, hardwareLogic) {
-        var currentUrl = $state.current.url;
-        console.log('currentUrl = '+currentUrl);
-        
-        addPopover($ionicPopover, $scope, 'popover', 'rms-time-settings.html',rmsTimeLogic.updateSettings);
-        addPopover($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',rmsTimeLogic.updateSettings);
-        addPopover($ionicPopover, $scope, 'helpover','rms-time-help.html');
-        
-        var afID = undefined;
-        var metricCounts = 0;
-
-        $scope.demo = $stateParams.demo;
-        
-        $scope.hardwareLogic = hardwareLogic;
-        
-        $scope.updating = false;
-
-        $scope.onChange = function(){
-            if (afID){
-              window.cancelAnimationFrame(afID);
-            }
-            afID = undefined;
-            $scope.updating  = true;
-            console.log('INFO: Settings changed');
-            init();
-
-            $scope.updating  = false;
-            paintStep();
-        };
-
-        function updateAnimate(){
-            if ($scope.updating) return;
-            
-            metricCounts++;
-            if (metricCounts > 60){
-                metricCounts = 0;
-                updateMetrics();
-            }
-            
-            var dataIn = dataHandler.getData();
-            //console.log(dataIn);
-            // animate
-            if (dataIn === null || dataIn === angular.undefined || 
-                dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
-            rmsTimePlot.update(dataIn);
-        }
-
-        function updateMetrics(){
-            var metrics = dataHandler.getMetrics();
-            $scope.metrics = metrics[0];
-        }
-
-        function paintStep(){
-            //console.log('state = '+$state.current.url);
-            if ($state.current.url === currentUrl){
-                //console.log('updating');
-                afID = window.requestAnimationFrame(paintStep);
-
-                updateAnimate();
-
-            } else if ($state.current.url === '/connection'){
-                afID = window.requestAnimationFrame(paintStep);
-            }
-        }
-        
-        function init(){
-            rmsTimeLogic.ready()
-                .then(function(){
-                    $scope.pageLogic = rmsTimeLogic;
-                    //console.log('INFO: Settings: '+angular.toJson(rmsTimeLogic.settings));
-                    dataHandler.init(rmsTimeLogic.settings.nChannels);
-
-                    for (var i= 0; i < rmsTimeLogic.settings.filters.length; i++){
-                        dataHandler.addFilter(rmsTimeLogic.settings.filters[i]);
-                    }
-                    dataHandler.setMetrics(60);
-                    rmsTimePlot.init('#rmsTimeWindow', rmsTimeLogic.settings.nChannels, rmsTimeLogic.settings.zoomOption, rmsTimeLogic.settings.xMax, hardwareLogic.settings.frequency);
-                    paintStep();
-                });
-        }
-        
-        window.onresize = function(){ 
-            if (afID){
-              window.cancelAnimationFrame(afID);
-            }
-            afID = undefined;
-            $scope.updating  = true;
-            console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
-            rmsTimePlot.resize();
-            $scope.updating  = false;
-            paintStep();
-        };
-
-        init();
     }])
     .controller('RecordCtrl', ['$scope', '$interval','dataHandler', function($scope, $interval, dataHandler){
         /***********Record Control****************/
@@ -1005,70 +767,11 @@
                 });
                 
             });
-            
-            
-            
-            
-//        $scope.copyToClipboard = function(){
-//            clipboard.copy(appLogic.dm.logs);
-//            $ionicPopup.alert({
-//                title: 'Software Logs Copied',
-//                template: 'Now open your email client, paste the logs in an email (usually press and hold in the message section, then choose paste), and send to software@flexvoltbiosensor.com'
-//            });
-//        };
-        
-        //$scope.emailBugReport = 'mailto:bugreports@flexvoltbiosensor.com?subject=inApp%20Bug%20Report&body='+appLogic.dm.logs;
-//            var cr = '%0D%0A';
-//            //clipboard.copy(appLogic.dm.logs);
-//            var tmpLogs = appLogic.dm.logs.replace(/(?:\r\n|\r|\n)/g, '%0D%0A');
-//            var bodyStart = 'Bug Description:  '+cr+cr+'Log Messages:'+cr;
-//            var emailBugReport = 'mailto:bugreports@flexvoltbiosensor.com?subject=inApp%20Bug%20Report&body='+bodyStart+tmpLogs;
-//            window.open(emailBugReport);
         };
-        
-//        $scope.sendEmail2 = function(){
-//            var cr = '%0D%0A';
-//            var tmpLogs = appLogic.dm.logs.replace(/(?:\r\n|\r|\n)/g, '%0D%0A');
-//            var bodyStart = 'Bug Description:  '+cr+cr+'Log Messages:'+cr;
-//            var body = bodyStart+tmpLogs;
-//            var url = 'php/sendBugReport2.php';
-//            $http.post(url)
-//            .success(function(data,status){
-//                console.log('INFO: Success emailing.  status = '+status);
-//                console.log(data);
-//            })
-//            .error(function(data, status){
-//                console.log('INFO: Error emailing.  status = '+status);
-//                console.log(data);
-//            });
-//        };
-        
-        // email plugin didn't work
-//        console.log('email:');
-//        console.log(email);
-//        window.email = email;
-//        $scope.sendBugReport = function(){
-//            console.log('trying to send bug report');
-//            email.isAvailable(function(res){
-//                console.log('res = '+res);
-//                if (res){
-//                    console.log('opening email');
-//                    email.open({
-//                        to: 'info@flexvoltbiosensor.com',
-//                        subject: 'bugreport',
-//                        body: 'hello'//appLogic.dm.logs
-//                    });
-//                } else {
-//                    console.log('email not available');
-//                }
-//            });
-//        };
-
-
 
         $scope.dm = appLogic.dm;
-        
-        $ionicModal.fromTemplateUrl('templates/modal.html', {
+
+        $ionicModal.fromTemplateUrl('templates/logmessages.html', {
             scope: $scope
         }).then(function(modal){
             $scope.modal = modal;
@@ -1089,14 +792,6 @@
             $scope.bugmodal.show();
         };
 
-    //    var stop = $interval(function(){
-    //        flexvolt.api.updatePorts();
-    //    },500);
-    //    
-    //    $scope.clearLog = function(){
-    //        flexvolt.api.debugging.communicationsLog = '';
-    //    };
-    //    
     }])
     .controller('SettingsCtrl', 
     ['$scope','$state','flexvolt','hardwareLogic','file','appLogic',

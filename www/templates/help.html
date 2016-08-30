@@ -8,8 +8,8 @@
             <!--<p ng-if="!mobile">Use the 'Send Bug Report' button below to file bug reports.-->
                 <!--Please include a description of what happened.-->
             <!--</p>-->
-            <!--<p ng-if="mobile">Use the 'Send Bug Report' button below to file bug reports.-->  
-                <!--Log messages will be auto-copied.  To paste the logs into the email, press and hold, then select 'paste'.-->  
+            <!--<p ng-if="mobile">Use the 'Send Bug Report' button below to file bug reports.-->
+                <!--Log messages will be auto-copied.  To paste the logs into the email, press and hold, then select 'paste'.-->
                 <!--Please add a description of what happened.-->
             <!--</p>-->
 
@@ -27,16 +27,3 @@
         </div>
     </ion-content>
 </ion-view>
-
-
-<script id="templates/modal.html" type="text/ng-template">
-    <ion-modal-view>
-        <ion-header-bar class="bar bar-header bar-balanced">
-            <h1 class="title">Logs Messages</h1>
-            <button class="button button-clear button-primary" ng-click="modal.hide()">Back</button>
-        </ion-header-bar>
-        <ion-content class="padding">
-            <pre><span class="log-class">{{dm.logs}}</span></pre>
-        </ion-content>
-    </ion-modal-view>
-</script>

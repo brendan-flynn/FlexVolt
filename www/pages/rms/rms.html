@@ -1,0 +1,37 @@
+<ion-view title="RMS vs Time">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+        <filters-popover ng-if="!mobile"></filters-popover>
+        <settings-popover></settings-popover>
+    </ion-nav-buttons>
+  <ion-content scroll="false" class="has-header">
+      <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
+      <div ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
+          <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
+          <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
+      </div>
+      <div class="row">
+          <div class="col">
+              <save-panel></save-panel>
+              <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels"
+                   style="font-size: 14px; line-height:14px;">
+                  <div>
+                      <span ng-style="{'background-color': label.color}"
+                        style="float:left; width: 14px; height: 14px; margin:2px; border-width:1px; border-color:black"></span>
+                      {{label.name}}
+                  </div>
+                  <div class="row">
+                      <div class="col">Min: {{metrics.minAmplitude | number:2}}</div>
+                      <div class="col">Mean: {{metrics.meanAmplitude | number:2}}</div>
+                      <div class="col">Max: {{metrics.maxAmplitude | number:2}}</div>
+                  </div>
+              </div>
+          </div>
+          <div class="col" id="rmsTimeWindow"></div>
+      </div>
+
+  </ion-content>
+</ion-view>

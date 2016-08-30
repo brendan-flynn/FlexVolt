@@ -1,0 +1,37 @@
+<ion-popover-view style="width: 262px">
+<!--    <ion-header-bar>
+    <h1 class="title">Plot Settings</h1>
+  </ion-header-bar>-->
+  <ion-content>
+      <form name="setForm">
+          <div style="padding: 8px 8px">
+              <h3 style="text-align:center">
+                  # Channels
+              </h3>
+            <p>&nbsp&nbsp&nbsp
+              <label ng-repeat="item in hardwareLogic.channelList">
+                  <input type="radio" ng-model="pageLogic.settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+              </label>
+            </p>
+            <h3 style="text-align:center">
+              Zoom Options
+            </h3>
+            <p>&nbsp&nbsp&nbsp
+              <label ng-repeat="item in pageLogic.zoomList">
+                  <input type="radio" ng-model="pageLogic.settings.zoomOption" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+              </label>
+            </p>
+            <h3 style="text-align:center">
+              Window Size
+            </h3>
+            <p>&nbsp&nbsp&nbsp
+              <label ng-repeat="item in pageLogic.xMaxList">
+                  <input type="radio" ng-model="pageLogic.settings.xMax" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+              </label>
+            </p>
+
+            <filter-options ng-if="mobile"></filter-options>
+          </div>
+      </form>
+  </ion-content>
+</ion-popover-view>

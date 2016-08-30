@@ -13,12 +13,18 @@
         'ngSanitize',
         'flexvolt.controllers',
         'flexvolt.services',
+        'flexvolt.customPopover',
         'flexvolt.directives',
         'flexvolt.flexvolt',
         'flexvolt.d3plots',
         'flexvolt.appLogic',
         'flexvolt.taskLogic',
-        'flexvolt.dsp'
+        'flexvolt.dsp',
+        'flexvolt.trace',
+        'flexvolt.rms',
+        'flexvolt.myometer',
+        'flexvolt.godot',
+        'flexvolt.home',
     ])
     
     .run(function($ionicPlatform, appLogic) {
@@ -126,29 +132,29 @@
       $stateProvider
         .state('home', {
             url: '/',
-            templateUrl: 'templates/home.html',
+            templateUrl: 'pages/home/home.html',
             controller: 'HomeCtrl'
         })
 
         .state('trace', {
             url: '/trace/:demo',
-            templateUrl: 'templates/trace.html',
+            templateUrl: 'pages/trace/trace.html',
             controller: 'TraceCtrl',
             onEnter: dataOn,
             onExit: exitFunction
         })
-        
-        .state('rms-time', {
-            url: '/rms-time/:demo',
-            templateUrl: 'templates/rms-time.html',
-            controller: 'RMSTimeCtrl',
+
+        .state('rms', {
+            url: '/rms/:demo',
+            templateUrl: 'pages/rms/rms.html',
+            controller: 'RMSCtrl',
             onEnter: dataOn,
             onExit: exitFunction
         })
 
         .state('xy', {
             url: '/xy/:demo',
-            templateUrl: 'templates/xy.html',
+            templateUrl: 'pages/godot/godot.html',
             controller: 'XYCtrl',
             onEnter: dataOn,
             onExit: exitFunction
@@ -164,7 +170,7 @@
 
         .state('myometer', {
             url: '/myometer:demo',
-            templateUrl: 'templates/myometer.html',
+            templateUrl: 'pages/myometer/myometer.html',
             controller: 'MyometerCtrl',
             onEnter: dataOn,
             onExit: exitFunction

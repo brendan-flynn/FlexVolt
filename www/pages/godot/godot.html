@@ -1,0 +1,29 @@
+
+
+<ion-view title="Go Dot">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+        <settings-popover></settings-popover>
+    </ion-nav-buttons>
+    <ion-content class="has-header">
+        <div ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
+          <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
+          <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
+        </div>
+        <div ng-if="demo">
+            <ion-toggle ng-model="fakeData.useRandom" ng-change="onChange()" ng-checked="fakeData.useRandom">
+                <span ng-if="!fakeData.useRandom">Demo Data: Simulate Data Here</span>
+                <span ng-if="fakeData.useRandom">Demo Data: Generate Random</span>
+            </ion-toggle>
+            <span>Use Settings (top right) to Change Dot Mode</span><br/>
+            <label>Simulate X Signal: {{fakeData.x}}</label>&nbsp&nbsp
+            {{bounds.min}} <input type="range" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="fakeData.x" style="vertical-align:middle"> {{bounds.max}}<br/>
+            <label>Simulate Y Signal: {{fakeData.y}}</label>&nbsp&nbsp
+            {{bounds.min}} <input type="range" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="fakeData.y" style="vertical-align:middle"> {{bounds.max}}<br/>
+        </div>
+        <div id="xyWindow"></div>
+    </ion-content>
+</ion-view>

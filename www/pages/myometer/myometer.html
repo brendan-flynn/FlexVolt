@@ -18,8 +18,8 @@
     <div id="myometerWindow"></div>
     <div class="row">
         <div class="col col-70px">Baseline</div>
-        <div style="text-align:center" class="col" 
-             ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels" 
+        <div style="text-align:center" class="col"
+             ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels"
              ng-click="showLabelPopup($index)">
             {{label.name}}
         </div>
@@ -43,64 +43,6 @@
         </div>
         <div class="col col-10px"></div>
     </div>
-    
+
   </ion-content>
 </ion-view>
-
-<script id="myometer-settings.html" type="text/ng-template">
-  <ion-popover-view>
-    <ion-content>
-      <form name="setForm">
-        <div style="padding: 8px 8px">
-          <h3 style="text-align:center">
-            # Channels
-          </h3>
-          <p>&nbsp&nbsp&nbsp
-            <label ng-repeat="item in hardwareLogic.channelList">
-              <input type="radio" ng-model="pageLogic.settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
-            </label>
-          </p>
-          <h3 style="text-align:center">
-            Scale
-          </h3>
-          <p>&nbsp&nbsp&nbsp
-            <label ng-repeat="item in pageLogic.settings.baselineModeList">
-              <input type="radio" ng-model="pageLogic.settings.baselineMode" ng-change="onChange()" ng-value="item.value" />&nbsp{{item.text}}&nbsp&nbsp
-            </label>
-          </p>
-          <filter-options ng-if="mobile"></filter-options>
-        </div>
-      </form>
-    </ion-content>
-  </ion-popover-view>
-</script>
-
-<script id="myometer-help.html" type="text/ng-template">
-  <!--<ion-popover-view style="width: 250px; height: 300px;">-->
-  <ion-popover-view>
-    <ion-header-bar>
-      <h1 class="title">Myometer Help</h1>
-    </ion-header-bar>
-    <ion-content>
-        <div>
-            <h4>Feedback</h4>
-            <ul>
-                <li>Reach a minimum level of exersion by bringing the signal level above the threshold</li>
-                <li>Practice muscle relaxation by keeping the exersion level below the threshold</li>
-            </ul>
-            <h4>Thresholds</h4>
-            <ul><li>Set thresholds by dragging the gray bars up and down.</li></ul>
-            <h4>Baselines</h4>
-            <ul>
-                <li>With muscle in relaxes position, click 'set' button</li>
-                <li>Wait for measurement to complete</li>
-                <li>Channel is now adjusted with baseline as 0</li>
-            </ul>
-            <h4>Name Channels</h4>
-            <ul>
-                <li>Click a channel name to change it</li>
-            </ul>
-        </div>
-    </ion-content>
-  </ion-popover-view>
-</script>

@@ -1,8 +1,8 @@
-<ion-view title="Settings">
+<ion-view title="Connection">
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
     </ion-nav-buttons>
-    
+
     <ion-content class="has-header padding">
         <h3 align="center">Connection Status</h3>
         <!--<span ng-bind="flexvolt|json"></span>-->
@@ -21,7 +21,7 @@
             </div>
         </div>
         <div ng-if="!flexvolt.getConnectionStatus() && !flexvolt.getConnectingStatus()">
-            <button ng-click="flexvolt.api.resetConnection()">Try to connect</button>
+            <button ng-click="flexvolt.api.startConnect()">Try to connect</button>
         </div>
         <div ng-if="flexvolt.getConnectingStatus()">
             <button ng-click="flexvolt.api.cancelConnection()">Cancel Connect Attempt</button>
@@ -73,15 +73,3 @@
         </div>-->
     </ion-content>
 </ion-view>
-
-<script id="templates/modal.html" type="text/ng-template">
-    <ion-modal-view>
-        <ion-header-bar class="bar bar-header bar-balanced">
-            <h1 class="title">Logs Messages</h1>
-            <button class="button button-clear button-primary" ng-click="modal.hide()">Back</button>
-        </ion-header-bar>
-        <ion-content class="padding">
-            <pre><span class="log-class">{{dm.logs}}</span></pre>
-        </ion-content>
-    </ion-modal-view>
-</script>

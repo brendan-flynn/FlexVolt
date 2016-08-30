@@ -1,0 +1,28 @@
+<ion-popover-view>
+  <ion-header-bar>
+      <h1 class="title">Go Dot Help</h1>
+      <!--<button class="button button-icon icon ion-help" ng-click="helpover.show($event)"></button>-->
+  </ion-header-bar>
+  <ion-content>
+      <div style="padding: 8px 8px">
+          <div>
+              Go Dot moves around the screen based on your muscle activity!
+          </div>
+          <p>Horizontal (X) = chan 1.  Vertical (Y) = chan 2</p>
+          <div class="item item-divider">
+            <center>Motion Modes</center>
+          </div>
+          <p>
+              Follow RMS tracks the RMS (root-mean-square) of your muscle signal.
+              Stronger signals place the dot further up (Y) or right (X)
+          </p>
+          <p>
+              Threshold mode moves Go Dot if your muscle signals are above/below set thresholds.
+              Each channel has 2 thresholds.  Signals above Top Threshold move Go Dot right/up.
+              Signals below Bottom Threshold move Go Dot left/down.
+              Change thresholds in the settings menu.
+              To experiment, go to the Go Dot Demo.
+          </p>
+
+  </ion-content>
+</ion-popover-view>
