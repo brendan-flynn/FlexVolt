@@ -19,7 +19,7 @@
                     },
                     b3: {
                         icon:"icon ion-ios-navigate",
-                        ref:"xy",
+                        ref:"godot",
                         btnName:"Go Dot"
                     },
                     b4: {

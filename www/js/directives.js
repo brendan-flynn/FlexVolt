@@ -1,13 +1,13 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
 /* Original Author:  Brendan Flynn
- * 
+ *
  * app directives
- * 
+ *
  */
 
 (function () {
@@ -32,7 +32,7 @@ angular.module('flexvolt.directives', [])
 //        require: 'ngModel',
 //        scope: {
 //            model: '=ngModel'
-//        },                
+//        },
 //        link: function (scope, element, attrs, ngModelCtrl) {
 //            if (scope.model && typeof scope.model === 'string') {
 //                scope.model = parseFloat(scope.model);
@@ -41,13 +41,13 @@ angular.module('flexvolt.directives', [])
 //                if (typeof val === 'string'){
 //                    scope.model = parseFloat(val);
 //                }
-//           });  
+//           });
 //        }
 //    };
 //})
 //.directive('integer', function(){
 //    return {
-//        require: 'ngModel',         
+//        require: 'ngModel',
 //        link: function(scope, ele, attr, ctrl){
 //            ctrl.$parsers.unshift(function(viewValue){
 //                return parseInt(viewValue, 10);
@@ -55,22 +55,6 @@ angular.module('flexvolt.directives', [])
 //        }
 //    };
 //})
-.directive('connectionStatus', function(){
-    return {
-        restrict: 'E',
-        controller: function($scope, flexvolt){
-//            $scope.isFlexVoltConnected = flexvolt.isConnected;
-            $scope.isFlexVoltConnected = flexvolt.getConnectionStatus;
-    
-//            $scope.$watch(
-//                flexvolt.getConnectionStatus,
-//                function(){$scope.isFlexVoltConnected = flexvolt.getConnectionStatus;},
-//                true
-//            );
-        },
-        templateUrl: 'templates/connection-indicator.html'
-    };
-})
 .directive('settingsPopover', function(){
     return {
         restrict: 'E',

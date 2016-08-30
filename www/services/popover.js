@@ -8,13 +8,9 @@ angular.module('flexvolt.customPopover', [])
     add: undefined
   };
 
-  console.log('init');
-
   ionic.Platform.ready(function(){
 
-    console.log('ready');
     api.add = function(ionicPopover, scope_, popName, html, updateFunction){
-        console.log('adding');
         ionicPopover.fromTemplateUrl(html, {
             scope: scope_
         }).then(function(popover) {

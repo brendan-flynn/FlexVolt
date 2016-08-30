@@ -20,13 +20,21 @@
         'flexvolt.appLogic',
         'flexvolt.taskLogic',
         'flexvolt.dsp',
-        'flexvolt.trace',
-        'flexvolt.rms',
-        'flexvolt.myometer',
+        // pages
+        'flexvolt.connection',
+        'flexvolt.demos',
+        'flexvolt.ekg',
         'flexvolt.godot',
         'flexvolt.home',
+        'flexvolt.hrv',
+        'flexvolt.intro',
+        'flexvolt.myometer',
+        'flexvolt.rms',
+        'flexvolt.settings',
+        'flexvolt.snake',
+        'flexvolt.trace'
     ])
-    
+
     .run(function($ionicPlatform, appLogic) {
       //editableOptions.theme = 'default'; // bootstrap3 theme. Can be also 'bs2', 'bs3', 'default'
 
@@ -61,28 +69,28 @@
 
         function doOnOrientationChange()
         {
-            switch(window.orientation) 
-            {  
+            switch(window.orientation)
+            {
                 case -90:
                     console.log('-landscape');
-                    break; 
+                    break;
                 case 90:
                     console.log('landscape');
-                    break; 
+                    break;
                 default:
                     console.log('portrait');
-                    break; 
+                    break;
             }
         }
 
         //    window.addEventListener('orientationchange', doOnOrientationChange);
 
-        window.onresize = function(){ 
+        window.onresize = function(){
             //console.log('INFO: Resized to w:'+window.innerWidth+', h:'+window.innerHeight);
             //setTimeout(doOnOrientationChange,0);
         };
-        
-        console.log('screen:  W:'+screen.width+'H:'+screen.height);
+
+        console.log('INFO: screen:  W:'+screen.width+'H:'+screen.height);
 
 
         // get version
@@ -110,20 +118,20 @@
         $ionicConfigProvider.backButton.previousTitleText(false).text('');
     })
     .config(function($stateProvider, $urlRouterProvider) {
-        
+
       function dataOn($stateParams, flexvolt){
           if (!$stateParams.demo){
               console.log('DEBUG: app dataOn');
               flexvolt.api.turnDataOn();
           }
       }
-      
+
       function exitFunction($stateParams, flexvolt){
         console.log('DEBUG: app dataOff');
         flexvolt.api.turnDataOff(); // always call - even if in demos or not actually connected!
 
         // return resize function control (in each page it is redefined to resize that animation/plot
-        window.onresize = function(){ 
+        window.onresize = function(){
             //console.log('INFO: Resized to w:'+window.innerWidth+', h:'+window.innerHeight);
             //setTimeout(doOnOrientationChange,0);
         };
@@ -152,17 +160,17 @@
             onExit: exitFunction
         })
 
-        .state('xy', {
-            url: '/xy/:demo',
+        .state('godot', {
+            url: '/godot/:demo',
             templateUrl: 'pages/godot/godot.html',
-            controller: 'XYCtrl',
+            controller: 'GodotCtrl',
             onEnter: dataOn,
             onExit: exitFunction
         })
 
         .state('snake', {
             url: '/snake/:demo',
-            templateUrl: 'templates/snake.html',
+            templateUrl: 'pages/snake/snake.html',
             controller: 'SnakeCtrl'
 //            onEnter: dataOn,
 //            onExit: exitFunction
@@ -178,47 +186,47 @@
 
         .state('ekg', {
             url: '/ekg',
-            templateUrl: 'templates/ekg.html',
+            templateUrl: 'pages/ekg/ekg.html',
             controller: 'EKGCtrl'
 //            onEnter: dataOn,
 //            onExit: exitFunction
         })
-        
+
         .state('hrv', {
             url: '/hrv',
-            templateUrl: 'templates/hrv.html',
+            templateUrl: 'pages/hrv/hrv.html',
             controller: 'HRVCtrl'
 //            onEnter: dataOn,
 //            onExit: exitFunction
         })
-        
+
         .state('demos', {
             url: '/demos',
-            templateUrl: 'templates/demos.html',
+            templateUrl: 'pages/demos/demos.html',
             controller: 'DemoCtrl'
         })
 
         .state('help', {
             url: '/help',
-            templateUrl: 'templates/help.html',
+            templateUrl: 'pages/help/help.html',
             controller: 'ConnectionCtrl'
         })
-        
+
         .state('intro', {
             url: '/intro',
-            templateUrl: 'templates/intro.html',
+            templateUrl: 'pages/intro/intro.html',
             controller: 'IntroCtrl'
         })
 
         .state('settings', {
             url: '/settings',
-            templateUrl: 'templates/settings.html',
+            templateUrl: 'pages/settings/settings.html',
             controller: 'SettingsCtrl'
         })
-        
+
         .state('connection', {
             url: '/connection',
-            templateUrl: 'templates/connection.html',
+            templateUrl: 'pages/connection/connection.html',
             controller: 'ConnectionCtrl'
         })
 
@@ -229,4 +237,3 @@
 
     });
 }());
-

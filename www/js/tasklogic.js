@@ -514,7 +514,6 @@ angular.module('flexvolt.taskLogic', [])
 
 
 .factory('hardwareLogic', ['storage', function(storage) {
-    console.log('initializing hardware settings');
     
     var channelList8 = [
         {text: '1', value: 1},
