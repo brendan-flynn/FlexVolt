@@ -53,6 +53,12 @@
         </div>
         <h3 align="center">TroubleShooting</h3>
         <div>
+            <h4>Timeouts</h4>
+            Initial Connection Timeout: <select ng-model="flexvolt.api.connection.initialWait" ng-options="wait for wait in flexvolt.api.connection.initialWaitList"></select>
+            Settings and Commands Timeout: <select ng-model="flexvolt.api.connection.connectedWait" ng-options="wait for wait in flexvolt.api.connection.connectedWaitList"></select>
+        </div>
+        <br>
+        <div>
             <p>Use the 'Send Bug Report' button below to file bug reports.
                 Please include a detailed description!
             </p>
