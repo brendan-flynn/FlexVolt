@@ -11,6 +11,7 @@ platforms
 
 # Builds
 **/*.crx
+**/*.pem
 **/*.zip
 **/*.apk
 **/*.ap_
