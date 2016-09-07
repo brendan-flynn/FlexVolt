@@ -15,9 +15,6 @@
       var afID;
       var frameCounts = 0;
       var stateInterval, myPopup, baselineData;
-      var GAIN = 1845; //
-      var factor = 1000*2.5/(GAIN*128);
-      var yMax = 1000*2.5/GAIN;
 
       var states = {
         getReady: {
@@ -59,8 +56,6 @@
       $scope.updating = false;
       $scope.baselining = false;
 
-      window.pl = myometerLogic;
-
       function updateTargets(chan,val){
         //console.log('DEBUG: updating target '+chan+' to '+val);
         $scope.pageLogic.settings.targets[$scope.pageLogic.settings.baselineMode][chan-1] = val;
@@ -71,27 +66,10 @@
         //console.log('DEBUG: updated labels: '+angular.toJson(myometerLogic.settings.labels));
       }
 
-//      $scope.editLabel = function(index){
-//        $scope.pageLogic.settings.labels[index] =
-//      };
-
       $scope.$on('$destroy', function(e){
         console.log('DEBUG: $destroy: '+angular.toJson(e));
         $scope.cancelBaseline();
       });
-//      $scope.$on('$locationChangeStart', function(e){
-//        console.log('DEBUG: $locationChangeStart: '+angular.toJson(e));
-//        console.log($state.current.url === currentUrl);
-//      });
-//      $scope.$on('$routeChangeStart', function(e){
-//        console.log('DEBUG: $routeChangeStart: '+angular.toJson(e));
-//        console.log($state.current.url === currentUrl);
-//      });
-//
-//      $scope.$on('$locationChangeSuccess', function(e){
-//        console.log('DEBUG: $locationChangeSuccess: '+angular.toJson(e));
-//        init();
-//      });
 
       $scope.onChange = function(){
         if (afID){
@@ -99,7 +77,7 @@
         }
         afID = undefined;
         $scope.updating  = true;
-        console.log('INFO: Settings changed');
+        //console.log('INFO: Settings changed');
         init();
 
         $scope.updating  = false;
@@ -142,13 +120,10 @@
               for (var i = 0; i < baselineData.length; i++){
                 sum += Math.abs(baselineData[i]);
               }
-              var avg = factor*sum/baselineData.length;
+              var avg = sum/baselineData.length;
               avg = Math.round(avg*100)/100;
 
-              $scope.pageLogic.settings.baselines[$scope.pageLogic.settings.baselineMode][$scope.baseline.channel].value = avg;
-//              $scope.view.baselines = myometerLogic.settings.baselines.slice(0,myometerLogic.settings.nChannels);
-
-              //console.log('DEBUG: updated baseline. myometerLogic: '+angular.toJson(myometerLogic));
+              $scope.pageLogic.settings.baselines[$scope.baseline.channel] = avg;
             }
 
           }
@@ -160,7 +135,6 @@
 
       // start state machine - fire processor function every second
       $scope.setBaseline = function(chan){
-        //console.log('DEBUG: setBaseline called with '+chan);
         $scope.baselining = true;
         $scope.baseline.channel = chan;
         //$scope.pageLogic.settings.baselines[$scope.pageLogic.settings.baselineMode][$scope.baseline.channel].value = 0;
@@ -174,7 +148,7 @@
 
       $scope.showLabelPopup = function(ind) {
         $scope.data = {
-          input: $scope.pageLogic.settings.labels[ind].name
+          input: $scope.pageLogic.settings.labels[ind]
         };
 
         // An elaborate, custom popup
@@ -227,7 +201,7 @@
 //      }
 
       $scope.clearBaseline = function(chan){
-        $scope.pageLogic.settings.baselines[$scope.pageLogic.settings.baselineMode][chan].value = 0;
+        $scope.pageLogic.settings.baselines[chan] = 0;
 //        $scope.view.baselines = myometerLogic.settings.baselines.slice(0,myometerLogic.settings.nChannels);
       };
 
@@ -235,7 +209,6 @@
         if ($scope.updating)return; // don't try to draw any graphics while the settings are being changed
 
         var dataIn = dataHandler.getData();
-        //console.log(dataIn);
         if (dataIn === null || dataIn === angular.undefined ||
             dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
 
@@ -244,7 +217,7 @@
           baselineData = baselineData.concat(dataIn[$scope.baseline.channel]);
         }
 
-        // convert data to downsampled and sacle-factored form
+        // convert data to downsampled and scale-factored form
         var dataOut = [];
         for (var k = 0; k < myometerLogic.settings.nChannels; k++){
           var sum = 0;
@@ -253,12 +226,12 @@
               sum += Math.abs(dataIn[k][i]);
             }
             if ($scope.pageLogic.settings.baselineMode === 'absolute'){
-              dataOut[k] = factor*sum/dataIn[k].length - $scope.pageLogic.settings.baselines[$scope.pageLogic.settings.baselineMode][k].value; // adjusting to actual
+              dataOut[k] = sum/dataIn[k].length - $scope.pageLogic.settings.baselines[k]; // adjusting to actual
             } else if ($scope.pageLogic.settings.baselineMode === 'relative'){
-              if ($scope.pageLogic.settings.baselines[$scope.pageLogic.settings.baselineMode][k].value){
-                dataOut[k] = 100 * (factor*sum/dataIn[k].length) / $scope.pageLogic.settings.baselines[$scope.pageLogic.settings.baselineMode][k].value; // adjusting to actual
+              if ($scope.pageLogic.settings.baselines[k]){
+                dataOut[k] = 100 * (sum/dataIn[k].length) / $scope.pageLogic.settings.baselines[k]; // adjusting to actual
               } else {
-                dataOut[k] = 100 * (factor*sum/dataIn[k].length) / yMax;
+                dataOut[k] = 100 * (sum/dataIn[k].length) / hardwareLogic.settings.vMax;
               }
             }
           } else {
@@ -297,7 +270,7 @@
                     dataHandler.addFilter(myometerLogic.settings.filters[i]);
                 }
     //            dataHandler.setMetrics(60);
-                myometerPlot.init('#myometerWindow', myometerLogic.settings, updateTargets);
+                myometerPlot.init('#myometerWindow', myometerLogic.settings, hardwareLogic.settings.vMax, updateTargets);
                 paintStep();
             });
         }

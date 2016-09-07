@@ -1,30 +1,33 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
 /* Author: Brendan Flynn
- * 
+ *
  * Stand-alone factory to handle all FlexVolt digital signal processing
- * 
- * 
+ *
+ *
  */
 
 (function () {
 'use strict';
-    
+
 angular.module('flexvolt.dsp', [])
 
 .factory('dataHandler', ['flexvolt', '$stateParams', 'storage', 'hardwareLogic', 'filters', 'file',
     function (flexvolt, $stateParams, storage, hardwareLogic, filters, file) {
-        
+
         window.file = file;
         // list of possible filters
         var filterList = [];
-        
+
         var recordData = false;
-        var recordedData = [];
+        var recordedDataTime = [];
+        var recordedDataRaw = [];
+        var recordedDataProcessed = [];
+        var timeStamp = 0;
         var recordedDataFile = undefined;
         var nChannels = 1; // default
 //        var filter, filterSettings, dftSettings, dftFlag = false;
@@ -34,26 +37,26 @@ angular.module('flexvolt.dsp', [])
             time: 0,
             startTime: undefined,
             randAmplitude: 10,
-            amplitudes: [20, 50, 20, 22, 70, 20, 10, 10],
+            amplitudes: [.20, .50, .20, .22, .70, .20, .10, .10],
             frequencies: [0.05, 10, 15, 20, 30, 50, 70, 100]
         };
-    
+
         var api = {
             init: undefined,
 //            setDftFilter: undefined,
 //            rmDftFilter: undefined,
 //            setFilter: undefined,
 //            rmFilter: undefined,
-            
+
             setMetrics: undefined,
             rmMetrics: undefined,
             getMetrics: undefined,
             getData: undefined,
-            
-            
+
+
             startRecording: undefined,
             stopRecording: undefined,
-            
+
             addFilter: undefined,
             rmFilter: undefined
         };
@@ -65,30 +68,21 @@ angular.module('flexvolt.dsp', [])
             var tmp = new Date();
             var tmpTime = tmp.getTime();
             var nPoints = Math.round(demoVals.fs*(tmpTime - demoVals.startTime)/1000);
-            
+
             demoVals.startTime = tmpTime;
-            
+
             for (var i = 0; i<nPoints; i++) {
                 demoVals.time += 1/demoVals.fs;
                 for (var ch = 0; ch < nChannels; ch++){
                     if (i === 0){
                         gen[ch] = [];
                     }
-                    gen[ch][i] = Math.round(G*demoVals.amplitudes[ch]*Math.sin(demoVals.time*2*Math.PI*demoVals.frequencies[ch]));
-//                    if (demoVals.time > 3 && demoVals.time < 5 && (ch === 2 || ch === 3)){
-//                      gen[ch][i] = Math.round(G*demoVals.amplitudes[ch]*(1+demoVals.time-3)*(0.9+0.2*Math.random()));
-//                    } else if (demoVals.time >= 5 && demoVals.time < 7 && (ch === 2 || ch === 3)){
-//                      gen[ch][i] = Math.round(G*demoVals.amplitudes[ch]*(1+2-(demoVals.time-5))*(0.9+0.2*Math.random()));
-//                    } else {
-//                      gen[ch][i] = Math.round(G*demoVals.amplitudes[ch]*(1+0.05*Math.random()));
-//                    }
-                    
-                    //gen[ch][i] += demoVals.randAmplitude*2*(Math.random()-0.5); // random noise
+                    gen[ch][i] = G*demoVals.amplitudes[ch]*Math.sin(demoVals.time*2*Math.PI*demoVals.frequencies[ch]);
                 }
             }
             return gen;
         }
-        
+
         // memory management - completely remove all reference to filter objects
         // so garbage collector will mark and delete
         function clearFilterList(){
@@ -100,14 +94,14 @@ angular.module('flexvolt.dsp', [])
             }
             filterList = [];
         }
-        
+
         // Handles changes to settings in real time
         api.init = function(nChan){
             var tmp = new Date();
             demoVals.startTime = tmp.getTime();  // only needed for demo simulation
             demoVals.fs = hardwareLogic.settings.frequency;
             nChannels = nChan;  // have a default of 1
-            
+
             // clear all filters (otherwise filters get carried between pages!
 //            api.rmDftFilter();
 //            api.rmFilter();
@@ -122,15 +116,15 @@ angular.module('flexvolt.dsp', [])
 //                dftfilter.init(dftSettings);
 //            }
         };
-        
+
         api.addFilter = function(newFilter){
             for (var i = 0; i < nChannels; i++){
-                filterList[i].push(new filters(newFilter));
+                filterList[i].push(new filters(newFilter, hardwareLogic.settings.frequency));
             }
         };
-        
-        console.log('filterList: '+filterList);
-        
+
+        console.log('DEBUG: filterList: '+filterList);
+
 //        //   DFT-FIR  Discrete fourier transform-based Finite impulse response filter
 //        api.setDftFilter = function(settings){
 //            if (settings.filterType !== 'NONE'){
@@ -139,10 +133,10 @@ angular.module('flexvolt.dsp', [])
 //                dftFlag = true;
 //            }
 //        };
-//        
+//
 //        api.rmDftFilter = function(){dftFlag = false;};
-//        
-//        
+//
+//
 //        //  Other user-selected/designed filters
 //        api.setFilter = function(filtertype, settings){
 //            filter = undefined;
@@ -154,9 +148,9 @@ angular.module('flexvolt.dsp', [])
 //                console.log('WARNING: dsp.setFilter called without a proper filter: '+filtertype+', '+JSON.stringify(settings));
 //            }
 //        };
-//        
+//
 //        api.rmFilter = function(){filter = undefined;};
-        
+
         // Set metrics buffering
         api.setMetrics = function(nDataPoints){
             metricsFlag = true;
@@ -165,11 +159,11 @@ angular.module('flexvolt.dsp', [])
                 metricsNPoints = nDataPoints; // default
             }
         };
-        
+
         api.rmMetrics = function(){metricsFlag = false;};
-        
+
         function addToMetrics(data){
-            for (var ch in data){
+            for (var ch = 0; ch < data.length; ch++){
                 if (metricsArr[ch] !== angular.undefined){
                     metricsArr[ch] = metricsArr[ch].concat(data[ch]);
                 } else {
@@ -184,82 +178,100 @@ angular.module('flexvolt.dsp', [])
             // Get Data (real or simulated)
             if ($stateParams.demo){
                 // simulate data
-                parsedData = generateData(); 
+                parsedData = generateData();
             } else {
                 parsedData = flexvolt.api.getDataParsed();
             }
-            
+
             if (parsedData[0] === angular.undefined || parsedData[0].length <= 0){
                 for (var i = 0; i < nChannels; i++){
                     parsedData[i] = [];
                 }
                 return parsedData;
             }
-            
-            // save data BEFORE altering
+
+            // save raw data if specified
             if (recordData){
-                for (var i = 0; i < nChannels; i++){
-                    recordedData[i].data = recordedData[i].data.concat(parsedData[i]);
+                var t = Math.round((new Date()).getTime()/1000) - timeStamp;
+                for (var i = 0; i < parsedData[0].length; i++){
+                    recordedDataTime.push(t);
                 }
-                if (recordedData[0].data.length > 5000) {
+                for (var i = 0; i < nChannels; i++){
+                    recordedDataRaw[i] = recordedDataRaw[i].concat(parsedData[i]);
+                }
+            }
+
+            // Make this faster by only processing nChannels
+            parsedData.splice(nChannels);
+
+            for (var i = 0; i < nChannels; i++){
+                for (var ind in filterList[i]){
+                    parsedData[i] = filterList[i][ind].apply(parsedData[i], hardwareLogic.settings.frequency );
+                }
+            }
+
+            // save processed data if specified
+            if (recordData) {
+                for (var i = 0; i < nChannels; i++){
+                    recordedDataProcessed[i] = recordedDataProcessed[i].concat(parsedData[i]);
+                }
+                if (recordedDataProcessed[0].length > 5000) {
                   saveRecordedData();
                 }
             }
-            
-            // Make this faster by only processing nChannels
-            parsedData.splice(nChannels);
-            
-            for (var i = 0; i < nChannels; i++){
-                for (var ind in filterList[i]){
-                    parsedData[i] = filterList[i][ind].apply(parsedData[i]);
-                    //console.log(parsedData[i]);
-                }
-            }
-            
+
             // Frequency Filter if set
 //            if (dftFlag){
 //                parsedData = dftfilter.apply(parsedData);
 //            }
-            
+
             // Calculate metrics if set (using DFT-filtered data array (NOT structurally changed RMS-filtered structure)
             if (metricsFlag) {
                 addToMetrics(parsedData);
             }
-            
+
             // Secondary Filter if set (rms, smooth, averaging, etc)
 //            if (filter !== angular.undefined){
 //                parsedData = filter.apply(parsedData);
 //            }
             return parsedData;
         };
-        
+
         function initRecordedData() {
             // clear recorded data
-            recordedData = [];
+            recordedDataRaw = [];
+            recordedDataProcessed = [];
+            recordedDataTime = ['Time (seconds)'];
             for (var i = 0; i < nChannels; i++){
-                recordedData[i] = {
-                  channel: i,
-                  data: []
-                };
+                recordedDataRaw[i] = ['Chan ' + (i+1) + ' Raw'];
+                recordedDataProcessed[i] = ['Chan ' + (i+1) + 'Processed'];
             }
+            timeStamp = Math.round((new Date()).getTime()/1000);
         }
-        
+
         function clearRecordedData() {
           // clear recorded data
-            recordedData = [];
-            for (var i = 0; i < nChannels; i++){
-                recordedData[i] = {
-                  data: []
-                };
-            }
+          recordedDataRaw = [];
+          recordedDataProcessed = [];
+          recordedDataTime = [];
+          for (var i = 0; i < nChannels; i++){
+              recordedDataRaw[i] = [];
+              recordedDataProcessed[i] = [];
+          }
         }
-        
+
         function saveRecordedData(){
-            var tmp = recordedData.slice(0);
+            var tmp = [recordedDataTime];
+            for (var i = 0; i < nChannels; i ++){
+              tmp.push(recordedDataRaw[i]);
+            }
+            for (var i = 0; i < nChannels; i ++){
+              tmp.push(recordedDataProcessed[i].map(function(val){return typeof(val)==='number'?val.toFixed(2):val}));
+            }
             clearRecordedData();
             file.writeFile(recordedDataFile, tmp);
         };
-        
+
         api.startRecording = function(){
             initRecordedData();
             recordData = true;
@@ -270,26 +282,24 @@ angular.module('flexvolt.dsp', [])
                 +d.getSeconds();
             file.openFile(recordedDataFile);
         };
-        
+
         api.stopRecording = function(){
             recordData = false;
             // write and close
-            file.writeFile(recordedDataFile, recordedData);
+            saveRecordedData();
             file.closeFile();
-            recordedData = undefined;
             recordedDataFile = undefined;
         };
 
         api.getMetrics = function(){
             var ret = [];
-            for (var ch in metricsArr){
+            for (var ch = 0; ch < metricsArr.length; ch++){
                 ret[ch] = {
                     minAmplitude: undefined,
                     maxAmplitude: undefined,
                     meanAmplitude: undefined
                 };
                 var tmp = metricsArr[ch];
-                //console.log(tmp);
                 ret[ch].minAmplitude = Math.min.apply(Math,tmp);
                 ret[ch].maxAmplitude = Math.max.apply(Math,tmp);
                 var tmpSum = 0;
@@ -356,7 +366,7 @@ angular.module('flexvolt.dsp', [])
 //      if (windowSize === angular.undefined) {
 //          windowSize = dLength;
 //      }
-//     
+//
 //      while (dataParsed[0] !== angular.undefined && dataParsed[0].length >= windowSize){
 //          var dataRMS = [];
 //          for (var ch in dataParsed){
@@ -382,7 +392,7 @@ angular.module('flexvolt.dsp', [])
 //    var LOW_PASS = 'LOW_PASS';
 //    var HIGH_PASS = 'HIGH_PASS';
 //    var BAND_PASS = 'BAND_PASS';
-//  
+//
 //    function bessel(x) {
 //        // zero order Bessel function of the first kind
 //        var eps = 1.0e-6; // accuracy parameter
@@ -399,7 +409,7 @@ angular.module('flexvolt.dsp', [])
 //        }
 //        return s;
 //    }
-//    
+//
 //    function computeOrder() {
 //        // estimate filter order
 //        order = 2 * Math.round((atten - 7.95) / (14.36*trband/fN) + 1.0);
@@ -413,11 +423,11 @@ angular.module('flexvolt.dsp', [])
 //        if (atten <= 21.0) {kaiserV = 0.0;}
 //
 //    }
-//    
+//
 //    function resetData(){
 //        dataParsed = [];
 //    }
-//  
+//
 //  // api... contains the API that will be exposed via the 'flexvolt' service.
 //    var api = {
 //        init: undefined,
@@ -432,12 +442,12 @@ angular.module('flexvolt.dsp', [])
 //        f2=settings.f2;
 //        atten=settings.atten;
 //        trband=settings.trband;
-//        
+//
 //        computeOrder();
 //        bufferLen = order + Math.round(2*fN/30)+1; // set buffer to order + max number of samples expected per frame
 //        console.log('DEBUG: filter oder (# taps): '+order+', buffer length: '+bufferLen);
 //        resetData();
-//        
+//
 //        // window function values
 //        var I0alpha = 1/bessel(kaiserV);
 //        var m = order>>1;
@@ -478,7 +488,7 @@ angular.module('flexvolt.dsp', [])
 //    // dataIn is a parsed data object - with an array for each channel
 //    api.apply = function(dataIn){
 //        var dataObject;
-//        
+//
 //        for (var ch in dataIn){
 //            if (dataParsed[ch] !== angular.undefined){
 //                dataParsed[ch] = dataParsed[ch].concat(dataIn[ch]);
@@ -486,7 +496,7 @@ angular.module('flexvolt.dsp', [])
 //                dataParsed[ch] = dataIn[ch];
 //            }
 //        }
-//             
+//
 //        if (dataParsed[0] !== angular.undefined && dataParsed[0].length >= bufferLen){
 //            dataObject = [];
 //            for (var ch in dataIn){
@@ -499,7 +509,7 @@ angular.module('flexvolt.dsp', [])
 //
 //        return dataObject;
 //    };
-//    
+//
 //    function fir(ip, nCalc){
 //        //console.log('ip.length:'+ip.length+', nCalc:'+nCalc);
 //        var op = new Array(nCalc);
@@ -516,7 +526,7 @@ angular.module('flexvolt.dsp', [])
 //}])
 
 .factory('filters', [function(){
-    
+
     var filters = {
         Rectify: {
             apply: rectify
@@ -548,16 +558,17 @@ angular.module('flexvolt.dsp', [])
             init: dftInit
         }
     };
-    
-    var Filter = function(newFilter){
+
+    var Filter = function(newFilter, frequency){
         this.filterType = newFilter.type;
         this.params = (newFilter.params)?angular.copy(newFilter.params):{}; // deep copy, so each object actually has its own params
+        this.params.frequency = frequency;
         if (filters[this.filterType] && filters[this.filterType].init) {filters[this.filterType].init(this.params);}
         this.apply = function(data){
             return filters[this.filterType].apply(data,this.params);
         };
     };
-    
+
     function rectify(data, params){
         //console.log('Rectify apply');
         for (var i in data){
@@ -565,7 +576,7 @@ angular.module('flexvolt.dsp', [])
         }
         return data;
     }
-    
+
     function gain(data, params){
         //console.log('Gain apply');
         for (var i in data){
@@ -573,7 +584,7 @@ angular.module('flexvolt.dsp', [])
         }
         return data;
     }
-    
+
     function offset(data, params){
         //console.log('Offset apply'+JSON.stringify(data));
         for (var i in data){
@@ -582,7 +593,7 @@ angular.module('flexvolt.dsp', [])
         //console.log(JSON.stringify(data));
         return data;
     }
-    
+
     function average(dataIn, params){
         function calc(dIn, windowSize){
             var w = Math.floor(windowSize/2);
@@ -599,9 +610,9 @@ angular.module('flexvolt.dsp', [])
         params.buffer = params.buffer.concat(dataIn);
         var dataOut = calc(params.buffer, params.windowSize.value);
         params.buffer.splice(0,params.buffer.length-2*Math.floor(params.windowSize.value/2));
-        return dataOut; 
+        return dataOut;
     }
-    
+
     function rms(dataIn, params){
         //console.log('dataIn: '+angular.toJson(dataIn));
         function calc(dIn, windowSize){
@@ -625,12 +636,12 @@ angular.module('flexvolt.dsp', [])
 //            }
 //        }
         params.buffer = params.buffer.concat(dataIn);
-        var dataOut = calc(params.buffer, params.windowSize.value);
-        params.buffer.splice(0,params.buffer.length-2*Math.floor(params.windowSize.value/2));
+        var dataOut = calc(params.buffer, params.windowSize.value*params.frequency/1000);
+        params.buffer.splice(0,params.buffer.length-2*Math.floor(params.windowSize.value*params.frequency/1000/2));
         //console.log('dataOut: '+angular.toJson(dataOut));
         return dataOut;
     }
-    
+
     function velocity(dataIn, params){
         function calc(dIn, windowSize){
             var w = Math.floor(windowSize/2);
@@ -653,31 +664,32 @@ angular.module('flexvolt.dsp', [])
         var dataOut = calc(params.buffer, params.windowSize.value);
         params.buffer.splice(0,params.buffer.length-2*Math.floor(params.windowSize.value/2));
         //console.log('dataOut: '+angular.toJson(dataOut));
-        return dataOut; 
+        return dataOut;
     }
-    
+
     function area(dataIn, params){
         var dataOut = [];
             for (var i in dataIn){
                 params.storedArea += dataIn[i]/params.reducingFactor.value;
                 dataOut[i] = params.storedArea;
             }
-        return dataOut; 
+        return dataOut;
     }
-    
-    // DFT filter - low-pass, high-pass, band-pass    
+
+    // DFT filter - low-pass, high-pass, band-pass
     function dftInit(params){
+        //console.log('dft params.frequency: ' + params.frequency);
         //console.log('DEBUG: setting dft filter: '+JSON.stringify(params));
-        
+
         params.atten = 40; // consider allowing user to change these
         params.trband = 5; // consider allowing user to change these
-        
+
         function computeOrder(atten, trband, fN) {
             // estimate filter order
             var order =  2 * Math.round((atten - 7.95) / (14.36*trband/fN) + 1.0);
             return order;
         }
-        
+
         function computeKaiser(atten){
             // estimate Kaiser window parameter
             var kaiserV;
@@ -690,7 +702,7 @@ angular.module('flexvolt.dsp', [])
             if (atten <= 21.0) {kaiserV = 0.0;}
             return kaiserV;
         }
-        
+
         function bessel(x) {
             // zero order Bessel function of the first kind
             var eps = 1.0e-6; // accuracy parameter
@@ -707,16 +719,16 @@ angular.module('flexvolt.dsp', [])
             }
             return s;
         }
-        
-        var fN=params.fS.value*0.5;
-        
+
+        var fN=params.frequency*0.5;
+
         params.order = computeOrder(params.atten, params.trband, fN); // this will be used later
         var kaiserV = computeKaiser(params.atten); // this will be used to cap the buffer
         params.bufferLen = params.order + Math.round(2*fN/30)+1; // set buffer to order + max number of samples expected per frame
         //console.log('DEBUG: filter oder (# taps): '+params.order+', buffer length: '+params.bufferLen);
-        
+
         params.buffer = [];
-        
+
         // window function values
         var I0alpha = 1/bessel(kaiserV);
         var m = params.order>>1;
@@ -724,7 +736,7 @@ angular.module('flexvolt.dsp', [])
         for (var n=1; n <= m; n++) {
             win[n] = bessel(kaiserV*Math.sqrt(1.0 - Math.pow((n/m),2))) * I0alpha;
         }
-        
+
         var w0 = 0.0;
         var w1 = 0.0;
         switch (params.bandType.value) {
@@ -783,9 +795,9 @@ angular.module('flexvolt.dsp', [])
             }
             return op;
         }
-    
+
         var dataOut = [];
-        
+
         // add data onto buffer, only if input is defined and length is not 0
         if (dataIn !== angular.undefined && dataIn.length > 0){
             if (params.buffer !== angular.undefined){
@@ -794,7 +806,7 @@ angular.module('flexvolt.dsp', [])
                 params.buffer = dataIn;
             }
         }
-        
+
         //console.log('prefilteredData: '+JSON.stringify(params.buffer));
         // once buffer is long enough, start filtering
         if (params.buffer !== angular.undefined && params.buffer.length >= params.bufferLen){
@@ -804,7 +816,7 @@ angular.module('flexvolt.dsp', [])
             dataOut = fir(params.buffer);
             params.buffer.splice(0,1+params.buffer.length - params.order); // go back to min buffer size
         }
-        
+
         return dataOut;
     };
 
@@ -813,7 +825,7 @@ angular.module('flexvolt.dsp', [])
 }])
 
 ;
-  
-  
-  
+
+
+
 }());

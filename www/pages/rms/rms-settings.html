@@ -25,9 +25,10 @@
               Window Size
             </h3>
             <p>&nbsp&nbsp&nbsp
-              <label ng-repeat="item in pageLogic.xMaxList">
+              <!-- <label ng-repeat="item in pageLogic.xMaxList">
                   <input type="radio" ng-model="pageLogic.settings.xMax" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
-              </label>
+              </label> -->
+              {{pageLogic.settings.windowMin}} <input type="range" step="1" min="{{pageLogic.settings.windowMin}}" max="{{pageLogic.settings.windowMax}}" ng-model="pageLogic.settings.xMax" ng-change="onChange()" style="vertical-align:middle"> {{pageLogic.settings.windowMax}}<br/>
             </p>
 
             <filter-options ng-if="mobile"></filter-options>

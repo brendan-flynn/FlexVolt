@@ -27,7 +27,6 @@
             }
             afID = undefined;
             $scope.updating  = true;
-            console.log('INFO: Settings changed');
             init();
 
             $scope.updating  = false;
@@ -52,8 +51,7 @@
         }
 
         function updateMetrics(){
-            var metrics = dataHandler.getMetrics();
-            $scope.metrics = metrics[0];
+            $scope.metrics = dataHandler.getMetrics();
         }
 
         function paintStep(){
@@ -80,7 +78,7 @@
                         dataHandler.addFilter(rmsTimeLogic.settings.filters[i]);
                     }
                     dataHandler.setMetrics(60);
-                    rmsTimePlot.init('#rmsTimeWindow', rmsTimeLogic.settings.nChannels, rmsTimeLogic.settings.zoomOption, rmsTimeLogic.settings.xMax, hardwareLogic.settings.frequency);
+                    rmsTimePlot.init('#rmsTimeWindow', rmsTimeLogic.settings.nChannels, rmsTimeLogic.settings.zoomOption, rmsTimeLogic.settings.xMax, hardwareLogic.settings.frequency, hardwareLogic.settings.vMax);
                     paintStep();
                 });
         }

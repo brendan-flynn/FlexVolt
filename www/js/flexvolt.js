@@ -55,6 +55,18 @@ angular.module('flexvolt.flexvolt', [])
     var pollingTimeout, pollingInterval;
     var updateSettingsRepeatCount = 0;
 
+    var GAIN = 1845; // Primary gain = 405.  Secondary gain =
+    var SupplyVoltageBattery = 3.7;
+    var SupplyVoltageUSB = 5.0;
+    var VMaxBattery = (1000*(SupplyVoltageBattery/2)/GAIN).toFixed(2); //mV // 1.35
+    var VMaxUSB = (1000*(SupplyVoltageUSB/2)/GAIN).toFixed(2); //mV // 1.35
+    var FactorBattery8Bit = VMaxBattery/128; // 0.0105
+    var FactorBattery10Bit = VMaxBattery/512; // 0.0105
+    var FactorUSB8Bit = VMaxUSB/128; // 0.0105
+    var FactorUSB10Bit = VMaxUSB/512; // 0.0105
+    var factor8Bit = FactorUSB8Bit; // defaults - USB, since 5 Volt window will show all of both sensor outputs
+    var factor10Bit = FactorUSB10Bit; // defaults - USB, since 5 Volt window will show all of both sensor outputs
+
     //promise bucket
     var deferred = {};
 
@@ -72,7 +84,7 @@ angular.module('flexvolt.flexvolt', [])
         flexvoltPortList: [],
         tryList: undefined,
         currentPort: undefined,
-        connection: {
+        connection: { // properties dependent on the device connected
             initialWait: undefined,
             connectedWait: undefined,
             version: undefined,
@@ -125,6 +137,9 @@ angular.module('flexvolt.flexvolt', [])
             api.settings.prescalerPic = 2;
             api.settings.downSampleCount = 0;
             api.settings.plugTestDelay = 0;
+
+            // set to default battery mode...
+            hardwareLogic.settings.vMax = VMaxUSB;
         }
 
         api.connection.initialWaitList = [500, 1000, 5000, 10000];
@@ -524,7 +539,23 @@ angular.module('flexvolt.flexvolt', [])
                             api.connection.serialNumber = Number((data[1]*(2^8))+data[2]);
                             api.connection.modelNumber = Number(data[3]);
                             api.connection.model = MODEL_LIST[api.connection.modelNumber];
-                            console.log('INFO: Version = '+api.connection.version+'. SerialNumber = '+api.connection.serialNumber+'. MODEL = '+api.connection.model+', from model# '+api.connection.modelNumber);
+                            if (api.connection.modelNumber <= 2) {
+                              // It's a USB connection - 5 Volts
+                              hardwareLogic.settings.vMax = VMaxUSB;
+                              factor8Bit = FactorUSB8Bit;
+                              factor10Bit = FactorUSB10Bit;
+                            } else if (api.connection.modelNumber >= 3) {
+                              // It's a Bluetooth connection, and 3.7 V battery
+                              hardwareLogic.settings.vMax = VMaxBattery;
+                              factor8Bit = FactorBattery8Bit;
+                              factor10Bit = FactorBattery10Bit;
+                            }
+                            console.log('INFO: Version = '+api.connection.version+
+                                        '. SerialNumber = '+api.connection.serialNumber+
+                                        '. MODEL = '+api.connection.model+
+                                        ', from model# '+api.connection.modelNumber +
+                                        ', supply voltage max = '+hardwareLogic.settings.vMax +
+                                        ', factors: 8Bit: ' + factor8Bit + ', 10Bit: ' + factor10Bit);
                             dIn = dIn.slice(4);
                             deferred.polling.resolve();
                         } else {
@@ -732,13 +763,13 @@ angular.module('flexvolt.flexvolt', [])
                         if (tmp === api.readParams.expectedChar){
                             if (!hardwareLogic.settings.bitDepth10) {
                                 for (var i = 0; i < hardwareLogic.settings.nChannels; i++){
-                                    dataParsed[i][dataInd] = dataIn[readInd++] - api.readParams.offset; // centering on 0!
+                                    dataParsed[i][dataInd] = factor8Bit*(dataIn[readInd++] - api.readParams.offset); // centering on 0!
                                 }
                                 dataInd++;
-                            } else {
+                            } else if (hardwareLogic.settings.bitDepth10) {
                                 var tmpLow = dataIn[readInd+hardwareLogic.settings.nChannels];
                                 for (var i = 0; i < hardwareLogic.settings.nChannels; i++){
-                                    dataParsed[i][dataInd] = (dataIn[readInd++]<<2) + (tmpLow & 3) - api.readParams.offset; // centering on 0!
+                                    dataParsed[i][dataInd] = factor10Bit((dataIn[readInd++]<<2) + (tmpLow & 3) - api.readParams.offset); // centering on 0!
                                     tmpLow = tmpLow >> 2;
                                 }
                                 readInd++; // for the tmpLow read

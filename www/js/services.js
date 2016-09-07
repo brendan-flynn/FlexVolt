@@ -1,13 +1,13 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
 /* Original Author:  Brendan Flynn
- * 
+ *
  * main services factory for app
- * 
+ *
  */
 
 (function () {
@@ -16,7 +16,7 @@
 angular.module('flexvolt.services', [])
 
 .factory('bluetoothPlugin', ['$timeout', function($timeout){
-    
+
     var bluetoothPlugin = {
         isConnected: undefined,
         connect: undefined,
@@ -27,7 +27,7 @@ angular.module('flexvolt.services', [])
         write: undefined,
         subscribe: undefined
     };
-    
+
     ionic.Platform.ready(function() {
         window.device = ionic.Platform.device();
         window.platform = ionic.Platform.platform();
@@ -42,12 +42,12 @@ angular.module('flexvolt.services', [])
             bluetoothPlugin.subscribe = bluetoothSerial.subscribeRawData;
             bluetoothPlugin.write = bluetoothSerial.write;
             bluetoothPlugin.isConnected = function(connectedCB, notConnectedCB, errFunc){
-                try{ 
+                try{
                     bluetoothSerial.isconnected(connectedCB, notConnectedCB);
                 } catch(err) {errFunc(err);}
             };
         } else {
-            // For chrome.serial, include wrappers to handle different args.  
+            // For chrome.serial, include wrappers to handle different args.
             // bluetoothSerial is the template for args
             window.flexvoltPlatform = 'chrome';
             console.log('INFO: ionic ready, using chrome, platform: '+window.platform);
@@ -192,20 +192,20 @@ angular.module('flexvolt.services', [])
                 } catch(err) {errFunc(err);}
             };
         }
-        
+
     });
-    
+
     return bluetoothPlugin;
 }])
 
 //.factory('clipboard', function(){
-//    
-//    
+//
+//
 //    var clipboard = {
 //        copy: undefined,
 //        paste: undefined
 //    };
-//    
+//
 //    ionic.Platform.ready(function() {
 //        if (window.cordova && window.cordova.plugins !== angular.undefined && window.cordova.plugins.clipboard !== angular.undefined) {
 //            //console.log('initializing clipboard');
@@ -216,9 +216,9 @@ angular.module('flexvolt.services', [])
 //            clipboard.copy = function(){};
 //            clipboard.paste = function(){};
 //        }
-//        
+//
 //    });
-//    
+//
 //    return clipboard;
 //})
 .factory('file', ['$q', 'storage', function($q, storage){
@@ -230,8 +230,8 @@ angular.module('flexvolt.services', [])
         readFile: undefined,
         writeFile: undefined
     };
-    
-    
+
+
     storage.get('saveDirectory')
       .then(function(tmp){
           if (tmp){
@@ -240,7 +240,7 @@ angular.module('flexvolt.services', [])
               file.id = tmp['id'];
               chrome.fileSystem.isRestorable(file.id, function(isRestorable){
                 if (isRestorable){
-                  console.log('isrestorable');
+                  //console.log('isrestorable');
                   chrome.fileSystem.restoreEntry(file.id, gotEntry)
                 } else {
                   file.currentEntry = undefined;
@@ -248,45 +248,41 @@ angular.module('flexvolt.services', [])
                   file.id = undefined;
                 }
               });
-              console.log('DEBUG: settings: '+angular.toJson(tmp));
+              console.log('DEBUG: file settings: '+angular.toJson(tmp));
           }
       });
-    
+
     function gotEntry(entry){
       var deferred = $q.defer();
-      console.log('entry: '+angular.toJson(entry));
       file.currentEntry = entry;
       file.id = chrome.fileSystem.retainEntry(file.currentEntry)
-      console.log('file.currentEntry: '+angular.toJson(file.currentEntry));
       chrome.fileSystem.getDisplayPath(file.currentEntry, function(displayPath){
         if (!file.currentEntry || !file.currentEntry.isDirectory){
-            console.log('displayPath: none');
             file.currentEntry = undefined;
-            file.path = undefined; 
+            file.path = undefined;
             file.id = undefined;
-            console.log('resolving gotEntry, no entry');
+            console.log('DEBUG: Resolving gotEntry with no entry and no displayPath');
             deferred.resolve();
         } else {
             chrome.fileSystem.getDisplayPath(file.currentEntry, function(displayPath){
-              console.log('displayPath: '+angular.toJson(displayPath));
+              console.log('INFO: Loaded displayPath: '+angular.toJson(displayPath));
               file.path = displayPath;
               storage.set({saveDirectory:{path: file.path, entry: file.currentEntry, id: file.id }});
-              console.log('resolving gotEntry');
               deferred.resolve();
             });
         }
       });
-      
+
       return deferred.promise;
     }
-    
+
     function errorHandler(e){
         console.log('ERROR: in fileSystem: '+angular.toJson(e));
     };
-    
+
     function convertToCSV(dataObj) {
         var str = '';
-       
+
         var nPts = dataObj[0].data.length;
 
         if (typeof(dataObj[0].channel) !== 'undefined') {
@@ -296,10 +292,10 @@ angular.module('flexvolt.services', [])
           }
           str += header + '\r\n';
         }
-        
+
         for (var jPts = 0; jPts < nPts; jPts++) {
             var line = '';
-            
+
             for (var i = 0; i < dataObj.length; i++) {
                 line += dataObj[i].data[jPts]+',';
             }
@@ -309,8 +305,26 @@ angular.module('flexvolt.services', [])
 
         return str;
     }
-      
-    
+
+    function convertArrToCSV(dataArr) {
+        var str = '';
+
+        var nPts = dataArr[0].length;
+
+        for (var jPts = 0; jPts < nPts; jPts++) {
+            var line = '';
+
+            for (var i = 0; i < dataArr.length; i++) {
+                line += dataArr[i][jPts]+',';
+            }
+
+            str += line + '\r\n';
+        }
+
+        return str;
+    }
+
+
     if (window.cordova) {
         file.getDirectory = function(){
           console.log('cordova file getDirectory');
@@ -321,29 +335,28 @@ angular.module('flexvolt.services', [])
         file.writeFile = function(){
           console.log('cordova file writeFile');
         };
-        
+
     } else if (chrome && chrome.fileSystem) {
 
         file.getDirectory = function(){
           var deferred = $q.defer();
-          
+
           chrome.fileSystem.chooseEntry({type:'openDirectory'}, function(entry){
             gotEntry(entry).
               then(function(){
-                console.log('resolving after gotEntry');
                 deferred.resolve();
               });
           });
-          
+
           return deferred.promise;
         };
-        
+
         var openFile = function(filename){
           // handle extensions
           if (filename.indexOf('.') < 0){
             filename = filename + '.txt';
           }
-          
+
           chrome.fileSystem.getWritableEntry(file.currentEntry, function(entry){
             if (chrome.runtime.lastError) {
                 console.log('ERROR: Chrome runtime error during fileSystem.getWritableEntry: '+chrome.runtime.lastError.message);
@@ -352,70 +365,71 @@ angular.module('flexvolt.services', [])
               newEntry.createWriter(function(writer){
 
                 writer.onwriteend = function(){
-                  console.log('Write completed.');
+                  //console.log('Write completed.');
                 };
-                
+
                 writer.onwriteerror = function(e){
-                  console.log('Error writing file.');
+                  console.log('ERROR: Error writing file: ' + JSON.stringify(e));
                 };
-                
+
                 file.writer = writer;
               }, errorHandler);
             }, errorHandler);
           });
         };
-        
+
         var writeFile = function(data){
           // convert to csv, then text blob
-          data = convertToCSV(data);
+          if (typeof(data) === 'object' && data.length === undefined) {
+              data = convertToCSV(data);
+          } else if (typeof(data) === 'object' && data.length !== undefined) {
+              data = convertArrToCSV(data);
+          }
           data = new Blob([data]);
-          
+
           file.writer.write(data,{type: 'text/plain'});
         };
-        
+
         file.openFile = function(filename){
           if (!file.currentEntry || !file.currentEntry.isDirectory){
             file.getDirectory().
               then(function(){
-                console.log('file.getDirectory.then, now writing');  
                 openFile(filename);
               });
           } else {
-            console.log('already have a directory - writing');
+            //console.log('already have a directory - writing');
             openFile(filename);
           }
         };
-        
+
         file.closeFile = function(){
           file.writer = undefined;
         };
-        
+
         file.writeFile = function(filename, data){
           if (!file.writer){
             file.openFile().
               then(function(){
-                console.log('file.openFile.then, now writing');  
                 writeFile(data);
               });
           } else {
-            console.log('already have a directory - writing');
             writeFile(data);
           }
         };
-        
+
         window.fs = chrome.fileSystem;
     } else {
         file.getDirectory = function(){
-          console.log('unknown os file getDirectory');
+          console.log('WARNING: unknown os file getDirectory');
         };
         file.readFile = function(){
-          console.log('unknown os file readFile');
+          console.log('WARNING: unknown os file readFile');
         };
         file.writeFile = function(){
-          console.log('unknown os file writeFile');
+          console.log('WARNING: unknown os file writeFile');
         };
     }
-    
+
     return file;
 }])
 .factory('storage', ['$window', '$q', function($window, $q) {
@@ -425,11 +439,11 @@ angular.module('flexvolt.services', [])
         load: undefined,
         dataStore: undefined
     };
-    
+
     var backupStorage = {};
-    
+
     var readyDeferred = $q.defer();
-        
+
     if (window.cordova) {
         // window.localStorage is synchronous, so we can load as needed
         storage.set = function(obj) {
@@ -498,7 +512,7 @@ angular.module('flexvolt.services', [])
         };
         readyDeferred.resolve();
     }
-    
+
     return storage;
 }])
 ;

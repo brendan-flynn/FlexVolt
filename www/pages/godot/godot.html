@@ -19,10 +19,10 @@
                 <span ng-if="fakeData.useRandom">Demo Data: Generate Random</span>
             </ion-toggle>
             <span>Use Settings (top right) to Change Dot Mode</span><br/>
-            <label>Simulate X Signal: {{fakeData.x}}</label>&nbsp&nbsp
-            {{bounds.min}} <input type="range" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="fakeData.x" style="vertical-align:middle"> {{bounds.max}}<br/>
-            <label>Simulate Y Signal: {{fakeData.y}}</label>&nbsp&nbsp
-            {{bounds.min}} <input type="range" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="fakeData.y" style="vertical-align:middle"> {{bounds.max}}<br/>
+            <label>Simulate X Signal: {{fakeData.x | number:2}}</label>&nbsp&nbsp
+            {{bounds.min}} <input type="range" step="0.05" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="fakeData.x" style="vertical-align:middle"> {{bounds.max}}<br/>
+            <label>Simulate Y Signal: {{fakeData.y | number:2}}</label>&nbsp&nbsp
+            {{bounds.min}} <input type="range" step="0.05" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="fakeData.y" style="vertical-align:middle"> {{bounds.max}}<br/>
         </div>
         <div id="xyWindow"></div>
     </ion-content>

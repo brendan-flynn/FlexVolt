@@ -9,7 +9,7 @@
                 row1:{
                     b1:{
                         icon:"icon ion-navigate",
-                        ref:"xy({demo: true})",
+                        ref:"godot({demo: true})",
                         btnName:"Go Dot Demo"
                     },
                     b2:{

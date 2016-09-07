@@ -10,7 +10,6 @@
         $scope.demo = $stateParams.demo;
         var afID = undefined;
 
-        window.c = customPopover;
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/trace/trace-settings.html',traceLogic.updateSettings);
         customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',traceLogic.updateSettings);
         customPopover.add($ionicPopover, $scope, 'helpover','pages/trace/trace-help.html');
@@ -25,7 +24,6 @@
             }
             afID = undefined;
             $scope.updating  = true;
-            console.log('INFO: Settings changed');
             init();
             $scope.updating  = false;
             paintStep();
@@ -61,7 +59,7 @@
                         dataHandler.addFilter(traceLogic.settings.filters[i]);
                     }
         //            dataHandler.setMetrics(60);
-                    tracePlot.init('#traceWindow',traceLogic.settings.nChannels);
+                    tracePlot.init('#traceWindow',traceLogic.settings.nChannels, hardwareLogic.settings.vMax);
                     paintStep();
                 });
         }
@@ -72,7 +70,7 @@
             }
             afID = undefined;
             $scope.updating  = true;
-            console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
+            //console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
             tracePlot.resize();
             $scope.updating  = false;
             paintStep();

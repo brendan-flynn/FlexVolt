@@ -17,19 +17,18 @@
     </div>
     <div id="myometerWindow"></div>
     <div class="row">
-        <div class="col col-70px">Baseline</div>
+        <div class="col col-70px"></div>
         <div style="text-align:center" class="col"
              ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels"
              ng-click="showLabelPopup($index)">
-            {{label.name}}
+            {{label}}
         </div>
         <div class="col col-10px"></div>
     </div>
     <div class="row">
-        <div ng-if="pageLogic.settings.baselineMode === 'absolute'" class="col col-70px">Absolute</div>
-        <div ng-if="pageLogic.settings.baselineMode === 'relative'" class="col col-70px">Relative</div>
-        <div style="text-align:center" class="col" ng-repeat="ch in pageLogic.settings.baselines[pageLogic.settings.baselineMode] | limitTo:pageLogic.settings.nChannels">
-            {{ch.value}}
+        <div class="col col-70px">Baseline</div>
+        <div style="text-align:center" class="col" ng-repeat="baseline in pageLogic.settings.baselines | limitTo:pageLogic.settings.nChannels">
+            {{baseline}}
         </div>
         <div class="col col-10px"></div>
     </div>
