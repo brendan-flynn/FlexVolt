@@ -9,7 +9,7 @@
                   # Channels
               </h3>
             <p>&nbsp&nbsp&nbsp
-              <label ng-repeat="item in hardwareLogic.channelList">
+              <label ng-repeat="item in hardwareLogic.availableChannelList()">
                   <input type="radio" ng-model="pageLogic.settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
               </label>
             </p>
@@ -22,7 +22,7 @@
               </label>
             </p>
             <h3 style="text-align:center">
-              Window Size
+              Window Size: {{pageLogic.settings.xMax}}s
             </h3>
             <p>&nbsp&nbsp&nbsp
               <!-- <label ng-repeat="item in pageLogic.xMaxList">

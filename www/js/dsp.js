@@ -53,6 +53,9 @@ angular.module('flexvolt.dsp', [])
             getMetrics: undefined,
             getData: undefined,
 
+            paused: false,
+            pause: undefined,
+            resume: undefined,
 
             startRecording: undefined,
             stopRecording: undefined,
@@ -234,7 +237,11 @@ angular.module('flexvolt.dsp', [])
 //            if (filter !== angular.undefined){
 //                parsedData = filter.apply(parsedData);
 //            }
-            return parsedData;
+            if (!api.paused) {
+                return parsedData;
+            } else if (api.paused) {
+                return undefined;
+            }
         };
 
         function initRecordedData() {
@@ -263,14 +270,22 @@ angular.module('flexvolt.dsp', [])
         function saveRecordedData(){
             var tmp = [recordedDataTime];
             for (var i = 0; i < nChannels; i ++){
-              tmp.push(recordedDataRaw[i]);
+              tmp.push(recordedDataRaw[i].map(function(val){return typeof(val)==='number'?(val*1000).toFixed(3):val}));
             }
             for (var i = 0; i < nChannels; i ++){
-              tmp.push(recordedDataProcessed[i].map(function(val){return typeof(val)==='number'?val.toFixed(2):val}));
+              tmp.push(recordedDataProcessed[i].map(function(val){return typeof(val)==='number'?(val*1000).toFixed(3):val}));
             }
             clearRecordedData();
             file.writeFile(recordedDataFile, tmp);
         };
+
+        api.pause = function() {
+            api.paused = true;
+        }
+
+        api.resume = function() {
+            api.paused = false;
+        }
 
         api.startRecording = function(){
             initRecordedData();
@@ -588,13 +603,14 @@ angular.module('flexvolt.dsp', [])
     function offset(data, params){
         //console.log('Offset apply'+JSON.stringify(data));
         for (var i in data){
-            data[i] = data[i] + params.offset.value;
+            data[i] = data[i] + params.offset.value/1000;
         }
         //console.log(JSON.stringify(data));
         return data;
     }
 
     function average(dataIn, params){
+        var timeWindow = params.windowSize.value*params.frequency/1000;
         function calc(dIn, windowSize){
             var w = Math.floor(windowSize/2);
             var dOut = [];
@@ -608,12 +624,13 @@ angular.module('flexvolt.dsp', [])
             return dOut;
         }
         params.buffer = params.buffer.concat(dataIn);
-        var dataOut = calc(params.buffer, params.windowSize.value);
-        params.buffer.splice(0,params.buffer.length-2*Math.floor(params.windowSize.value/2));
+        var dataOut = calc(params.buffer, timeWindow);
+        params.buffer.splice(0,params.buffer.length-2*Math.floor(timeWindow/2));
         return dataOut;
     }
 
     function rms(dataIn, params){
+        var timeWindow = params.windowSize.value*params.frequency/1000;
         //console.log('dataIn: '+angular.toJson(dataIn));
         function calc(dIn, windowSize){
             var w = Math.floor(windowSize/2);
@@ -636,13 +653,14 @@ angular.module('flexvolt.dsp', [])
 //            }
 //        }
         params.buffer = params.buffer.concat(dataIn);
-        var dataOut = calc(params.buffer, params.windowSize.value*params.frequency/1000);
-        params.buffer.splice(0,params.buffer.length-2*Math.floor(params.windowSize.value*params.frequency/1000/2));
+        var dataOut = calc(params.buffer, timeWindow);
+        params.buffer.splice(0,params.buffer.length-2*Math.floor(timeWindow/2));
         //console.log('dataOut: '+angular.toJson(dataOut));
         return dataOut;
     }
 
     function velocity(dataIn, params){
+        var timeWindow = params.windowSize.value*params.frequency/1000;
         function calc(dIn, windowSize){
             var w = Math.floor(windowSize/2);
             var dOut = [];
@@ -661,8 +679,8 @@ angular.module('flexvolt.dsp', [])
             return dOut;
         }
         params.buffer = params.buffer.concat(dataIn);
-        var dataOut = calc(params.buffer, params.windowSize.value);
-        params.buffer.splice(0,params.buffer.length-2*Math.floor(params.windowSize.value/2));
+        var dataOut = calc(params.buffer, timeWindow);
+        params.buffer.splice(0,params.buffer.length-2*Math.floor(timeWindow/2));
         //console.log('dataOut: '+angular.toJson(dataOut));
         return dataOut;
     }

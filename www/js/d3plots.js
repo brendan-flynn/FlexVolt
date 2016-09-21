@@ -21,8 +21,8 @@ angular.module('flexvolt.d3plots', [])
     var mar, margin, width, height, plotElement;
     mar = 10;
     margin = {top: mar, right: mar, bottom: mar, left: 70};
-    var headerPadding = 0;
-    var footerPadding = 200;
+    var headerPadding = 45;
+    var footerPadding = 160;
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
 
@@ -149,7 +149,7 @@ angular.module('flexvolt.d3plots', [])
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
-        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        .attr('transform', 'translate(' + margin.left + ',' + (margin.top + headerPadding) + ')');
 
       // x-axis
       svg.append('g')
@@ -361,9 +361,9 @@ angular.module('flexvolt.d3plots', [])
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
     var mar, margin, width, height, plotElement;
     mar = 10;
-    var headerPadding = 44;
-    var footerPadding = 68;
-    margin = {top: mar, right: mar, bottom: mar, left: mar};
+    var headerPadding = 60;
+    var footerPadding = 40;
+    margin = {top: 2*mar, right: mar, bottom: mar, left: mar};
 
     var yMax;
     var tmpData = [];
@@ -512,7 +512,7 @@ angular.module('flexvolt.d3plots', [])
 .factory('rmsTimePlot', function() {
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
     var margin, width, height, plotElement, dT;
-    var headerPadding = 44;
+    var headerPadding = 90;
     var footerPadding = 16;
     var leftPadding = 150;
     var rightPadding = 0;
@@ -746,7 +746,7 @@ angular.module('flexvolt.d3plots', [])
         xMax = maxX/dT; // seconds
         panExtent = {x: [0,xMax], y: [-0.01*yMax,1.01*yMax] };
 
-        yMAx = vMax;
+        yMax = vMax;
 
         xPos = 0;
         startPos = 0;

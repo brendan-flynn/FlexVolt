@@ -49,7 +49,7 @@ angular.module('flexvolt.taskLogic', [])
             offset: {
               name: 'Value',
               value: 0,
-              unit: 'bits',
+              unit: 'mV',
               input: {
                 type: 'slider',
                 range: {
@@ -87,12 +87,12 @@ angular.module('flexvolt.taskLogic', [])
             windowSize: {
               name: 'Window Size',
               value: 21,
-              unit: 'samples',
+              unit: 'ms',
               input: {
                 type: 'slider',
                 range: {
-                  low: 1,
-                  high: 101,
+                  low: 10,
+                  high: 500,
                   step: 2
                 }
               }
@@ -106,12 +106,12 @@ angular.module('flexvolt.taskLogic', [])
             windowSize: {
               name: 'Window Size',
               value: 25,
-              unit: 'samples',
+              unit: 'ms',
               input: {
                 type: 'slider',
                 range: {
-                  low: 1,
-                  high: 101,
+                  low: 10,
+                  high: 500,
                   step: 2
                 }
               }

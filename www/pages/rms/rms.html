@@ -13,9 +13,9 @@
           <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
           <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
       </div>
+      <save-panel></save-panel>
       <div class="row">
           <div class="col">
-              <save-panel></save-panel>
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels"
                    style="font-size: 14px; line-height:14px;">
                   <div>

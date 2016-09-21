@@ -55,6 +55,7 @@
         /***********Record Control****************/
 
         var timerInterval;
+        dataHandler.resume();
 
         $scope.recordControls = {
             live: true,
@@ -95,6 +96,8 @@
                 // start playback
             }
         };
+
+        $scope.dataHandler = dataHandler;
 
         $scope.startRecording = function(){
             $scope.recordControls.recording = true;
