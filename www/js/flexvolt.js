@@ -39,12 +39,30 @@ angular.module('flexvolt.flexvolt', [])
     var waitingForFunction;
     var DEFAULT_WAIT_MS = 500, DEFAULT_CONNECTED_WAIT_MS = 500, DISCOVER_DELAY_MS = 500;
     var MODEL_LIST = [];
-    MODEL_LIST[0] = 'USB 2 Channel';
-    MODEL_LIST[1] = 'USB 4 Channel';
-    MODEL_LIST[2] = 'USB 8 Channel';
-    MODEL_LIST[3] = 'Bluetooth 2 Channel';
-    MODEL_LIST[4] = 'Bluetooth 4 Channel';
-    MODEL_LIST[5] = 'Bluetooth 8 Channel';
+    MODEL_LIST[0] = {
+      name: 'USB 2 Channel',
+      channels: 2
+    };
+    MODEL_LIST[1] = {
+      name: 'USB 4 Channel',
+      channels: 4
+    };
+    MODEL_LIST[2] = {
+      name: 'USB 8 Channel',
+      channels: 8
+    };
+    MODEL_LIST[3] = {
+      name: 'Bluetooth 2 Channel',
+      channels: 2
+    };
+    MODEL_LIST[4] = {
+      name: 'Bluetooth 4 Channel',
+      channels: 4
+    };
+    MODEL_LIST[5] = {
+      name: 'Bluetooth 8 Channel',
+      channels: 8
+    };
     var FREQUENCY_LIST = [1, 10, 50, 100, 200, 300, 400, 500, 1000, 1500, 2000];
 
     var dots = '';
@@ -552,10 +570,18 @@ angular.module('flexvolt.flexvolt', [])
                             }
                             console.log('INFO: Version = '+api.connection.version+
                                         '. SerialNumber = '+api.connection.serialNumber+
-                                        '. MODEL = '+api.connection.model+
+                                        '. MODEL = '+api.connection.model.name +
+                                        '. Channels = '+api.connection.model.channels +
                                         ', from model# '+api.connection.modelNumber +
                                         ', supply voltage max = '+hardwareLogic.settings.vMax +
                                         ', factors: 8Bit: ' + factor8Bit + ', 10Bit: ' + factor10Bit);
+                            if (hardwareLogic.settings.nChannels > api.connection.model.channels) {
+                              console.log('INFO: Hardware Settings \'Channels\' was set to ' +
+                                          hardwareLogic.settings.nChannels + ', but the currently connect model, ' +
+                                          api.connection.model.name + ' only has ' + api.connection.model.channels +
+                                          '.  Reseting hardware channels to ' + api.connection.model.channels + '.');
+                              hardwareLogic.settings.nChannels = api.connection.model.channels;
+                            }
                             dIn = dIn.slice(4);
                             deferred.polling.resolve();
                         } else {

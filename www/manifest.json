@@ -6,7 +6,8 @@
     "permissions": [
         "serial",
         "storage",
-        {"fileSystem": ["directory", "write", "retainEntries"]}
+        {"fileSystem": ["directory", "write", "retainEntries"]},
+        "desktopCapture"
     ],
     "icons": {
         "48": "img/fv_ic_main_48.png",

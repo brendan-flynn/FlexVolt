@@ -25,7 +25,9 @@
         <div ng-if="!mobile">
         <h3 align="center">Data Export</h3>
         <p>
-          Directory: {{file.path}} &nbsp&nbsp <button ng-click="file.getDirectory()">Change</button>
+          Directory: {{file.path}} &nbsp&nbsp
+          <button ng-if="file.path" ng-click="file.getDirectory()">Change</button>
+          <button ng-if="!file.path" ng-click="file.getDirectory()">Choose</button>
         </p>
         <p>
           Export Format:
