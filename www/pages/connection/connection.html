@@ -9,7 +9,7 @@
         <p>Status: {{flexvolt.api.connection.state}} : {{flexvolt.getDetailedConnectionStatus()}}</p>
         <div ng-if="flexvolt.getConnectionStatus()">
             <p>Port: {{con.flexvoltName}}</p>
-            <p>Model: {{con.model}}</p>
+            <p>Model: {{con.model.name}}</p>
             <p>Version: {{con.version}}  &nbsp&nbsp&nbsp  S/N: {{con.serialNumber}}</p>
             <div class="row">
                 <div class="col col-40">
