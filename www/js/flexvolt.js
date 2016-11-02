@@ -37,7 +37,7 @@ angular.module('flexvolt.flexvolt', [])
     var waitingForResponse = false;
     var waitingForMessage;
     var waitingForFunction;
-    var DEFAULT_WAIT_MS = 500, DEFAULT_CONNECTED_WAIT_MS = 500, DISCOVER_DELAY_MS = 500;
+    var DEFAULT_WAIT_MS = 5000, DEFAULT_CONNECTED_WAIT_MS = 1000, DISCOVER_DELAY_MS = 500;
     var MODEL_LIST = [];
     MODEL_LIST[0] = {
       name: 'USB 2 Channel',
@@ -774,6 +774,7 @@ angular.module('flexvolt.flexvolt', [])
             }  else {console.log('DEBUG: dataOff failed - data not on');}
         }
         api.getDataParsed = function(){
+            var tmpLow, tmpLow2;
             var dataParsed = [];
             if (!checkingForData && api.connection.state === 'connected' && api.connection.data === 'on'){
                 checkingForData = true;
@@ -793,12 +794,22 @@ angular.module('flexvolt.flexvolt', [])
                                 }
                                 dataInd++;
                             } else if (hardwareLogic.settings.bitDepth10) {
-                                var tmpLow = dataIn[readInd+hardwareLogic.settings.nChannels];
-                                for (var i = 0; i < hardwareLogic.settings.nChannels; i++){
-                                    dataParsed[i][dataInd] = factor10Bit((dataIn[readInd++]<<2) + (tmpLow & 3) - api.readParams.offset); // centering on 0!
+                                tmpLow = dataIn[readInd+hardwareLogic.settings.nChannels];
+                                if (hardwareLogic.settings.nChannels > 4) {
+                                  tmpLow2 = dataIn[readInd+hardwareLogic.settings.nChannels+1];
+                                }
+                                for (var i = 0; i < Math.min(4, hardwareLogic.settings.nChannels); i++){
+                                    dataParsed[i][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + (tmpLow & 3) - api.readParams.offset); // centering on 0!
                                     tmpLow = tmpLow >> 2;
                                 }
+                                for (var i = 4; i < hardwareLogic.settings.nChannels; i++){
+                                    dataParsed[i][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + (tmpLow2 & 3) - api.readParams.offset); // centering on 0!
+                                    tmpLow2 = tmpLow2 >> 2;
+                                }
                                 readInd++; // for the tmpLow read
+                                if (hardwareLogic.settings.nChannels > 4) {
+                                  readInd++; // for the tmpLow2 read
+                                }
                                 dataInd++;
                             }
 
