@@ -14,6 +14,7 @@
         'flexvolt.controllers',
         'flexvolt.services',
         'flexvolt.customPopover',
+        'flexvolt.records',
         'flexvolt.directives',
         'flexvolt.flexvolt',
         'flexvolt.d3plots',

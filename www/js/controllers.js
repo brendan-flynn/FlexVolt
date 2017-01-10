@@ -51,73 +51,39 @@
 
         paintStep();
     }])
-    .controller('RecordCtrl', ['$scope', '$interval','dataHandler', function($scope, $interval, dataHandler){
+    .controller('RecordCtrl', ['$scope', '$state', 'dataHandler', 'hardwareLogic', 'records',
+        function($scope, $state, dataHandler, hardwareLogic, records){
         /***********Record Control****************/
 
-        var timerInterval;
-        dataHandler.resume();
-
-        $scope.recordControls = {
-            live: true,
-            recording: false,
-            playingBack: false,
-            recordedSignals: [
-                {
-                    name: '09:15:53',
-                    data: [1,2,3,4]
-                },
-                {
-                    name: '09:16373',
-                    data: [1,2,3,4]
+        $scope.dataHandler = dataHandler;
+        $scope.records = records;
+        if (!dataHandler.controls.live) {
+            dataHandler.controls.toggleLive();
                 }
-            ],
-            selectedRecord: undefined,
-            recordTimer: 0
-        };
+        dataHandler.controls.resume(); // reset to a user-friendly state of displaying data
+        var task = $state.current.name;
 
-        $scope.updateSelectedData = function(){
-          if ($scope.recordControls.selectedRecord) {
-              if ($scope.recordControls.live){
-                  $scope.toggleLive();
+        $scope.onRecordSelected = function(){
+          if (dataHandler.controls.selectedRecord) {
+              if (dataHandler.controls.live){
+                  dataHandler.controls.toggleLive();
               }
+              dataHandler.controls.serveRecord();
           }
         };
 
         $scope.toggleLive = function(){
-            $scope.recordControls.live = !$scope.recordControls.live;
-            console.log('DEBUG: toggled live to '+$scope.recordControls.live);
+            dataHandler.controls.toggleLive();
+            console.log('DEBUG: toggled live to '+dataHandler.controls.live);
         };
 
         $scope.togglePlayback = function(){
-            $scope.recordControls.playingBack = !$scope.recordControls.playingBack;
-            if ($scope.recordControls.playingBack){
+            dataHandler.controls.playingBack = !dataHandler.controls.playingBack;
+            if (dataHandler.controls.playingBack){
                 // stop playback
             } else {
                 // start playback
             }
-        };
-
-        $scope.dataHandler = dataHandler;
-
-        $scope.startRecording = function(){
-            $scope.recordControls.recording = true;
-            $scope.recordControls.recordTimer = 0;
-            timerInterval = $interval(function(){
-                $scope.recordControls.recordTimer += 1;
-            },1000);
-            dataHandler.startRecording();
-            console.log('DEBUG: toggled recording on.');
-        };
-
-        $scope.stopRecording = function(){
-            $scope.recordControls.recording = false;
-            if (timerInterval){
-                $interval.cancel(timerInterval);
-                timerInterval = undefined;
-            }
-            $scope.recordControls.recordTimer = 0;
-            dataHandler.stopRecording();
-            console.log('DEBUG: toggled recording off.');
         };
 
         /**************************************/
@@ -176,5 +142,7 @@
         window.flexvolt = flexvolt;
         window.dataHandler = dataHandler;
         window.filters = filters;
+        window.records = records;
+        window.hardwareLogic = hardwareLogic;
     }]);
 }());
