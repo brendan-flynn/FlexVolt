@@ -176,7 +176,7 @@
           // if cancel, will be undefined
           if (angular.isDefined(res)){
             console.log('label popup changed to: '+res);
-            $scope.pageLogic.settings.labels[ind].name = res;
+            $scope.pageLogic.settings.labels[ind] = res;
           }
         });
        };
