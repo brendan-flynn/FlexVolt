@@ -5,35 +5,41 @@
     <ion-content class="has-header">
         <div>
             <div style="padding: 5px 15px">
-                <h4>Initial Setup:</h4>
+                <h4>Initial Setup</h4>
                 <ul>
                     <li ng-if="mobile">1.  Turn phone Bluetooth ON</li>
                     <li ng-if="!mobile">1.  Turn computer Bluetooth ON</li>
                     <li>2.  Turn FlexVolt ON</li>
-                    <li>3.  Find FlexVolt in the list of available devices</li>
+                    <li>3.  In your device's bluetooth settings, find FlexVolt in the list of available devices</li>
                     <li>4.  Pair/connect.  code = '0000'</li>
                 </ul>
-                <h4>Connecting:
-                    <button ui-sref="settings" class="button button-icon icon ion-radio-waves assertive"></button>
+                <h4>Connecting
+                    <button ui-sref="connection" class="button button-icon icon ion-radio-waves assertive"></button>
                     <i class="button-icon icon ion-arrow-right-a"></i>
-                    <button ui-sref="settings" class="button button-icon icon ion-radio-waves positive"></button>
+                    <button ui-sref="connection" class="button button-icon icon ion-radio-waves positive"></button>
                 </h4>
                 <p>
-                    After setup, this app should automatically find your FlexVolt device and connect.   
+                    After setup, this app should automatically find your FlexVolt device and connect.
                     For connection info, manual connection options, and troubleshooting, tap the connection icon.
                 </p>
-                <h4>Tasks:</h4>
+                <h4>Hardware Settings
+                    <i ui-sref="settings" class="button-icon icon ion-settings"></i>
+                </h4>
                 <p>
-                    Home page icons open tasks with different functions.  
+                    Once connected, you can change hardware settings, such as sampling frequency, at the configuration page.
+                </p>
+                <h4>Tasks</h4>
+                <p>
+                    Home page icons open tasks with different functions.
                 </p>
                 <p>
-                    In a task, press <i class="button-icon icon ion-gear-b"></i> for settings, 
+                    In a task, press <i class="button-icon icon ion-gear-b"></i> for settings,
                     and <i class="button-icon icon ion-help"></i> for help.
                 </p>
                 <p>
-                    Some tasks are not yet developed.  Do you have input on existing tasks or a request for new tasks or features? 
+                    Some tasks are not yet developed.  Do you have input on existing tasks or a request for new tasks or features?
                     Send all thoughts to:<br />
-                    
+
                 <h4> software@flexvoltbiosensor.com</h4>
                 </p>
             </div>
