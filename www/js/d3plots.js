@@ -26,8 +26,6 @@ angular.module('flexvolt.d3plots', [])
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
 
-    //console.log('height: '+height);
-
     var yMax;
 
     var svg, xScale, xAxis, yScale, yAxis, data = [], bar, yLabel;
@@ -87,7 +85,7 @@ angular.module('flexvolt.d3plots', [])
           .attr('x', function(d) {return xScale(d.x)-3;})
           .attr('y', function(d) {return yScale(d.target);})
           .attr('width', xScale.rangeBand()+6)
-          .attr('height', 6)
+          .attr('height', 10)
           .attr('stroke', 'rgb(0,0,0)')
           .attr('fill', 'rgb(150, 150, 150)')
           .attr("cursor", "move")
@@ -192,7 +190,6 @@ angular.module('flexvolt.d3plots', [])
 
     api.addText = function(text){
       d3.select('#notificationText').remove();
-      //console.log('DEBUG: added text: '+text);
       textLabel = text;
     };
 
@@ -359,11 +356,10 @@ angular.module('flexvolt.d3plots', [])
 })
 .factory('tracePlot', function() {
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
-    var mar, margin, width, height, plotElement;
-    mar = 10;
-    var headerPadding = 60;
-    var footerPadding = 40;
-    margin = {top: 2*mar, right: mar, bottom: mar, left: mar};
+    var margin, width, height, plotElement, htmlElement;
+    var mar = 4;
+    margin = {left: mar, right: mar, top: mar, bottom: 20};
+    var PADDINGOFFSET = 8;
 
     var yMax;
     var tmpData = [];
@@ -451,41 +447,41 @@ angular.module('flexvolt.d3plots', [])
         }
     }
 
-    api.init = function(element, nChannels, vMax){
-        width = window.innerWidth - margin.left - margin.right,
-        height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
-        plotElement = element;
+    api.init = function(element, nChannels, vMax, isDemo){
+        htmlElement = element;
+        plotElement = '#'+element;
+        var html = document.getElementById(htmlElement);
+        width = html.clientWidth - margin.left - margin.right,
+        height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
+
         yA = [];
         lineA = [];
         svg = undefined;
         api.settings.nChannels = nChannels;
         yMax = vMax;
 
-        d3.select('svg').remove();
-        svg = d3.select(element).append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
-            .append('g')
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-
         api.reset();
     }
 
-    api.update = function(dataIn){
-        //console.log(angular.toJson(dataIn));
+    api.update = function(dataIn, isLive){
         startPos = xPos > 0?xPos-1:0;
         xPos += dataIn[0].length;
-        if (xPos >= width){
-            xPos = xPos%width;
-            startPos = 0;
-            for (var ind in dataIn){
-                dataIn[ind].splice(0,dataIn[ind].length-xPos); // over ran width, splice out data up to width
+        if (isLive) {
+            if (xPos >= width){
+                xPos = xPos%width;
+                startPos = 0;
+                for (var ind in dataIn){
+                    dataIn[ind].splice(0,dataIn[ind].length-xPos); // over ran width, splice out data up to width
+                }
+                tmpData = [];
+                for (var i = 0; i < api.settings.nChannels;i++){
+                    tmpData[i] = undefined;
+                }
+                svg.selectAll('path.line').remove();
             }
-            tmpData = [];
-            for (var i = 0; i < api.settings.nChannels;i++){
-                tmpData[i] = undefined;
-            }
-            svg.selectAll('path.line').remove();
+        } else {
+          svg.selectAll('path.line').remove(); // just clear the plot prior to showing all data
+          startPos = 0;
         }
 
         for (var i = 0; i < api.settings.nChannels; i++){
@@ -499,8 +495,9 @@ angular.module('flexvolt.d3plots', [])
     };
 
     api.resize = function(){
-        width = window.innerWidth - margin.left - margin.right,
-        height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
+        var html = document.getElementById(htmlElement);
+        width = html.clientWidth - margin.left - margin.right,
+        height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
         api.reset();
     };
@@ -511,12 +508,13 @@ angular.module('flexvolt.d3plots', [])
 })
 .factory('rmsTimePlot', function() {
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
-    var margin, width, height, plotElement, dT;
-    var headerPadding = 90;
-    var footerPadding = 16;
     var leftPadding = 150;
-    var rightPadding = 0;
-    margin = {top: 10, right: 60, bottom: 60, left: 50};
+    var rightPadding = 10;
+
+    var margin, width, height, plotElement, htmlElement, dT;
+    var mar = 4;
+    margin = {left: 50, right: mar, top: mar, bottom: 35};
+    var PADDINGOFFSET = 8;
 
     var svg, x, scaleX, y, autoY, xAxis, yAxis, zoom, line;
     var panExtent, xMax;
@@ -676,10 +674,10 @@ angular.module('flexvolt.d3plots', [])
         }
 
         svg = d3.select(plotElement).append('svg')
-            .attr('width', width + margin.left + margin.right)
+            .attr('width', width + margin.left + margin.right + leftPadding)
             .attr('height', height + margin.top + margin.bottom)
             .append('g')
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+            .attr('transform', 'translate(' + (margin.left + leftPadding) + ',' + margin.top + ')')
             .call(zoom);
 
         line = d3.svg.line()
@@ -739,8 +737,11 @@ angular.module('flexvolt.d3plots', [])
     };
 
     api.init = function(element, nChannels, newZoomOption, maxX, userFrequency, vMax){
-        width = window.innerWidth - margin.left - margin.right - leftPadding - rightPadding,
-        height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
+        htmlElement = element;
+        plotElement = '#'+element;
+        var html = document.getElementById(htmlElement);
+        width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
+        height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
         dT = 1/userFrequency;
         xMax = maxX/dT; // seconds
@@ -750,7 +751,6 @@ angular.module('flexvolt.d3plots', [])
 
         xPos = 0;
         startPos = 0;
-        plotElement = element;
 
         api.settings.zoomOption = newZoomOption;
         api.settings.nChannels = nChannels;
@@ -795,9 +795,9 @@ angular.module('flexvolt.d3plots', [])
     };
 
     api.resize = function(){
-        console.log('DEBUG: plot resized');
-        width = window.innerWidth - margin.left - margin.right - leftPadding - rightPadding,
-        height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
+        var html = document.getElementById(htmlElement);
+        width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
+        height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
         api.reset();
     };

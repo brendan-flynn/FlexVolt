@@ -78,7 +78,7 @@
                         dataHandler.addFilter(rmsTimeLogic.settings.filters[i]);
                     }
                     dataHandler.setMetrics(60);
-                    rmsTimePlot.init('#rmsTimeWindow', rmsTimeLogic.settings.nChannels, rmsTimeLogic.settings.zoomOption, rmsTimeLogic.settings.xMax, hardwareLogic.settings.frequency, hardwareLogic.settings.vMax);
+                    rmsTimePlot.init('rmsTimeWindow', rmsTimeLogic.settings.nChannels, rmsTimeLogic.settings.zoomOption, rmsTimeLogic.settings.xMax, hardwareLogic.settings.frequency, hardwareLogic.settings.vMax);
                     paintStep();
                 });
         }

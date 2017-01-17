@@ -24,13 +24,14 @@
                       {{label.name}}
                   </div>
                   <div class="row">
-                      <div class="col">Min: {{metrics[$index].minAmplitude | number:2}}</div>
-                      <div class="col">Mean: {{metrics[$index].meanAmplitude | number:2}}</div>
-                      <div class="col">Max: {{metrics[$index].maxAmplitude | number:2}}</div>
+                      <div class="col">Min : Mean : Max</div>
+                  </div>
+                  <div class="row">
+                      <div class="col">{{metrics[$index].minAmplitude | number:2}} : {{metrics[$index].meanAmplitude | number:2}} : {{metrics[$index].maxAmplitude | number:2}}</div>
                   </div>
               </div>
           </div>
-          <div class="col" id="rmsTimeWindow"></div>
+          <div class="col fullsizeplot" id="rmsTimeWindow"></div>
       </div>
 
   </ion-content>

@@ -60,7 +60,7 @@
                         dataHandler.addFilter(traceLogic.settings.filters[i]);
                     }
         //            dataHandler.setMetrics(60);
-                    tracePlot.init('#traceWindow',traceLogic.settings.nChannels, hardwareLogic.settings.vMax);
+                    tracePlot.init('traceWindow',traceLogic.settings.nChannels, hardwareLogic.settings.vMax, $stateParams.demo);
                     paintStep();
                 });
         }
