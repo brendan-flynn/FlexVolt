@@ -6,15 +6,15 @@
     <ion-content class="has-header padding">
       <h3 align="center">App Version: {{app.version}}</h3>
         <h3 align="center">Channels</h3>
-        <p>&nbsp&nbsp&nbsp
+        <p>&nbsp;&nbsp;&nbsp;
             <label ng-repeat="item in channelList">
-                <input type="radio" ng-model="settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+                <input type="radio" ng-model="settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp;{{item.text}}&nbsp;&nbsp;
             </label>
         </p>
         <h3 align="center">Sampling Frequency</h3>
-        <p>&nbsp&nbsp&nbsp
+        <p>&nbsp;&nbsp;&nbsp;
             <label ng-repeat="item in frequencyList">
-                <input type="radio" ng-model="settings.frequency" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+                <input type="radio" ng-model="settings.frequency" ng-change="onChange()" ng-value="item.value"/>&nbsp;{{item.text}}&nbsp;&nbsp;
             </label>
         </p>
         <h3 align="center">Sampling Depth</h3>
@@ -25,14 +25,14 @@
         <div ng-if="!mobile">
         <h3 align="center">Data Export</h3>
         <p>
-          Directory: {{file.path}} &nbsp&nbsp
+          Directory: {{file.path}} &nbsp;&nbsp;
           <button ng-if="file.path" ng-click="file.getDirectory()">Change</button>
           <button ng-if="!file.path" ng-click="file.getDirectory()">Choose</button>
         </p>
         <p>
           Export Format:
           <label ng-repeat="item in settings.exportFormatList">
-              <input type="radio" ng-model="settings.exportFormat" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+              <input type="radio" ng-model="settings.exportFormat" ng-change="onChange()" ng-value="item.value"/>&nbsp;{{item.text}}&nbsp;&nbsp;
           </label>
         </p>
         </div>
@@ -43,8 +43,8 @@
             <span ng-if="!settings.smoothFilterFlag"> Send raw data </span>
         </ion-toggle>
         <h3 ng-if="settings.smoothFilterFlag" align="center">Smoothing Level: {{settings.smoothFilterVal}}</h3>
-        <p ng-if="settings.smoothFilterFlag" >&nbsp&nbsp&nbsp
-            0&nbsp&nbsp<input type="range" min=0 max=30 step=1 ng-model="settings.smoothFilterVal" ng-change="onChange()" style="vertical-align:middle">&nbsp&nbsp30<br/>
+        <p ng-if="settings.smoothFilterFlag" >&nbsp;&nbsp;&nbsp;
+            0&nbsp;&nbsp;<input type="range" min=0 max=30 step=1 ng-model="settings.smoothFilterVal" ng-change="onChange()" style="vertical-align:middle">&nbsp;&nbsp;30<br/>
         </p>
 <!--        <h3 align="center">Data</h3>
         <div>
