@@ -53,13 +53,15 @@
     }])
     .controller('RecordCtrl', ['$scope', '$state', 'dataHandler', 'hardwareLogic', 'records',
         function($scope, $state, dataHandler, hardwareLogic, records){
+
+        console.log('Record Ctrl loaded');
         /***********Record Control****************/
 
         $scope.dataHandler = dataHandler;
         $scope.records = records;
         if (!dataHandler.controls.live) {
             dataHandler.controls.toggleLive();
-                }
+        }
         dataHandler.controls.resume(); // reset to a user-friendly state of displaying data
         var task = $state.current.name;
 
@@ -127,8 +129,8 @@
 
         /* ********* */
     }])
-    .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters',
-    function($scope, flexvolt, appLogic, storage, dataHandler, filters) {
+    .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters', 'records', 'hardwareLogic',
+    function($scope, flexvolt, appLogic, storage, dataHandler, filters, records, hardwareLogic) {
         // high level container for app-wide functions/variables
         $scope.mobile = false;
         $scope.flexvolt=flexvolt;

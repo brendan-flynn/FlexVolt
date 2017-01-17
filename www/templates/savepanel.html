@@ -5,37 +5,45 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 <div ng-controller="RecordCtrl"
-     style="height: 45px;"
+     style="height: 45px; padding: 0px;"
      class="row"
-     ng-if="!mobile && demo || (flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on')">
-    <div class="col" style="text-align: left;">
-        <button title="Record Data"
-                class="button button-icon icon ion-record record-icon"
-                ng-disabled="!recordControls.live || !!recordControls.recording"
-                ng-click="startRecording()"></button>
-        <button title="Stop"
-                ng-disabled="!recordControls.recording && !recordControls.playingBack"
-                class="button button-icon icon ion-stop record-icon"
-                ng-click="stopRecording()">
-        </button>
-        <span title="Current Record Length"
-             style="display:inline-block; font-size: 16px; vertical-align:middle; line-height:16px;"
-             ng-style=" recordControls.recording ? {'color': 'black'} : {'color': 'gray'} ">
-            <p>Recording</p><p>{{recordControls.recordTimer}}s</p>
-        </span>
-    </div>
-    <div class="col-20"></div>
-    <div class="col" style="text-align:right;">
+     ng-if="!mobile && flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on'">
+    <div class="col" style="text-align: left; padding: 0px;">
         <button title="Pause"
-                ng-disabled="dataHandler.paused"
+                ng-disabled="dataHandler.controls.paused"
                 class="button button-icon icon ion-pause record-icon"
-                ng-click="dataHandler.pause()">
+                ng-click="dataHandler.controls.pause()">
         </button>
         <button title="Resume"
-                ng-disabled="!dataHandler.paused"
+                ng-disabled="!dataHandler.controls.paused"
                 class="button button-icon icon ion-play record-icon"
-                ng-click="dataHandler.resume()">
+                ng-click="dataHandler.controls.resume()">
         </button>
+        <button title="Record Data"
+                class="button button-icon icon ion-record record-icon"
+                ng-disabled="!dataHandler.controls.live || !!dataHandler.controls.recording"
+                ng-click="dataHandler.controls.startRecording()"></button>
+        <button title="Stop"
+                ng-disabled="!dataHandler.controls.recording"
+                class="button button-icon icon ion-stop record-icon"
+                ng-click="dataHandler.controls.stopRecording()">
+        </button>
+    </div>
+    <div class="col record-icon-text" ng-style="dataHandler.controls.recording ? {'color': 'black'} : {'color': 'gray'} ">
+      Rec {{dataHandler.controls.recordTimer}}s
+    </div>
+    <div class="col" style="text-align:right; padding: 5px;">
+        <button title="View Recorded Data"
+              ng-disabled="records.getForTask('trace').length <= 0"
+              class="button button-icon icon ion-search record-icon"
+              ng-click="dataHandler.viewRecordedData()">
+        </button>
+        <select ng-if="records.getForTask('trace').length > 0"
+                ng-model="dataHandler.controls.selectedRecord"
+                ng-options="record.dateTime for record in records.getForTask('trace')"
+                ng-change="onRecordSelected()"
+                style="padding: 5px;">
+        </select>
         <!-- <button title="Capture Image"
                 class="button button-icon icon ion-camera record-icon"
                 ng-click="captureScreen()">

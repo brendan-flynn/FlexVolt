@@ -36,7 +36,8 @@
             //console.log(dataIn);
             if (dataIn === null || dataIn === angular.undefined ||
                 dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
-            tracePlot.update(dataIn);
+            tracePlot.update(dataIn, dataHandler.controls.live);
+
         }
 
         function paintStep(){

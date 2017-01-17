@@ -18,20 +18,15 @@ path.line
     display:block !important;
 }
 
-.record-icon:before,
-.record-icon{
-    position: relative;
+i.record-icon{
     font-size:40px !important;
 }
 
-.record-icon-text:before,
 .record-icon-text{
-    font-size:24px !important;
-    position:absolute;
-    bottom: 0px; 
-    width: 100%; 
-    font-size: 24px; 
-    font-weight: bold; 
+    font-size:20px !important;
+    display: table-cell;
+    padding: 12px;
+    font-weight: bold;
     color: black;
 }
 
@@ -50,13 +45,8 @@ path.line
     -khtml-user-select:  text !important;
 }
 
-.axisnoline path {
-    fill: none;
-    stroke: none;
-}
-
 .col-70px {
-  
+
   -webkit-box-flex: 0;
   -webkit-flex: 0 0 70px;
   -moz-box-flex: 0;
@@ -66,7 +56,7 @@ path.line
   max-width: 70px; }
 
 .col-10px {
-  
+
   -webkit-box-flex: 0;
   -webkit-flex: 0 0 10px;
   -moz-box-flex: 0;
@@ -74,6 +64,22 @@ path.line
   -ms-flex: 0 0 10px;
   flex: 0 0 10px;
   max-width: 10px; }
+
+/* Plotting styles */
+
+.fullsizeplot {
+  position:absolute;
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  z-index: -1;
+}
+
+.axisnoline path {
+    fill: none;
+    stroke: none;
+}
 
 .axis {
   shape-rendering: crispEdges;
