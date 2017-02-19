@@ -592,6 +592,47 @@ angular.module('flexvolt.flexvolt', [])
             }
         };
         api.updateSettings = function(){
+
+          /* Register Control Words
+           *
+           * REG0 Is most likely the only register to be adjusted
+           *
+           * REG0 = main/basic user settings
+           * REG0<7:6> = Channels, DEFAULTS to current connected hardware.  11=8, 10=4, 01=2, 00=1
+           * REG0<5:2> = FreqIndex, DEFAULT=8 (1000Hz), FREQUENCY_LIST = [1, 10, 50, 100, 200, 300, 400, 500, 1000, 1500, 2000];
+           * REG0<1> = DataMode DEFAULT=0, (1 = filtered, 0 = raw)
+           * REG0<0> = Data bit depth.  DEFAULT = 0.  1 = 10-bits, 0 = 8-bits
+           *
+           * Registers below deal with microprocessor fine timing adjustements, digital filter (prior to transmission)
+           * custom sampling frequencies, downsampling, and plugin-detection
+           *
+           * REG1 = Filter Shift Val + Prescalar Settings
+           * REG1<4:0> = filter shift val, 0:31, 5-bits
+           * REG1<7:5> = PS setting.
+           *              000 = 2
+           *              001 = 4
+           *              010 = 8 [DEFAULT]
+           *              011 = 16 // not likely to be used
+           *              100 = 32 // not likely to be used
+           *              101 = 64 // not likely to be used
+           *              110 = 128// not likely to be used
+           *              111 = off (just use 48MHz/4)
+           *
+           * REG2 = Manual Frequency, low byte (16 bits total).  [DEFAULT = 0]
+           * REG3 = Manual Frequency, high byte (16 bits total).  [DEFAULT = 0]
+           *
+           * REG4 = Time adjust val (8bits, use 0:255 to achieve -6:249) [DEFAULT=2 => -4]
+           *
+           * REG5 & REG6 Timer Adjustment   [DEFAULT = 0]
+           * (add Time Adjust to x out of N total counts to 250)
+           * REG5<7:0> = partial counter val, low byte, 16 bits total
+           * REG6<7:0> = partial counter val, high byte, 16 bits total
+           *
+           * REG7<7:0> = down sampling value (mainly for smoothed data)  [DEFAULT = 0]
+           *
+           * REG8<7:0> = Plug Test Delay (ms).  [DEFAULT=0] If 0, no plug tests.  If greater than 0, returns result of plug test every delay ms.
+           */
+
             deferred.updateSettings = $q.defer();
             if (api.connection.state === 'connected'){
                 console.log('INFO: Updating Settings');
@@ -612,7 +653,7 @@ angular.module('flexvolt.flexvolt', [])
                     var REGtmp = 0;
                     var tmp = 0;
 
-                    //Register 1
+                    //Register 0
                     if (hardwareLogic.settings.nChannels === 8)tmp = 3;
                     if (hardwareLogic.settings.nChannels === 4)tmp = 2;
                     if (hardwareLogic.settings.nChannels === 2)tmp = 1;
@@ -633,33 +674,41 @@ angular.module('flexvolt.flexvolt', [])
                     REGtmp += tmp;
                     REG.push(REGtmp); // 11110100 (252)
 
+                    // Register 1
                     REGtmp = 0;
                     REGtmp += api.settings.prescalerPic << 5;
                     REGtmp += hardwareLogic.settings.smoothFilterVal;
                     REG.push(REGtmp); // 01001000 72
 
+                    // Register 2
                     REGtmp = api.settings.frequencyCustom;
                     REGtmp = (Math.round(REGtmp >> 8)<<8);
                     REGtmp = api.settings.frequencyCustom-REGtmp;
                     REG.push(REGtmp); // 00000000
 
+                    // Register 3
                     REGtmp = api.settings.frequencyCustom>>8;
                     REG.push(REGtmp); // 00000000
 
+                    // Register 4
                     REGtmp = api.settings.timer0AdjustVal+6;
                     REG.push(REGtmp); // 00001000 8
 
+                    // Register 5
                     REGtmp = api.settings.timer0PartialCount;
                     REGtmp = (Math.round(REGtmp >> 8)<<8);
                     REGtmp = api.settings.timer0PartialCount-REGtmp;
                     REG.push(REGtmp); // 00000000
 
+                    // Register 6
                     REGtmp = api.settings.timer0PartialCount>>8;
                     REG.push(REGtmp); // 00000000
 
+                    // Register 7
                     REGtmp = api.settings.downSampleCount;
                     REG.push(REGtmp); // 00000001 1
 
+                    // Register 8
                     REGtmp = api.settings.plugTestDelay;
                     REG.push(REGtmp);
 
