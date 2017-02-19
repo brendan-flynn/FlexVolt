@@ -595,6 +595,16 @@ angular.module('flexvolt.flexvolt', [])
 
           /* Register Control Words
            *
+           * Example:
+           *
+           * REG0 = 157
+           * in binary 157 = 0b10011101
+           * 0b**10**011101 => 4 Channels
+           * 0b10**0111**01 => Frequency Index = 7 => 500Hz
+           * 0b100111**0**1 => Send Raw Data
+           * 0b1001110**1** => Use 10-bit resolution
+           * 
+           *
            * REG0 Is most likely the only register to be adjusted
            *
            * REG0 = main/basic user settings
