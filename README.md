@@ -5,8 +5,10 @@ Install [Node](https://nodejs.org/en/), which comes with the Node Package Manage
 Then run:
 
 ```bash
-$ sudo npm install -g cordova ionic
+$ npm install -g cordova ionic
 ```
+
+If using a Mac, you may need to use sudo.  Read the ionic/cordova getting started docs for more info.
 
 ## Project Setup (in project directory)
 
@@ -14,6 +16,10 @@ $ sudo npm install -g cordova ionic
 $ npm install
 $ bower install
 ```
+
+## Issues/Bugs/Feature Requests
+
+Please use the github issues tracker and tag your issue appropriately ('bug','feature request', etc.)
 
 ## Hardware Connection API
 
@@ -135,7 +141,3 @@ REG0 Is most likely the only register to be adjusted.  The other registers can b
   * 0b10**0111**01 => Frequency Index = 7 => 500Hz
   * 0b100111**0**1 => Send Raw Data
   * 0b1001110**1** => Use 10-bit resolution
-
-## Issues
-
-Please use the github issues tracker.
