@@ -8,7 +8,7 @@
         <!--<span ng-bind="flexvolt|json"></span>-->
         <p>Status: {{flexvolt.api.connection.state}} : {{flexvolt.getDetailedConnectionStatus()}}</p>
         <div ng-if="flexvolt.getConnectionStatus()">
-            <p>Port: {{con.flexvoltName}}</p>
+            <p>Device: {{con.flexvoltName}}</p>
             <p>Model: {{con.model.name}}</p>
             <p>Version: {{con.version}}  &nbsp&nbsp&nbsp  S/N: {{con.serialNumber}}</p>
             <div class="row">
@@ -43,7 +43,7 @@
             <br>
             </div>-->
             <p>All Available Ports:</p>
-            <select ng-model="selectedPort" ng-options="port for port in portList()"></select>
+            <select ng-model="selectedPort" ng-options="device.name for device in portList()"></select>
             <!--<button ng-click="flexvolt.api.sendMsg('A')">Send 'A'</button>-->
             <button ng-if="mobile" ng-click="attemptToConnect(selectedPort)">Connect Selected Port</button>
             <p ng-if="!mobile">

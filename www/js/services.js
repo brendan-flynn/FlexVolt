@@ -15,7 +15,7 @@
 
 angular.module('flexvolt.services', [])
 
-.factory('bluetoothPlugin', ['$timeout', function($timeout){
+.factory('bluetoothPlugin', ['$timeout','$interval', function($timeout, $interval){
 
     var bluetoothPlugin = {
         isConnected: undefined,
@@ -23,29 +23,123 @@ angular.module('flexvolt.services', [])
         connectionId: undefined,
         disconnect: undefined,
         clear: undefined,
-        list: undefined,
+        getDevices: undefined,
         write: undefined,
         subscribe: undefined
     };
+
+    var BLE_SERVICES_LIST = ['ffe0']; // currently just the temperature service hijacked by Bolutek BLE module
 
     ionic.Platform.ready(function() {
         window.device = ionic.Platform.device();
         window.platform = ionic.Platform.platform();
         //console.log('INFO: ionic ready, platform: '+window.platform);
         if (window.cordova) {
-            window.flexvoltPlatform = 'cordova';
-            console.log('INFO: ionic ready, using cordova, platform: '+window.platform);
-            bluetoothPlugin.connect = bluetoothSerial.connect;
-            bluetoothPlugin.disconnect = bluetoothSerial.disconnect;
-            bluetoothPlugin.clear = bluetoothSerial.clear;
-            bluetoothPlugin.list = bluetoothSerial.list;
-            bluetoothPlugin.subscribe = bluetoothSerial.subscribeRawData;
-            bluetoothPlugin.write = bluetoothSerial.write;
-            bluetoothPlugin.isConnected = function(connectedCB, notConnectedCB, errFunc){
-                try{
-                    bluetoothSerial.isconnected(connectedCB, notConnectedCB);
-                } catch(err) {errFunc(err);}
-            };
+          window.flexvoltPlatform = 'cordova';
+          console.log('INFO: ionic ready, using cordova, platform: '+window.platform+'.');
+
+          bluetoothPlugin.connect = function(device, success, error) {
+            if (device.bluetoothLE) {
+              ble.connect(device.id, success, error);
+            } else {
+              bluetoothSerial.connect(device.id, success, error);
+            }
+          };
+          bluetoothPlugin.disconnect = function(device, success, error) {
+            // works whether connected or not.
+            if (device && device.bluetoothLE) {
+              ble.disconnect(device.id, success, error);
+            } else {
+              bluetoothSerial.disconnect(success, error);
+            }
+          };
+          bluetoothPlugin.clear = function(success, error) {
+            bluetoothSerial.clear(success, error);
+            //success();
+          };
+          bluetoothPlugin.getDevices = function(singleDeviceCallback, error) {
+            //singleDeviceCallback adds a single device to the devices service
+            // bluetoothSerial returns a LIST of devices
+            bluetoothSerial.list(
+              function(listOfDevices) {
+                listOfDevices.forEach(function(device){
+                  device.bluetoothLE = false;
+                  singleDeviceCallback(device)
+                })
+              },
+              error
+            ); // get bluetooth classic (2.0) devices - returns a list
+
+            ble.scan(
+              [],
+              5,
+              function(device) {
+                device.bluetoothLE = true;
+                singleDeviceCallback(device);
+              },
+              error); // scan for Bolutek ble module with service ffe0 (also a temperature sensor service)
+            // ble.scan calls callback for EACH device found.
+          };
+          bluetoothPlugin.subscribe = function(device, onData, error) {
+            if (device && device.bluetoothLE) {
+              ble.startNotification(device.id, 'ffe0', 'ffe1', onData, error);
+            } else {
+              bluetoothSerial.subscribeRawData(onData, error);
+            }
+          };
+          bluetoothPlugin.unsubscribe = function(device, success, error) {
+            if (device && device.bluetoothLE) {
+              ble.stopNotification(device.id, 'ffe0', 'ffe1', success, error);
+            } else {
+              bluetoothSerial.unsubscribeRawData(success, error);
+            }
+          };
+          bluetoothPlugin.write = function(device, data, success, error) {
+            if (typeof data === 'string') { data = data.charCodeAt(0);}
+            var newData = new Uint8Array(1);
+            newData[0] = data;
+            if (device && device.bluetoothLE) {
+              ble.write(device.id, 'ffe0', 'ffe1', newData.buffer, success, error);
+            } else {
+              bluetoothSerial.write(newData.buffer, success, error);
+            }
+          }
+          bluetoothPlugin.writeArray = function(device, dataArray, success, error) {
+            // TODO - Note cannot use the array[int] or arrayBuffer all at once as
+            // suggested in the readme for bluetoothSerial/bluetoothLEcentra.
+            // something to do with data formats or timing?
+
+            sendTimer = $interval(sendFunc, 1, nBytes);
+            var sendTimer;
+            var bufInd = 0;
+            var nBytes = dataArray.length;
+
+            function errorOut(msg) {
+              $interval.cancel(sendTimer);
+              error(msg);
+            }
+
+            function sendFunc(){
+                if (bufInd < nBytes){
+                    bluetoothPlugin.write(device, dataArray[bufInd], function(){}, errorOut);
+                    bufInd++;
+                    if (bufInd >= nBytes){
+                        $interval.cancel(sendTimer);
+                    }
+                }
+            }
+            sendTimer = $interval(sendFunc, 1, nBytes);
+          }
+          bluetoothPlugin.isConnected = function(device, connectedCB, notConnectedCB, errFunc){
+            if (device && device.bluetoothLE) {
+              ble.isConnected(device.id, connectedCB, notConnectedCB);
+            } else {
+              try{
+                  bluetoothSerial.isconnected(connectedCB, notConnectedCB);
+              } catch(err) {errFunc(err);}
+            }
+          };
+
         } else {
             // For chrome.serial, include wrappers to handle different args.
             // bluetoothSerial is the template for args
@@ -67,15 +161,15 @@ angular.module('flexvolt.services', [])
                     });
                 } catch (err) {errFunc(err);}
             };
-            bluetoothPlugin.connect = function(portName, callback, errFunc){
+            bluetoothPlugin.connect = function(device, callback, errFunc){
                 console.log('DEBUG: bluetoothPlugin.connect');
                 try {
-                    //console.log('Chrome connecting to '+portName);
+                    //console.log('Chrome connecting to '+device.name);
                     // was having issues with windows 8 not disconnecting quickly enough
                     // so far the solution has been a 50ms $timeout in felxvolt.js between
                     // searching disconnect and connecting connect.
                     // The complex inner guts below may no longer be necessary
-                    chrome.serial.connect(portName,{bitrate: 230400, ctsFlowControl: true},function(info){
+                    chrome.serial.connect(device.path,{bitrate: 230400, ctsFlowControl: true},function(info){
                         if (chrome.runtime.lastError) {
                             console.log('ERROR: Chrome runtime error during Serial.connect: '+chrome.runtime.lastError.message);
                         }
@@ -88,12 +182,12 @@ angular.module('flexvolt.services', [])
                                     if (chrome.runtime.lastError) {
                                         console.log('ERROR: Chrome runtime error during Serial.disconnect: '+chrome.runtime.lastError.message);
                                     }
-                                    console.log('Disconnected, portNamt:'+portName);
-                                    chrome.serial.connect(portName,{bitrate: 230400, ctsFlowControl: true},function(info){
+                                    console.log('Disconnected, device:'+device.name);
+                                    chrome.serial.connect(device.path,{bitrate: 230400, ctsFlowControl: true},function(info){
                                         if (chrome.runtime.lastError) {
                                             console.log('ERROR: Chrome runtime error during Serial.connect: '+chrome.runtime.lastError.message);
                                         }
-                                        console.log('DEBUG: Chrome connecting to '+portName+' 2nd time');
+                                        console.log('DEBUG: Chrome connecting to '+device.name+' 2nd time');
                                         if (info === angular.undefined){
                                             errFunc('Connection info was empty 2nd time');
                                             return;
@@ -117,7 +211,7 @@ angular.module('flexvolt.services', [])
                     });
                 } catch (err) {errFunc(err);}
             };
-            bluetoothPlugin.disconnect = function(callback,errFunc){
+            bluetoothPlugin.disconnect = function(device, callback, errFunc){
                 console.log('DEBUG: bluetoothPlugin.disconnect');
                 try {
                     // find and disconnect all existing connections
@@ -146,13 +240,19 @@ angular.module('flexvolt.services', [])
                     chrome.serial.flush(bluetoothPlugin.connectionId, callback);
                 } catch (err) {errFunc(err);}
             };
-            bluetoothPlugin.list = function(callback,errFunc){
+            bluetoothPlugin.getDevices = function(singleDeviceCallback,errFunc){
                 console.log('DEBUG: bluetoothPlugin.list');
                 try {
-                    chrome.serial.getDevices(callback);
+                    chrome.serial.getDevices(
+                      function(listOfDevices){
+                        listOfDevices.forEach(function(device){
+                          device.name = device.path;
+                          singleDeviceCallback(device);
+                        })
+                      });
                 } catch (err) {errFunc(err);}
             };
-            bluetoothPlugin.subscribe = function(callback,errFunc){
+            bluetoothPlugin.subscribe = function(device, callback, errFunc){
                 var onReceiveCallback = function(obj){
                     //console.log('received!');
                     var bytes = new Uint8Array(obj.data);
@@ -164,7 +264,11 @@ angular.module('flexvolt.services', [])
                     chrome.serial.onReceiveError.addListener(errFunc);
                 } catch (err) {errFunc(err);}
             };
-            bluetoothPlugin.write = function(data,callback,errFunc){
+            bluetoothPlugin.unsubscribe = function(device, success, error) {
+              // no analog for chrome
+              success();
+            };
+            bluetoothPlugin.write = function(device, data, callback, errFunc){
                 if (bluetoothPlugin.connectionId === angular.undefined){
                     console.log('ERROR: Cannot write to port, connectionId undefined!');
                     return;
@@ -173,24 +277,54 @@ angular.module('flexvolt.services', [])
                     return;
                 }
                 try {
-                    if ( (typeof data) === 'string'){
-                        //console.log('data to write, '+data+', was a string!');
-                        var buf=new ArrayBuffer(data.length);
-                        var bufView=new Uint8Array(buf);
-                        for (var i=0; i<data.length; i++) {
-                          bufView[i]=data.charCodeAt(i);
-                        }
-                        data = buf;
-                    }
+                    if (typeof data === 'string') { data = data.charCodeAt(0);}
+                    var newData = new Uint8Array(1);
+                    newData[0] = data;
+
                     var onSent = function(sendInfo){
                         //console.log('sent '+sendInfo.bytesSent+' bytes with error: '+sendInfo.error);
                         callback();
                     };
                     //console.log('chrome.serial.writing:');
                     //console.log(data); // IT'S AN ARRAY BUFFER - CAN't LOG IT DIRECTLY
-                    chrome.serial.send(bluetoothPlugin.connectionId, data, onSent);
+                    chrome.serial.send(bluetoothPlugin.connectionId, newData.buffer, onSent);
                 } catch(err) {errFunc(err);}
             };
+            bluetoothPlugin.writeArray = function(device, dataArray, success, error) {
+                if (bluetoothPlugin.connectionId === angular.undefined){
+                    console.log('ERROR: Cannot write to port, connectionId undefined!');
+                    return;
+                } else if(bluetoothPlugin.connectionId<0){
+                    console.log('ERROR: Cannot write to port, connectionId: '+bluetoothPlugin.connectionId);
+                    return;
+                }
+                try {
+                  // TODO - Note cannot use the array[int] or arrayBuffer all at once as
+                  // suggested in the readme for bluetoothSerial/bluetoothLEcentra.
+                  // something to do with data formats or timing?
+
+                  //data can be an array or Uint8Array
+                  var sendTimer;
+                  var bufInd = 0;
+                  var nBytes = dataArray.length;
+
+                  function errorOut(msg) {
+                    $interval.cancel(sendTimer);
+                    error(msg);
+                  }
+
+                  function sendFunc(){
+                      if (bufInd < nBytes){
+                          bluetoothPlugin.write(device, dataArray[bufInd], function(){}, errorOut);
+                          bufInd++;
+                          if (bufInd >= nBytes){
+                              $interval.cancel(sendTimer);
+                          }
+                      }
+                  }
+                  sendTimer = $interval(sendFunc, 20, nBytes);
+                } catch(err) {errFunc(err);}
+            }
         }
 
     });

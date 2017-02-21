@@ -129,8 +129,8 @@
 
         /* ********* */
     }])
-    .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters', 'records', 'hardwareLogic',
-    function($scope, flexvolt, appLogic, storage, dataHandler, filters, records, hardwareLogic) {
+    .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters', 'records', 'hardwareLogic', 'devices',
+    function($scope, flexvolt, appLogic, storage, dataHandler, filters, records, hardwareLogic, devices) {
         // high level container for app-wide functions/variables
         $scope.mobile = false;
         $scope.flexvolt=flexvolt;
@@ -146,5 +146,6 @@
         window.filters = filters;
         window.records = records;
         window.hardwareLogic = hardwareLogic;
+        window.devices = devices;
     }]);
 }());

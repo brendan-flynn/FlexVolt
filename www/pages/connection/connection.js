@@ -19,8 +19,8 @@
         };
     })
     .controller('ConnectionCtrl',
-    ['$scope','$state','$timeout','$ionicModal','$ionicPopover','$ionicPopup','$http','flexvolt','appLogic',
-    function($scope, $state, $timeout, $ionicModal, $ionicPopover, $ionicPopup, $http, flexvolt, appLogic) {
+    ['$scope','$state','$timeout','$ionicModal','$ionicPopover','$ionicPopup','$http','flexvolt','appLogic','devices',
+    function($scope, $state, $timeout, $ionicModal, $ionicPopover, $ionicPopup, $http, flexvolt, appLogic, devices) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
 

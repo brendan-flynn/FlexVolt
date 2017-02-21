@@ -16,6 +16,7 @@
         'flexvolt.customPopover',
         'flexvolt.records',
         'flexvolt.directives',
+        'flexvolt.devices',
         'flexvolt.flexvolt',
         'flexvolt.d3plots',
         'flexvolt.appLogic',
