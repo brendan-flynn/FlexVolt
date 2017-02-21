@@ -6,6 +6,9 @@ bower_components
 node_modules
 www/lib
 
+# Resources generated during build
+resources
+
 # Build platforms
 platforms
 
