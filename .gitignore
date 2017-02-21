@@ -7,7 +7,8 @@ node_modules
 www/lib
 
 # Resources generated during build
-resources
+resources/android
+resources/ios
 
 # Build platforms
 platforms

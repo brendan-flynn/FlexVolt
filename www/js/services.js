@@ -53,9 +53,15 @@ angular.module('flexvolt.services', [])
               bluetoothSerial.disconnect(success, error);
             }
           };
-          bluetoothPlugin.clear = function(success, error) {
-            bluetoothSerial.clear(success, error);
-            //success();
+          bluetoothPlugin.clear = function(device, success, error) {
+            if (device && device.bluetoothLE) {
+              // there is no clear for the LE plugin...
+              console.log('DEBUG: no clear for bt.LE');
+              success();
+            } else {
+              console.log('DEBUG: bt.serial clear');
+              bluetoothSerial.clear(success, error);
+            }
           };
           bluetoothPlugin.getDevices = function(singleDeviceCallback, error) {
             //singleDeviceCallback adds a single device to the devices service
@@ -89,8 +95,10 @@ angular.module('flexvolt.services', [])
           };
           bluetoothPlugin.unsubscribe = function(device, success, error) {
             if (device && device.bluetoothLE) {
+              console.log('DEBUG: BLE unsubscribe');
               ble.stopNotification(device.id, 'ffe0', 'ffe1', success, error);
             } else {
+              console.log('DEBUG: BL.Serial unsubscribe');
               bluetoothSerial.unsubscribeRawData(success, error);
             }
           };
@@ -298,32 +306,27 @@ angular.module('flexvolt.services', [])
                     console.log('ERROR: Cannot write to port, connectionId: '+bluetoothPlugin.connectionId);
                     return;
                 }
-                try {
-                  // TODO - Note cannot use the array[int] or arrayBuffer all at once as
-                  // suggested in the readme for bluetoothSerial/bluetoothLEcentra.
-                  // something to do with data formats or timing?
 
-                  //data can be an array or Uint8Array
-                  var sendTimer;
-                  var bufInd = 0;
-                  var nBytes = dataArray.length;
+                //data can be an array or Uint8Array
+                var sendTimer;
+                var bufInd = 0;
+                var nBytes = dataArray.length;
 
-                  function errorOut(msg) {
-                    $interval.cancel(sendTimer);
-                    error(msg);
-                  }
+                function errorOut(msg) {
+                  $interval.cancel(sendTimer);
+                  error(msg);
+                }
 
-                  function sendFunc(){
-                      if (bufInd < nBytes){
-                          bluetoothPlugin.write(device, dataArray[bufInd], function(){}, errorOut);
-                          bufInd++;
-                          if (bufInd >= nBytes){
-                              $interval.cancel(sendTimer);
-                          }
-                      }
-                  }
-                  sendTimer = $interval(sendFunc, 20, nBytes);
-                } catch(err) {errFunc(err);}
+                function sendFunc(){
+                    if (bufInd < nBytes){
+                        bluetoothPlugin.write(device, dataArray[bufInd], function(){}, errorOut);
+                        bufInd++;
+                        if (bufInd >= nBytes){
+                            $interval.cancel(sendTimer);
+                        }
+                    }
+                }
+                sendTimer = $interval(sendFunc, 20, nBytes);
             }
         }
 

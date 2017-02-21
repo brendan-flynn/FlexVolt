@@ -294,13 +294,13 @@ angular.module('flexvolt.flexvolt', [])
         function waitForInput(outMsg, repeat, waitTime, inMsg, nextFunc){
             console.log('DEBUG: writing ' + outMsg + ', waiting ' + waitTime + ' for ' + inMsg);
             if (outMsg !== null){
-                function send() {
-                  console.log('OUTPUT: '+outMsg);
-                  write(outMsg);
-                }
-                send()
+                console.log('OUTPUT: '+outMsg);
+                write(outMsg);
                 if (repeat) {
-                  pollingInterval = $interval(send,400);
+                  pollingInterval = $interval(function() {
+                    console.log('OUTPUT: '+outMsg);
+                    write(outMsg);
+                  },400);
                 }
             }
 
@@ -380,11 +380,14 @@ angular.module('flexvolt.flexvolt', [])
                         $timeout(cb,250);
                     } else {
                         api.connection.state ='begin';
-                        bluetoothPlugin.clear(function() {
-                          console.log('DEBUG: Cleared Connection');
-                        }, function() {
-                          console.log('ERROR: Error clearing bluetooth');
-                        });
+                        bluetoothPlugin.clear(
+                          null,
+                          function() {
+                            console.log('DEBUG: Cleared Connection');
+                          }, function() {
+                            console.log('ERROR: Error clearing bluetooth');
+                          }
+                        );
 
                     }
                 },
@@ -463,7 +466,7 @@ angular.module('flexvolt.flexvolt', [])
                 subscribe();
                 console.log('DEBUG: Now connected to a port');
                 write('X');
-                bluetoothPlugin.clear(handshake1, simpleLog);
+                bluetoothPlugin.clear(api.currentDevice, handshake1, simpleLog);
             } else {
                 console.log('DEBUG: Connect Success, but wrong state, probably cancelled');
             }
@@ -509,6 +512,7 @@ angular.module('flexvolt.flexvolt', [])
             if (api.connection.state === 'connected') {
                 api.connection.state = 'polling';
                 bluetoothPlugin.clear(
+                    api.currentDevice,
                     function () {
                         waitForInput('V',false,api.connection.connectedWait,118,parseVersion);
                     },
@@ -779,6 +783,7 @@ angular.module('flexvolt.flexvolt', [])
             if (api.connection.state === 'connected'){
                 api.connection.data = 'turningOn';
                 bluetoothPlugin.clear(
+                    api.currentDevice,
                     function () {
                         console.log('DEBUG: Cleared in turnDataOn.');
                         waitForInput('G',true,api.connection.connectedWait,103,function(){
