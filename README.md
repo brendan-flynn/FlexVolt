@@ -41,11 +41,22 @@ For each control action
 ### Command Mode
 
 1.  'V' - Get Version info.  Returns info related to the hardware model, version, and s/n.
-1.  'M' - Capture and transmit a single measurement.  Good for testing, or for computer-based sample-time control.
-2.  'G' - Turn data measurement on.  Starts measuring and transmitting data using current settings (nChannels, sampleRate)
-3.  'Q' - Turn data measurement off.  Stop measuring and transmitting data.
-4.  'X' - Clear State, Leave Command Mode.
-5.  'S' - Enter Settings menu.
+
+  Response: 'V', 'v', Version, SerialNumberHighByte, SerialNumberLowByte, ModelNumber
+  
+  ModelNumber : Device
+  0 = USB 2 Channel
+  1 = USB 4 Channel
+  2 = USB 8 Channel
+  3 = Bluetooth 2 Channel
+  4 = Bluetooth 4 Channel
+  5 = Bluetooth 8 Channel
+
+2.  'M' - Capture and transmit a single measurement.  Good for testing, or for computer-based sample-time control.
+3.  'G' - Turn dataMode On.  Starts measuring and transmitting data using current settings (nChannels, sampleRate)
+4.  'Q' - Turn dataMode off.  Stop measuring and transmitting data.
+5.  'X' - Clear State, Leave Command Mode.
+6.  'S' - Enter Settings menu.
 
 ### Data Mode
 
