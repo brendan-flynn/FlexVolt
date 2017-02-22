@@ -17,7 +17,7 @@
  *
  *      animateStep();
  *
- * The above example calls getData evert frame (typically 60 FPS)
+ * The above example calls getData every frame (typically 60 FPS)
  *
  */
 
@@ -242,7 +242,7 @@ angular.module('flexvolt.flexvolt', [])
                 } else {
                     // was data turned off?
                     console.log('ERROR: Stopped getting data.');
-                    // check connection
+                    // check connection, try turning data back on
                     bluetoothPlugin.isConnected(api.currentDevice, connectedCB, notConnectedCB, connectionErr);
                 }
             }
@@ -369,32 +369,36 @@ angular.module('flexvolt.flexvolt', [])
             $interval.cancel(connectionTestInterval);
             api.connection.state = 'disconnected';
             api.connection.data = 'off';
-            unsubscribe();
             waitingForResponse = false;
-            bluetoothPlugin.disconnect(
-                api.currentDevice,
-                function () {
-                    api.currentDevice = undefined;
-                    if (cb){
-                        console.log('DEBUG: Reseting Connection.');
-                        $timeout(cb,250);
-                    } else {
-                        api.connection.state ='begin';
-                        bluetoothPlugin.clear(
-                          null,
-                          function() {
-                            console.log('DEBUG: Cleared Connection');
-                          }, function() {
-                            console.log('ERROR: Error clearing bluetooth');
-                          }
-                        );
+            bluetoothPlugin.unsubscribe(
+              api.currentDevice,
+              bluetoothPlugin.disconnect(
+                  api.currentDevice,
+                  function () {
+                      api.currentDevice = undefined;
+                      if (cb){
+                          console.log('DEBUG: Reseting Connection.');
+                          $timeout(cb,250);
+                      } else {
+                          api.connection.state ='begin';
+                          bluetoothPlugin.clear(
+                            null,
+                            function() {
+                              console.log('DEBUG: Cleared Connection');
+                            }, function() {
+                              console.log('ERROR: Error clearing bluetooth');
+                            }
+                          );
 
-                    }
-                },
-                function () { console.log('Error disconnecting.');
-            });
+                      }
+                  },
+                  function (err) { console.log('EERROR: during connectionResetHandler disconnect: ' + JSON.stringify(err))}
+                ),
+              function(err){console.log('ERROR: during connectionResetHandler unsubscribe: ' + JSON.stringify(err))}
+            );
         }
-        api.resetConnection = function(cb){  // pass true to reconnect
+        api.resetConnection = function(){
+            // User interface
             console.log('DEBUG: resetConnection, state:'+api.connection.state);
             if (api.connection.state === 'connecting' || api.connection.state === 'searching'){
                 console.log('INFO: connection attempt already in progress');

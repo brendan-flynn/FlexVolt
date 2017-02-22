@@ -54,13 +54,16 @@ angular.module('flexvolt.services', [])
             }
           };
           bluetoothPlugin.clear = function(device, success, error) {
+            console.log('DEBUG: bluetoothPlugin.clear - Deprecated');
+            // not sure we ever need this function
             if (device && device.bluetoothLE) {
               // there is no clear for the LE plugin...
-              console.log('DEBUG: no clear for bt.LE');
+              //console.log('DEBUG: no clear for bt.LE');
               success();
             } else {
-              console.log('DEBUG: bt.serial clear');
-              bluetoothSerial.clear(success, error);
+              //console.log('DEBUG: bt.serial clear');
+              //bluetoothSerial.clear(success, error);
+              success();
             }
           };
           bluetoothPlugin.getDevices = function(singleDeviceCallback, error) {
@@ -243,9 +246,10 @@ angular.module('flexvolt.services', [])
                 } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.clear = function(callback,errFunc){
-                console.log('DEBUG: bluetoothPlugin.clear');
+                console.log('DEBUG: bluetoothPlugin.clear - Deprecated');
                 try {
-                    chrome.serial.flush(bluetoothPlugin.connectionId, callback);
+                    // chrome.serial.flush(bluetoothPlugin.connectionId, callback);
+                    callback();
                 } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.getDevices = function(singleDeviceCallback,errFunc){
@@ -267,14 +271,18 @@ angular.module('flexvolt.services', [])
                     callback(bytes);
                 };
                 try {
-                    //console.log('settings up events');
+                    //console.log('settings up event listeners');
                     chrome.serial.onReceive.addListener(onReceiveCallback);
                     chrome.serial.onReceiveError.addListener(errFunc);
                 } catch (err) {errFunc(err);}
             };
-            bluetoothPlugin.unsubscribe = function(device, success, error) {
-              // no analog for chrome
-              success();
+            bluetoothPlugin.unsubscribe = function(device, success, errFunc) {
+                try {
+                    //console.log('removing event listeners');
+                    chrome.serial.onReceive.removeListener(onReceiveCallback);
+                    chrome.serial.onReceiveError.removeListener(errFunc);
+                    success();
+                } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.write = function(device, data, callback, errFunc){
                 if (bluetoothPlugin.connectionId === angular.undefined){
