@@ -385,8 +385,8 @@ angular.module('flexvolt.d3plots', [])
     api.reset = function(){
         if (svg){
           svg.selectAll('path.line').remove();
-          d3.select('svg').remove();
         }
+        d3.select('svg').remove();
         svg = d3.select(plotElement).append('svg')
             .attr('width', width + margin.left + margin.right)
             .attr('height', height + margin.top + margin.bottom)

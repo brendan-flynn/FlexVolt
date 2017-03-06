@@ -279,8 +279,8 @@ angular.module('flexvolt.services', [])
             bluetoothPlugin.unsubscribe = function(device, success, errFunc) {
                 try {
                     //console.log('removing event listeners');
-                    chrome.serial.onReceive.removeListener(onReceiveCallback);
-                    chrome.serial.onReceiveError.removeListener(errFunc);
+                    chrome.serial.onReceive.removeListener();
+                    chrome.serial.onReceiveError.removeListener();
                     success();
                 } catch (err) {errFunc(err);}
             };
