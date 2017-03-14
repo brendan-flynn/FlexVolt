@@ -2,26 +2,18 @@
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
     </ion-nav-buttons>
-    <ion-content class="has-header padding">
+    <ion-content class="has-header padding fv-theme">
         <div ng-repeat="row in apps.active" class="row my-icon-row">
             <div ng-repeat="app in row" class="col-25 my-icon-col">
                     <button class="button-icon" ui-sref="{{app.ref}}"><i class="icon {{app.icon}} home-page-icons"></i>{{app.btnName}}</button>
             </div>
         </div>
-        <hr/>
+        <hr class="fv-hr"/>
         <div ng-repeat="row in apps.controls" class="row my-icon-row">
             <div ng-repeat="app in row" class="col-25 my-icon-col">
                     <button class="button-icon" ui-sref="{{app.ref}}"><i class="icon {{app.icon}} home-page-icons"></i>{{app.btnName}}</button>
             </div>
         </div>
-        <hr/>
-        <div style="text-align:center;">
-          <h3>Other Features Coming Soon:</h3>
-        </div>
-        <div ng-repeat="row in apps.development" class="row my-icon-row">
-            <div ng-repeat="app in row" class="col-25 my-icon-col">
-                    <button class="button-icon" ui-sref="{{app.ref}}"><i class="icon {{app.icon}} home-page-icons"></i>{{app.btnName}}</button>
-            </div>
-        </div>
+        <hr class="fv-hr"/>
     </ion-content>
 </ion-view>

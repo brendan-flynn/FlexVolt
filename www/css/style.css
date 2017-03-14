@@ -1,4 +1,34 @@
 /* FlexVolt CSS */
+
+.fv-bar, .fv-button {
+  border-color: #28a54c;
+  background-color: #33cd5f;
+  /*background-image: linear-gradient(0deg, #28a54c, #28a54c 50%, transparent 50%);*/
+  color: black;
+}
+
+.fv-hr {
+  height: 2px;
+  color: black;
+  background-color: black;
+  border: none;
+}
+
+.fv-button.active, .fv-button.activated {
+  border-color: #a2a2a2;
+  background-color: #28a54c;
+}
+
+.fv-select {
+  border-color: #28a54c;
+  background-color: #33cd5f;
+  color: black;
+}
+
+.fv-theme {
+  background-color: #ffd38e;
+}
+
 path.line
 {
     fill: none;
@@ -37,6 +67,22 @@ i.record-icon{
   font-size:10px !important;
 }*/
 
+.help-modal {
+    padding: 8px;
+    font-size: 14px;
+}
+
+.help-modal-container {
+    width: 94%;
+    height: 94%;
+    top: 3%;
+    left: 3%;
+    right: 3%;
+    bottom: 3%;
+    border: 10px solid #33cd5f; // ionic $balanced
+    border-radius: 8px;
+}
+
 .log-class {
     font-size: 12px;
     -webkit-user-select: text !important;
@@ -45,8 +91,22 @@ i.record-icon{
     -khtml-user-select:  text !important;
 }
 
-.col-70px {
+.row-full-height {
+  position:absolute;
+  top:0;
+  bottom:0;
+}
 
+.col-150px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 150px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 150px;
+  -ms-flex: 0 0 150px;
+  flex: 0 0 150px;
+  max-width: 150px; }
+
+.col-70px {
   -webkit-box-flex: 0;
   -webkit-flex: 0 0 70px;
   -moz-box-flex: 0;
@@ -56,7 +116,6 @@ i.record-icon{
   max-width: 70px; }
 
 .col-10px {
-
   -webkit-box-flex: 0;
   -webkit-flex: 0 0 10px;
   -moz-box-flex: 0;
@@ -73,7 +132,6 @@ i.record-icon{
   right:0;
   top:0;
   bottom:0;
-  z-index: -1;
 }
 
 .axisnoline path {

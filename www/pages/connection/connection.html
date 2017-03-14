@@ -3,7 +3,7 @@
         <connection-status></connection-status>
     </ion-nav-buttons>
 
-    <ion-content class="has-header padding">
+    <ion-content class="has-header padding fv-theme">
         <h3 align="center">Connection Status</h3>
         <!--<span ng-bind="flexvolt|json"></span>-->
         <p>Status: {{flexvolt.api.connection.state}} : {{flexvolt.getDetailedConnectionStatus()}}</p>
@@ -13,25 +13,25 @@
             <p>Version: {{con.version}}  &nbsp&nbsp&nbsp  S/N: {{con.serialNumber}}</p>
             <div class="row">
                 <div class="col col-40">
-                    <button ng-click="flexvolt.api.resetConnection()">Reset connection</button>
+                    <button class="button button-small fv-button" ng-click="flexvolt.api.resetConnection()">Reset connection</button>
                 </div>
                 <div ng-if="mobile" class="col col-40 col-offset-20">
-                    <button ng-click="flexvolt.api.disconnect()">Disconnect</button>
+                    <button class="button button-small fv-button" ng-click="flexvolt.api.disconnect()">Disconnect</button>
                 </div>
             </div>
         </div>
         <div ng-if="!flexvolt.getConnectionStatus() && !flexvolt.getConnectingStatus()">
-            <button ng-click="flexvolt.api.startConnect()">Try to connect</button>
+            <button class="button button-small fv-button" ng-click="flexvolt.api.startConnect()">Try to connect</button>
         </div>
         <div ng-if="flexvolt.getConnectingStatus()">
-            <button ng-click="flexvolt.api.cancelConnection()">Cancel Connect Attempt</button>
+            <button class="button button-small fv-button" ng-click="flexvolt.api.cancelConnection()">Cancel Connect Attempt</button>
         </div>
 
         <div ng-if="!mobile">
             <h3 align="center">Manual Controls</h3>
             <div class="row">
-                <div class="col col-40"><button ng-click="updatePorts()">Scan Ports</button></div>
-                <div class="col col-40 col-offset-20"><button ng-click="flexvolt.api.disconnect()">Disconnect</button></div>
+                <div class="col col-40"><button class="button button-small fv-button" ng-click="updatePorts()">Scan Ports</button></div>
+                <div class="col col-40 col-offset-20"><button class="button button-small fv-button" ng-click="flexvolt.api.disconnect()">Disconnect</button></div>
             </div>
 
 <!--            <div ng-if="!mobile">
@@ -43,19 +43,19 @@
             <br>
             </div>-->
             <p>All Available Ports:</p>
-            <select ng-model="selectedPort" ng-options="device.name for device in portList()"></select>
-            <!--<button ng-click="flexvolt.api.sendMsg('A')">Send 'A'</button>-->
-            <button ng-if="mobile" ng-click="attemptToConnect(selectedPort)">Connect Selected Port</button>
+            <select class="button fv-select" ng-model="selectedPort" ng-options="device.name for device in portList()"></select>
+            <!--<button class="button fv-button" ng-click="flexvolt.api.sendMsg('A')">Send 'A'</button>-->
+            <button class="button button-small fv-button" ng-if="mobile" ng-click="attemptToConnect(selectedPort)">Connect Selected Port</button>
             <p ng-if="!mobile">
-                <button ng-click="attemptToConnect(selectedPort)">Connect Selected Port</button>
+                <button class="button button-small fv-button" ng-click="attemptToConnect(selectedPort)">Connect Selected Port</button>
             </p>
             <br>
         </div>
         <h3 align="center">TroubleShooting</h3>
         <div>
             <h4>Timeouts (ms)</h4>
-            Initial Connection Timeout: <select ng-model="flexvolt.api.connection.initialWait" ng-options="wait for wait in flexvolt.api.connection.initialWaitList"></select>
-            Settings and Commands Timeout: <select ng-model="flexvolt.api.connection.connectedWait" ng-options="wait for wait in flexvolt.api.connection.connectedWaitList"></select>
+            Initial Connection Timeout: <select class="button fv-select" ng-model="flexvolt.api.connection.initialWait" ng-options="wait for wait in flexvolt.api.connection.initialWaitList"></select>
+            Settings and Commands Timeout: <select class="button fv-select" ng-model="flexvolt.api.connection.connectedWait" ng-options="wait for wait in flexvolt.api.connection.connectedWaitList"></select>
         </div>
         <br>
         <div>
@@ -63,10 +63,10 @@
                 Please include a detailed description!
             </p>
             <div class="row">
-                <div class="col col-30"><button ng-click="showLog()">View Log Messages</button></div>
+                <div class="col col-30"><button class="button button-small fv-button" ng-click="showLog()">View Log Messages</button></div>
                 <!--<div class="col col-30 col-offset-10" ng-if="mobile"><button ng-click="copyToClipboard()">Copy Log to Clipboard</button></div>-->
                 <div class="col col-30 col-offset-40">
-                    <button ng-click="showBugReportForm()">Create Bug Report</button>
+                    <button class="button button-small fv-button" ng-click="showBugReportForm()">Create Bug Report</button>
                     <!--<a ng-if="!mobile" ng-href="{{emailBugReport}}" target="_blank">-->
                         <!--<button>Send Bug Report</button>-->
                     <!--</a>-->
@@ -75,7 +75,7 @@
         </div>
 <!--        <h3 align="center">Files</h3>
         <div>
-            <button ng-click="createFile()">create test file</button>
+            <button class="button button-small fv-button" ng-click="createFile()">create test file</button>
         </div>-->
     </ion-content>
 </ion-view>

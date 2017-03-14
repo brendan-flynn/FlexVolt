@@ -7,18 +7,18 @@
         <filters-popover ng-if="!mobile"></filters-popover>
         <settings-popover></settings-popover>
     </ion-nav-buttons>
-  <ion-content scroll="false" class="has-header">
+  <ion-content scroll="false" class="has-header fv-theme">
       <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
       <div ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
           <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
           <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
       </div>
       <save-panel></save-panel>
-      <div class="row">
-          <div class="col">
-              <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels"
+      <div class="row row-full-height">
+          <div class="col col-150px">
+              <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
                    style="font-size: 14px; line-height:14px;">
-                  <div>
+                  <div ng-click="showLabelPopup($index)">
                       <span ng-style="{'background-color': label.color}"
                         style="float:left; width: 14px; height: 14px; margin:2px; border-width:1px; border-color:black"></span>
                       {{label.name}}
@@ -31,7 +31,7 @@
                   </div>
               </div>
           </div>
-          <div class="col fullsizeplot" id="rmsTimeWindow"></div>
+          <div class="col" id="rmsTimeWindow"></div>
       </div>
 
   </ion-content>

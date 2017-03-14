@@ -34,6 +34,42 @@
             paintStep();
         };
 
+        $scope.showLabelPopup = function(ind) {
+          console.log('here');
+          $scope.data = {
+            input: $scope.pageLogic.settings.labels[ind].name
+          };
+
+          // An elaborate, custom popup
+          var myPopup = $ionicPopup.show({
+            template: '<input ng-model="data.input" autofocus>',
+            title: 'Enter New Label',
+            scope: $scope,
+            buttons: [
+              { text: 'Cancel' },
+              {
+                text: '<b>Save</b>',
+                type: 'button-positive',
+                onTap: function(e) {
+                  if (!$scope.data.input) {
+                    //don't allow the user to close unless something has been entered
+                    e.preventDefault();
+                  } else {
+                    return $scope.data.input;
+                  }
+                }
+              }
+            ]
+          });
+          myPopup.then(function(res) {
+            // if cancel, will be undefined
+            if (angular.isDefined(res)){
+              console.log('label popup changed to: '+res);
+              $scope.pageLogic.settings.labels[ind].name = res;
+            }
+          });
+         };
+
         function updateAnimate(){
             if ($scope.updating) return;
 

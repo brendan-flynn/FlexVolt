@@ -43,11 +43,11 @@
                             ref:"demos",
                             btnName:"Demos"
                         },
-                        b2: {
-                            icon:"icon ion-help",
-                            ref:"help",
-                            btnName:"Help"
-                        },
+                        // b2: {
+                        //     icon:"icon ion-help",
+                        //     ref:"help",
+                        //     btnName:"Help"
+                        // },
                         b3: {
                             icon:"icon ion-settings",
                             ref:"settings",
@@ -58,26 +58,6 @@
                             ref:"connection",
                             btnName:"Connection"
                         }
-                    }
-                },
-                development: {
-                    row1: {
-                        b2:{
-                            icon:"icon ion-ios-heart",
-                            ref:"ekg",
-                            btnName:"EKG"
-
-                        },
-                        b3:{
-                            icon:"icon ion-android-stopwatch",
-                            ref:"hrv",
-                            btnName:"HRV"
-                        }
-                        // b4: {
-                        //     icon:"icon ion-ios-game-controller-b",
-                        //     ref:"snake",
-                        //     btnName:"Snake Game"
-                        // }
                     }
                 }
             }

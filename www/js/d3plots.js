@@ -357,7 +357,7 @@ angular.module('flexvolt.d3plots', [])
 .factory('tracePlot', function() {
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
     var margin, width, height, plotElement, htmlElement;
-    var mar = 4;
+    var mar = 10;
     margin = {left: mar, right: mar, top: mar, bottom: 20};
     var PADDINGOFFSET = 8;
 
@@ -388,10 +388,15 @@ angular.module('flexvolt.d3plots', [])
         }
         d3.select('svg').remove();
         svg = d3.select(plotElement).append('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
+            .attr('width', width)
+            .attr('height', height)
             .append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+        svg.append('rect')
+            .attr('width', '100%')
+            .attr('height', '100%')
+            .attr('fill', 'white');
 
         xPos = 0;
         startPos = 0;
@@ -508,7 +513,7 @@ angular.module('flexvolt.d3plots', [])
 })
 .factory('rmsTimePlot', function() {
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
-    var leftPadding = 150;
+    var leftPadding = 10;
     var rightPadding = 10;
 
     var margin, width, height, plotElement, htmlElement, dT;
@@ -679,6 +684,11 @@ angular.module('flexvolt.d3plots', [])
             .append('g')
             .attr('transform', 'translate(' + (margin.left + leftPadding) + ',' + margin.top + ')')
             .call(zoom);
+
+        svg.append('rect')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('fill', 'white');
 
         line = d3.svg.line()
             .interpolate('linear')
