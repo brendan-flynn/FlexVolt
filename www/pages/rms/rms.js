@@ -3,14 +3,15 @@
 
     angular.module('flexvolt.rms', [])
 
-    .controller('RMSCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopover', 'rmsTimePlot', 'rmsTimeLogic', 'dataHandler', 'hardwareLogic', 'customPopover',
-    function($stateParams, $scope, $state, flexvolt, $ionicPopover, rmsTimePlot, rmsTimeLogic, dataHandler, hardwareLogic, customPopover) {
+    .controller('RMSCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopup', '$ionicPopover', '$ionicModal', 'rmsTimePlot', 'rmsTimeLogic', 'dataHandler', 'hardwareLogic', 'customPopover',
+    function($stateParams, $scope, $state, flexvolt, $ionicPopup, $ionicPopover, $ionicModal, rmsTimePlot, rmsTimeLogic, dataHandler, hardwareLogic, customPopover) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
 
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/rms/rms-settings.html',rmsTimeLogic.updateSettings);
         customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',rmsTimeLogic.updateSettings);
-        customPopover.add($ionicPopover, $scope, 'helpover','pages/rms/rms-help.html');
+        // customPopover.add($ionicPopover, $scope, 'helpover','pages/rms/rms-help.html');
+        customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/rms/rms-help.html');
 
         var afID = undefined;
         var metricCounts = 0;

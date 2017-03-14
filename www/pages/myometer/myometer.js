@@ -3,14 +3,16 @@
 
     angular.module('flexvolt.myometer', [])
 
-    .controller('MyometerCtrl', ['$scope', '$state', '$stateParams', '$ionicPopup','$ionicPopover', '$interval', 'myometerPlot', 'myometerLogic', 'dataHandler', 'hardwareLogic', 'customPopover',
-    function($scope, $state, $stateParams, $ionicPopup, $ionicPopover, $interval, myometerPlot, myometerLogic, dataHandler, hardwareLogic, customPopover) {
+    .controller('MyometerCtrl', ['$scope', '$state', '$stateParams', '$ionicPopup','$ionicPopover', '$ionicModal', '$interval', 'myometerPlot', 'myometerLogic', 'dataHandler', 'hardwareLogic', 'customPopover',
+    function($scope, $state, $stateParams, $ionicPopup, $ionicPopover, $ionicModal, $interval, myometerPlot, myometerLogic, dataHandler, hardwareLogic, customPopover) {
       var currentUrl = $state.current.url;
+      $scope.demo = $stateParams.demo;
       console.log('currentUrl = '+currentUrl);
 
       customPopover.add($ionicPopover, $scope, 'popover', 'pages/myometer/myometer-settings.html', myometerLogic.updateSettings);
       customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html', myometerLogic.updateSettings);
-      customPopover.add($ionicPopover, $scope, 'helpover','pages/myometer/myometer-help.html');
+      // customPopovers.add($ionicPopover, $scope, 'helpover','pages/myometer/myometer-help.html');
+      customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/myometer/myometer-help.html');
 
       var afID;
       var frameCounts = 0;
@@ -48,8 +50,6 @@
         counter: 0,
         channel: 0
       };
-
-      $scope.demo = $stateParams.demo;
 
       $scope.pageLogic = myometerLogic;
       $scope.hardwareLogic = hardwareLogic;

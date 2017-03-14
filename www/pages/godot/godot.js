@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.godot', [])
 
-    .controller('GodotCtrl', ['$stateParams', '$scope', '$state', '$timeout', '$ionicPopover', 'flexvolt', 'xyDot', 'xyLogic', 'hardwareLogic', 'customPopover',
-    function($stateParams, $scope, $state, $timeout, $ionicPopover, flexvolt, xyDot, xyLogic, hardwareLogic, customPopover) {
+    .controller('GodotCtrl', ['$stateParams', '$scope', '$state', '$timeout', '$ionicPopover', '$ionicModal', 'flexvolt', 'xyDot', 'xyLogic', 'hardwareLogic', 'customPopover',
+    function($stateParams, $scope, $state, $timeout, $ionicPopover, $ionicModal, flexvolt, xyDot, xyLogic, hardwareLogic, customPopover) {
 
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
@@ -12,7 +12,8 @@
         $scope.demo = $stateParams.demo;
 
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/godot/settings.html',xyLogic.updateSettings);
-        customPopover.add($ionicPopover, $scope, 'helpover','pages/godot/help.html');
+        // customPopover.add($ionicPopover, $scope, 'helpover','pages/godot/help.html');
+        customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/godot/godot-help.html');
 
         var afID;
         var frameCounts = 0;

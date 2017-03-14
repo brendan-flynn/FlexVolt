@@ -1,11 +1,15 @@
-<ion-popover-view>
-  <ion-header-bar>
+<ion-modal-view ng-click="helpModal.hide()">
+  <ion-header-bar class="bar bar-header fv-bar">
     <h1 class="title">Trace Help</h1>
   </ion-header-bar>
-  <ion-content>
-      <div>
+  <ion-content class="fv-theme">
+      <div class="help-modal">
           This task plots the real-time data being measured by your FlexVolt sensor.
           You can change the number of channels to plot in the settings menu.
+
+          <div style="text-align: center;">
+            <button ng-click="helpModal.hide()" class="button fv-button">Got it!</button>
+          </div>
       </div>
   </ion-content>
-</ion-popover-view>
+</ion-modal-view>

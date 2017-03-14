@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.trace', [])
 
-    .controller('TraceCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopover', 'tracePlot', 'traceLogic', 'dataHandler', 'hardwareLogic', 'logicOptions', 'customPopover',
-    function($stateParams, $scope, $state, flexvolt, $ionicPopover, tracePlot, traceLogic, dataHandler, hardwareLogic, logicOptions, customPopover) {
+    .controller('TraceCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopover', '$ionicModal', 'tracePlot', 'traceLogic', 'dataHandler', 'hardwareLogic', 'logicOptions', 'customPopover',
+    function($stateParams, $scope, $state, flexvolt, $ionicPopover, $ionicModal, tracePlot, traceLogic, dataHandler, hardwareLogic, logicOptions, customPopover) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
         $scope.demo = $stateParams.demo;
@@ -12,7 +12,8 @@
 
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/trace/trace-settings.html',traceLogic.updateSettings);
         customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',traceLogic.updateSettings);
-        customPopover.add($ionicPopover, $scope, 'helpover','pages/trace/trace-help.html');
+        // customPopover.add($ionicPopover, $scope, 'helpover','pages/trace/trace-help.html');
+        customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/trace/trace-help.html');
 
         $scope.pageLogic = traceLogic;
         $scope.hardwareLogic = hardwareLogic;

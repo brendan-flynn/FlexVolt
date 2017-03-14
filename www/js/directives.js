@@ -70,7 +70,7 @@ angular.module('flexvolt.directives', [])
 .directive('helpPopover', function(){
     return {
         restrict: 'E',
-        template: '<button class="button button-icon" ng-click="helpover.show($event)"><i class="icon ion-help dark"></i></button>'
+        template: '<button ng-if="helpModal" class="button button-icon" ng-click="helpModal.show()"><i class="icon ion-help dark"></i></button>'
     };
 })
 .directive('filterOptions', function(){

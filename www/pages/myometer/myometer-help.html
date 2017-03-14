@@ -1,9 +1,9 @@
-<ion-popover-view>
-  <ion-header-bar>
+<ion-modal-view ng-click="helpModal.hide()">
+  <ion-header-bar class="bar bar-header bar-balanced">
     <h1 class="title">Myometer Help</h1>
   </ion-header-bar>
   <ion-content>
-      <div>
+      <div class="help-modal">
           <h4>Feedback</h4>
           <ul>
               <li>Reach a minimum level of exersion by bringing the signal level above the threshold</li>
@@ -21,6 +21,10 @@
           <ul>
               <li>Click a channel name to change it</li>
           </ul>
+
+          <div style="text-align: center;">
+            <button ng-click="helpModal.hide()" class="button button-balanced">Got it!</button>
+          </div>
       </div>
   </ion-content>
-</ion-popover-view>
+</ion-modal-view>
