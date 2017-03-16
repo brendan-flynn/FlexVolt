@@ -21,6 +21,7 @@
   },
   "scripts" :
   {
-    "postinstall" : "cordova prepare"
+    "postinstall" : "cordova prepare",
+    "web": "rm -R docs/ && cp -R www/ docs/"
   }
 }

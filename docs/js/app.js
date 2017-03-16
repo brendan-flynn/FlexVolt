@@ -99,7 +99,7 @@
         if (window.cordova) {
           // get cordova version
           appLogic.dm.version = 'unavailable'; // TODO - fix this!
-        } else if (window.chrome) {
+        } else if (window.chrome && window.chrome.runtime && window.chrome.runtime.getManifest) {
           appLogic.dm.version = chrome.runtime.getManifest().version;
         }
       });
