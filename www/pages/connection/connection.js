@@ -52,16 +52,18 @@
         };
 
         $scope.createFile = function(){
-            chrome.fileSystem.chooseEntry({type: 'saveFile',
-                suggestedName: 'myfile.csv'},
-                function(writableFileEntry) {
-                    writableFileEntry.createWriter(function(writer) {
-                        writer.onwriteend = function(e) {
-                            console.log('Save complete!');
-                        };
-                        writer.write(new Blob(['test text to write'],{type: 'csv'}));
-                }, function(e){console.log('ERROR: in file writer: '+angular.toJson(e));});
-            });
+            if (chrome && chrome.fileSystem && chrome.fileSystem.chooseEntry) {
+                chrome.fileSystem.chooseEntry({type: 'saveFile',
+                    suggestedName: 'myfile.csv'},
+                    function(writableFileEntry) {
+                        writableFileEntry.createWriter(function(writer) {
+                            writer.onwriteend = function(e) {
+                                console.log('Save complete!');
+                            };
+                            writer.write(new Blob(['test text to write'],{type: 'csv'}));
+                    }, function(e){console.log('ERROR: in file writer: '+angular.toJson(e));});
+                });
+            }
 
         };
 

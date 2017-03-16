@@ -151,7 +151,7 @@ angular.module('flexvolt.services', [])
             }
           };
 
-        } else {
+        } else if (chrome && chrome.serial) {
             // For chrome.serial, include wrappers to handle different args.
             // bluetoothSerial is the template for args
             window.flexvoltPlatform = 'chrome';
@@ -331,10 +331,53 @@ angular.module('flexvolt.services', [])
                         bufInd++;
                         if (bufInd >= nBytes){
                             $interval.cancel(sendTimer);
+                            success();
                         }
                     }
                 }
                 sendTimer = $interval(sendFunc, 20, nBytes);
+            }
+        } else {
+            // Web serve
+            window.flexvoltPlatform = 'broswer';
+            console.log('INFO: ionic ready, using browser, platform: browser');
+            //console.log(chrome.serial);
+            bluetoothPlugin.isConnected = function(connectedCB, notConnectedCB, errFunc){
+                console.log('DEBUG: bluetoothPlugin.isConnected');
+                connectedCB();
+            };
+            bluetoothPlugin.connect = function(device, callback, errFunc){
+                console.log('DEBUG: browser bluetoothPlugin.connect');
+                bluetoothPlugin.disconnect(function(){
+                bluetoothPlugin.connectionId = info.connectionId;
+                callback();
+            };
+            bluetoothPlugin.disconnect = function(device, callback, errFunc){
+                console.log('DEBUG: bluetoothPlugin.disconnect');
+                callback();
+            };
+            bluetoothPlugin.clear = function(callback,errFunc){
+                console.log('DEBUG: bluetoothPlugin.clear - Deprecated');
+                callback();
+            };
+            bluetoothPlugin.getDevices = function(singleDeviceCallback,errFunc){
+                console.log('DEBUG: browser bluetoothPlugin.list');
+                device.name = 'fakeDevice';
+                singleDeviceCallback(device);
+            };
+            bluetoothPlugin.subscribe = function(device, callback, errFunc){
+                console.log('DEBUG: browser bluetoothPlugin.subscribe');
+            };
+            bluetoothPlugin.unsubscribe = function(device, success, errFunc) {
+                console.log('DEBUG: browser bluetoothPlugin.unsubscribe');
+                success();
+            };
+            bluetoothPlugin.write = function(device, data, callback, errFunc){
+                callback();
+            };
+            bluetoothPlugin.writeArray = function(device, dataArray, success, error) {
+                console.log('DEBUG: browser bluetoothPlugin.writeArray');
+                success();
             }
         }
 
