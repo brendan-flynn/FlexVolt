@@ -9,6 +9,9 @@
         {"fileSystem": ["directory", "write", "retainEntries"]},
         "desktopCapture"
     ],
+    "bluetooth": {
+      "low_energy": true
+    },
     "icons": {
         "48": "img/fv_ic_main_48.png",
         "128": "img/fv_ic_main_128.png"
