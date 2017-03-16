@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<ion-modal-view>
+    <ion-header-bar class="bar bar-header bar-balanced">
+        <h1 class="title">Bug Report</h1>
+        <button class="button button-clear button-primary" ng-click="bugmodal.hide()">Back</button>
+    </ion-header-bar>
+    <ion-content class="padding">
+        <form>
+            Bug Description:<br />
+            <textarea name='comment' ng-model="bugReportFields.comment" id='comment'></textarea><br />
+            Name (optional):<br />
+            <input type="text" ng-model="bugReportFields.name" id="name"><br />
+            Email (optional):<br/>
+            <input type="email" ng-model="bugReportFields.email" id="email"><br />
+            <input type="submit" value="Submit" ng-click="submitBugReport()" ><br />
+        </form>
+    </ion-content>
+</ion-modal-view>

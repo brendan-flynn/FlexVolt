@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<div ng-controller="FiltersCtrl">
+  <h3 style="text-align:center">
+    Filters
+  </h3>
+
+
+  <div class="row" style="text-align:center">
+    <span class="col">
+      <button class="button button-icon icon ion-minus-circled"
+              ng-click="data.state = (data.state === 'delete')?undefined:'delete';"> Remove</button>
+    </span>
+<!--        <span class="col">
+      <button class="button button-icon icon ion-plus-circled"
+              ng-click="data.state = (data.state === 'add')?undefined:'add';">Add</button>
+    </span>-->
+    <span class="col">
+      <button class="button button-icon icon ion-android-options"
+              ng-click="data.state = (data.state === 'edit')?undefined:'edit';"> Edit</button>
+    </span>
+    <span class="col">
+      <button class="button button-icon icon ion-shuffle"
+              ng-click="data.state = (data.state === 'reorder')?undefined:'reorder';"> Reorder</button>
+    </span>
+  </div>
+
+
+  <ion-list show-delete="data.state === 'delete'" show-reorder="data.state === 'reorder'">
+
+    <ion-item ng-repeat="item in pageLogic.settings.filters"
+              item="item"
+              class="item-remove-animate">
+        <b>{{ item.name }}</b> &nbsp;&nbsp;
+        <div ng-repeat="param in item.params">
+          <div ng-if="param.input">
+            <div>{{param.name}}: &nbsp;{{param.value}} &nbsp;{{param.unit}}</div>
+            <div ng-if="data.state === 'edit'">
+              <div ng-if="param.input.type==='slider'">
+                {{param.input.range.low}}&nbsp;&nbsp;
+                <input type="range"
+                       min="{{param.input.range.low}}"
+                       max="{{param.input.range.high}}"
+                       step="{{param.input.range.step}}"
+                       ng-change="onChange()"
+                       ng-model="param.value">&nbsp;&nbsp;{{param.input.range.high}}&nbsp;&nbsp;{{param.unit}}
+              </div>
+            </div>
+          </div>
+        </div>
+      <ion-delete-button class="ion-minus-circled"
+                         ng-click="onFilterDelete(item)">
+      </ion-delete-button>
+      <ion-reorder-button class="ion-shuffle" on-reorder="moveFilter(item, $fromIndex, $toIndex)"></ion-reorder-button>
+    </ion-item>
+
+  </ion-list>
+
+
+  <ion-item ng-if="data.state !== 'add'">
+    <button class="button button-icon icon ion-plus-circled"
+              ng-click="data.state = 'add';"> Add</button>
+  </ion-item>
+  <ion-item ng-if="data.state === 'add'">
+    <div>New Filter:</div>
+    <div><select ng-model="data.newFilter"
+                 ng-options="opt as opt.name for opt in data.filterOptions"></select></div>
+    <div ng-if=data.newFilter.type>Type: {{data.newFilter.name}}</div>
+    <div ng-if=data.newFilter.type ng-repeat="param in data.newFilter.params">
+      <div ng-if="param.input">
+        <div>{{param.name}}: &nbsp;{{param.value}} &nbsp;{{param.unit}}</div>
+        <div ng-if="param.input.type==='slider'">
+          {{param.input.range.low}}&nbsp;&nbsp;
+          <input type="range"
+                 min="{{param.input.range.low}}"
+                 max="{{param.input.range.high}}"
+                 step="{{param.input.range.step}}"
+                 ng-model="param.value">&nbsp;&nbsp;{{param.input.range.high}}&nbsp;&nbsp;{{param.unit}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <span class="col">
+        <button class="button" ng-click="data.state = undefined; addFilter();">
+          Add
+        </button>
+      </span>
+      <span class="col">
+        <button class="button" ng-click="data.state = undefined; resetNewItem();">
+          Cancel
+        </button>
+      </span>
+    </div>
+  </ion-item>
+</div>

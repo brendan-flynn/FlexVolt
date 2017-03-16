@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<button ui-sref="connection" class="button button-icon">
+    <i ng-if="isFlexVoltConnected()" class="icon ion-radio-waves positive"></i>
+    <i ng-if="!isFlexVoltConnected()" class="icon ion-radio-waves assertive"></i>
+</button>

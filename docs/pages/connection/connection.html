@@ -1,0 +1,67 @@
+<ion-view title="Connection">
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+    </ion-nav-buttons>
+
+    <ion-content class="has-header padding fv-theme">
+        <h4 align="center">Connection Status: {{flexvolt.api.connection.state}}</h4>
+        <!--<span ng-bind="flexvolt|json"></span>-->
+        <p>{{flexvolt.getDetailedConnectionStatus()}}</p>
+        <div ng-if="flexvolt.getConnectionStatus()">
+            <p>Device: {{con.flexvoltName}}</p>
+            <p>Model: {{con.model.name}}</p>
+            <p>Version: {{con.version}}  &nbsp&nbsp&nbsp  S/N: {{con.serialNumber}}</p>
+            <div class="row">
+                <div class="col col-40">
+                    <button class="button button-small button-balanced" ng-click="flexvolt.api.resetConnection()">Reset connection</button>
+                </div>
+                <div class="col col-40 col-offset-20">
+                    <button class="button button-small button-balanced" ng-click="flexvolt.api.disconnect()">Disconnect</button>
+                </div>
+            </div>
+        </div>
+        <div ng-if="!flexvolt.getConnectionStatus() && !flexvolt.getConnectingStatus()">
+            <button class="button button-small button-balanced" ng-click="flexvolt.api.startConnect()">Try to connect</button>
+        </div>
+        <div ng-if="flexvolt.getConnectingStatus()">
+            <button class="button button-small button-balanced" ng-click="flexvolt.api.cancelConnection()">Cancel Connect Attempt</button>
+        </div>
+
+        <div ng-if="!mobile">
+            <h3 align="center">Manual Controls</h3>
+            <div class="row">
+                <div class="col col-40"><button class="button button-small button-balanced" ng-click="updatePorts()">Scan Ports</button></div>
+                <div class="col col-40 col-offset-20"><button class="button button-small button-balanced" ng-click="attemptToConnect(selectedPort)">Connect Selected Port</button></div>
+            </div>
+
+            <p>All Available Ports:</p>
+            <select class="button button-balanced" ng-model="selectedPort" ng-options="device.name for device in portList()"></select>
+        </div>
+        <h3 align="center">TroubleShooting</h3>
+        <div>
+            <h4>Timeouts (ms)</h4>
+            Initial Connection Timeout: <select class="button button-balanced" ng-model="flexvolt.api.connection.initialWait" ng-options="wait for wait in flexvolt.api.connection.initialWaitList"></select>
+            Settings and Commands Timeout: <select class="button button-balanced" ng-model="flexvolt.api.connection.connectedWait" ng-options="wait for wait in flexvolt.api.connection.connectedWaitList"></select>
+        </div>
+        <br>
+        <div>
+            <p>Use the 'Send Bug Report' button below to file bug reports.
+                Please include a detailed description!
+            </p>
+            <div class="row">
+                <div class="col col-30"><button class="button button-small button-balanced" ng-click="showLog()">View Log Messages</button></div>
+                <!--<div class="col col-30 col-offset-10" ng-if="mobile"><button ng-click="copyToClipboard()">Copy Log to Clipboard</button></div>-->
+                <div class="col col-30 col-offset-40">
+                    <button class="button button-small button-balanced" ng-click="showBugReportForm()">Create Bug Report</button>
+                    <!--<a ng-if="!mobile" ng-href="{{emailBugReport}}" target="_blank">-->
+                        <!--<button>Send Bug Report</button>-->
+                    <!--</a>-->
+                </div>
+            </div>
+        </div>
+<!--        <h3 align="center">Files</h3>
+        <div>
+            <button class="button button-small button-balanced" ng-click="createFile()">create test file</button>
+        </div>-->
+    </ion-content>
+</ion-view>

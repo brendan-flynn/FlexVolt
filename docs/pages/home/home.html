@@ -1,0 +1,19 @@
+<ion-view title="Home">
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+    </ion-nav-buttons>
+    <ion-content class="has-header padding fv-theme">
+        <div ng-repeat="row in apps.active" class="row my-icon-row">
+            <div ng-repeat="app in row" class="col-25 my-icon-col">
+                    <button class="button-icon" ui-sref="{{app.ref}}"><i class="icon {{app.icon}} home-page-icons"></i>{{app.btnName}}</button>
+            </div>
+        </div>
+        <hr class="fv-hr"/>
+        <div ng-repeat="row in apps.controls" class="row my-icon-row">
+            <div ng-repeat="app in row" class="col-25 my-icon-col">
+                    <button class="button-icon" ui-sref="{{app.ref}}"><i class="icon {{app.icon}} home-page-icons"></i>{{app.btnName}}</button>
+            </div>
+        </div>
+        <hr class="fv-hr"/>
+    </ion-content>
+</ion-view>

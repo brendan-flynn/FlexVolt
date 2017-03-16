@@ -1,0 +1,36 @@
+
+
+<ion-view title="HRV">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+        <settings-popover></settings-popover>
+    </ion-nav-buttons>
+  <ion-content class="has-header fv-theme">
+    <div ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
+          <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
+          <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
+    </div>
+    <div id="hrvWindow"></div>
+    <div style="padding: 5px 25px">
+        <h3>Heart Rate Variability (HRV) Monitor </h3>
+        <p>This task is still under construction.  The goals for this task:</p>
+        <ul>
+            <li>1.  Measure beat-to-beat heart rate.</li>
+            <li>2.  Track heart rate over time.</li>
+            <li>3.  Calculate variability metrics.</li>
+            <li>4.  Display data in a meaningful way.</li>
+            <li>5.  Data saving/loading functionality.</li>
+        </ul>
+        <br>
+        <p>For those interested, potential metrics include:</p>
+        <ul>
+            <li>1.  SDANN: standard deviation of the average beat interval.</li>
+            <li>2.  RMSSD: sqrt of the mean of the squares of interval differences.</li>
+            <li>3.  NN50: # pairs of successive interval differing by > 50ms.</li>
+        </ul>
+    </div>
+  </ion-content>
+</ion-view>

@@ -1,0 +1,25 @@
+<ion-popover-view>
+  <ion-content>
+    <form name="setForm">
+      <div style="padding: 8px 8px">
+        <h3 style="text-align:center">
+          # Channels
+        </h3>
+        <p>&nbsp&nbsp&nbsp
+          <label ng-repeat="item in hardwareLogic.availableChannelList()">
+              <input type="radio" ng-model="pageLogic.settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+          </label>
+        </p>
+        <h3 style="text-align:center">
+          Scale
+        </h3>
+        <p>&nbsp&nbsp&nbsp
+          <label ng-repeat="item in pageLogic.settings.baselineModeList">
+            <input type="radio" ng-model="pageLogic.settings.baselineMode" ng-change="onChange()" ng-value="item.value" />&nbsp{{item.text}}&nbsp&nbsp
+          </label>
+        </p>
+        <filter-options ng-if="mobile"></filter-options>
+      </div>
+    </form>
+  </ion-content>
+</ion-popover-view>

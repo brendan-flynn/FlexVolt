@@ -1,0 +1,40 @@
+<ion-popover-view style="width: 262px">
+<!--        <ion-header-bar>
+        <h1 class="title">Plot Settings</h1>
+    </ion-header-bar>-->
+    <ion-content>
+        <div style="padding: 8px 8px">
+            <h3 style="text-align:center">
+                # Channels
+            </h3>
+<!--                <div class="item item-divider">
+                <center># Channels</center>
+            </div>-->
+            <p>&nbsp&nbsp&nbsp
+                <label ng-repeat="item in hardwareLogic.availableChannelList()">
+                    <input type="radio" ng-model="pageLogic.settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+                </label>
+            </p>
+<!--                <div class="item item-divider">
+                <center># Channels Dropdown</center>
+            </div>
+            <select ng-change="onChange()" ng-model="pageLogic.settings.nChannels" ng-options="opt.value as opt.text for opt in hardwareLogic.availableChannelList()"></select>-->
+
+<!--                <div class="item item-divider">
+                <center>Gain Radio</center>
+            </div>
+            <p>&nbsp&nbsp&nbsp
+                <label ng-repeat="item in pageLogic.gainList">
+                    <input type="radio" ng-model="pageLogic.settings.gain" ng-change="onChange()" ng-value="item.value"/>&nbsp{{item.text}}&nbsp&nbsp
+                </label>
+            </p>
+            <div class="item item-divider">
+                <center>Gain Dropdown</center>
+            </div>
+            <select ng-change="onChange()" ng-model="pageLogic.settings.gain" ng-options="opt.value as opt.text for opt in pageLogic.gainList"></select>-->
+
+            <filter-options ng-if="mobile"></filter-options>
+
+        </div>
+    </ion-content>
+</ion-popover-view>

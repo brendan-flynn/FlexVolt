@@ -1,0 +1,27 @@
+
+
+<ion-view title="EKG">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+        <settings-popover></settings-popover>
+    </ion-nav-buttons>
+    <ion-content class="has-header fv-theme">
+        <div ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
+            <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
+            <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
+        </div>
+        <div id="hrvWindow"></div>
+        <div style="padding: 5px 25px">
+            <h3>Heart Monitor </h3>
+            <p>This task is still under construction.  The goals for this task:</p>
+            <ul>
+                <li>1.  Display heart signals.</li>
+                <li>2.  Measure heart rate.</li>
+                <li>3.  Display current and average rates along with the live trace.</li>
+            </ul>
+        </div>
+    </ion-content>
+</ion-view>

@@ -1,0 +1,30 @@
+<ion-modal-view ng-click="helpModal.hide()">
+  <ion-header-bar class="bar bar-header bar-balanced">
+    <h1 class="title">Myometer Help</h1>
+  </ion-header-bar>
+  <ion-content>
+      <div class="help-modal">
+          <h4>Feedback</h4>
+          <ul>
+              <li>Reach a minimum level of exersion by bringing the signal level above the threshold</li>
+              <li>Practice muscle relaxation by keeping the exersion level below the threshold</li>
+          </ul>
+          <h4>Thresholds</h4>
+          <ul><li>Set thresholds by dragging the gray bars up and down.</li></ul>
+          <h4>Baselines</h4>
+          <ul>
+              <li>With muscle in relaxes position, click 'set' button</li>
+              <li>Wait for measurement to complete</li>
+              <li>Channel is now adjusted with baseline as 0</li>
+          </ul>
+          <h4>Name Channels</h4>
+          <ul>
+              <li>Click a channel name to change it</li>
+          </ul>
+
+          <div style="text-align: center;">
+            <button ng-click="helpModal.hide()" class="button button-balanced">Got it!</button>
+          </div>
+      </div>
+  </ion-content>
+</ion-modal-view>
