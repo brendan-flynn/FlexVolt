@@ -348,7 +348,6 @@ angular.module('flexvolt.services', [])
             };
             bluetoothPlugin.connect = function(device, callback, errFunc){
                 console.log('DEBUG: browser bluetoothPlugin.connect');
-                bluetoothPlugin.disconnect(function(){
                 bluetoothPlugin.connectionId = info.connectionId;
                 callback();
             };
