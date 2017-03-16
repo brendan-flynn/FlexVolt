@@ -1,32 +1,10 @@
 /* FlexVolt CSS */
 
-.fv-bar, .fv-button {
-  border-color: #28a54c;
-  background-color: #33cd5f;
-  /*background-image: linear-gradient(0deg, #28a54c, #28a54c 50%, transparent 50%);*/
-  color: black;
-}
-
 .fv-hr {
   height: 2px;
   color: black;
   background-color: black;
   border: none;
-}
-
-.fv-button.active, .fv-button.activated {
-  border-color: #a2a2a2;
-  background-color: #28a54c;
-}
-
-.fv-select {
-  border-color: #28a54c;
-  background-color: #33cd5f;
-  color: black;
-}
-
-.fv-theme {
-  background-color: #ffd38e;
 }
 
 path.line

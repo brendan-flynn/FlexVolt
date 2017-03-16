@@ -21,6 +21,6 @@
   },
   "scripts" :
   {
-    "postinstall" : "cordova prepare",
+    "postinstall" : "cordova prepare"
   }
 }

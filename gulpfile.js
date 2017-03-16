@@ -25,6 +25,8 @@ gulp.task('sass', function(done) {
     .on('end', done);
 });
 
+gulp.task('serve:before', ['default','watch']);
+
 gulp.task('watch', function() {
   gulp.watch(paths.sass, ['sass']);
 });

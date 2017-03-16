@@ -15,9 +15,21 @@ $royal:                           #8a6de9 !default;
 $dark:                            #444 !default;
 */
 
+$fv-primary-color:                #33cd5f;
+$fv-secondary-color:              #ffd383; //ffb03a;
+
+
+// $balanced:                        $fv-primary-color !default;
+$button-balanced-text:            #000 !default;
+
+.fv-theme {
+  background-color: $fv-secondary-color;
+}
+
 // The path for our ionicons font files, relative to the built CSS in www/css
-$ionicons-font-path: "../lib/ionic/fonts" !default;
+$ionicons-font-path: "../lib/ionic/release/fonts" !default;
+
+@import "www/css/style";
 
 // Include all of Ionic
 @import "www/lib/ionic/scss/ionic";
-
