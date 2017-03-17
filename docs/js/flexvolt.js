@@ -62,6 +62,18 @@ angular.module('flexvolt.flexvolt', [])
       name: 'Bluetooth 8 Channel',
       channels: 8
     };
+    MODEL_LIST[6] = {
+      name: 'BluetoothLE 2 Channel',
+      channels: 2
+    };
+    MODEL_LIST[7] = {
+      name: 'BluetoothLE 4 Channel',
+      channels: 4
+    };
+    MODEL_LIST[8] = {
+      name: 'BluetoothLE 8 Channel',
+      channels: 8
+    };
     var FREQUENCY_LIST = [1, 10, 50, 100, 200, 300, 400, 500, 1000, 1500, 2000];
 
     var dots = '';
