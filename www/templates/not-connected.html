@@ -1,0 +1,17 @@
+<div class="fv-message" ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
+    <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
+    <br>
+    <div ui-sref="connection">
+      <button style="vertical-align:middle" class="button button-icon">
+          <i ng-if="isFlexVoltConnected()" class="icon ion-radio-waves positive"></i>
+          <i ng-if="!isFlexVoltConnected()" class="icon ion-radio-waves assertive"></i>
+      </button>
+      <span style="vertical-align:middle">Check connection settings</span>
+    </div>
+    <br>
+    <div ui-sref="demos">
+      <button style="vertical-align:middle" class="button button-icon">
+          <i class="icon ion-briefcase"></i>
+      </button>
+      <span style="vertical-align:middle">Check out the Demos to test out different pages without connecting to a FlexVolt sensor.</span>
+</div>

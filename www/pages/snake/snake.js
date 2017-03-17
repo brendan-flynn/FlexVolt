@@ -2,10 +2,11 @@
     'use strict'
 
     angular.module('flexvolt.snake', [])
-    .controller('SnakeCtrl', ['$scope', '$state', 'xyDot', '$ionicPopover', '$ionicModal', 'customPopover',
-    function($scope, $state, xyDot, $ionicPopover, $ionicModal, customPopover) {
+    .controller('SnakeCtrl', ['$stateParams', '$scope', '$state', 'xyDot', '$ionicPopover', '$ionicModal', 'customPopover',
+    function($stateParams, $scope, $state, xyDot, $ionicPopover, $ionicModal, customPopover) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
+        $scope.demo = $stateParams.demo;
 
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/snake/settings.html');
         // customPopover.add($ionicPopover, $scope, 'helpover','pages/snake/help.html');

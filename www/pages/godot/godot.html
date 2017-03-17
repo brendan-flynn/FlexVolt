@@ -9,10 +9,7 @@
         <settings-popover></settings-popover>
     </ion-nav-buttons>
     <ion-content class="has-header fv-theme">
-        <div ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
-          <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
-          <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
-        </div>
+        <not-connected></not-connected>
         <div ng-if="demo">
             <ion-toggle ng-model="fakeData.useRandom" ng-change="onChange()" ng-checked="fakeData.useRandom">
                 <span ng-if="!fakeData.useRandom">Demo Data: Simulate Data Here</span>
@@ -24,6 +21,8 @@
             <label>Simulate Y Signal: {{fakeData.y | number:2}}</label>&nbsp&nbsp
             {{bounds.min}} <input type="range" step="0.05" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="fakeData.y" style="vertical-align:middle"> {{bounds.max}}<br/>
         </div>
-        <div id="xyWindow"></div>
+        <div ng-show="demo || flexvolt.api.connection.state === 'connected'">
+            <div id="xyWindow"></div>
+        </div>
     </ion-content>
 </ion-view>
