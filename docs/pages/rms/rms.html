@@ -9,13 +9,9 @@
     </ion-nav-buttons>
   <ion-content scroll="false" class="has-header fv-theme">
       <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
-      <div class="fv-message" ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
-          <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
-          <br>
-          <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
-      </div>
-      <save-panel></save-panel>
+      <not-connected></not-connected>
       <div ng-show="demo || flexvolt.api.connection.state === 'connected'" class="row row-full-height">
+          <save-panel></save-panel>
           <div class="col col-150px">
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
                    style="font-size: 14px; line-height:14px;">

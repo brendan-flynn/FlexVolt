@@ -10,37 +10,36 @@
         <settings-popover></settings-popover>
     </ion-nav-buttons>
   <ion-content class="has-header fv-theme" scroll="false">
-    <div class="fv-message" ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
-          <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
-          <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
-    </div>
-    <save-panel></save-panel>
-    <div id="myometerWindow"></div>
-    <div class="row">
-        <div class="col col-70px"></div>
-        <div style="text-align:center" class="col"
-             ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index "
-             ng-click="showLabelPopup($index)">
-            {{label}}
+    <not-connected></not-connected>
+    <div ng-show="demo || flexvolt.api.connection.state === 'connected'">
+        <save-panel></save-panel>
+        <div id="myometerWindow"></div>
+        <div class="row">
+            <div class="col col-70px"></div>
+            <div style="text-align:center" class="col"
+                 ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index "
+                 ng-click="showLabelPopup($index)">
+                {{label}}
+            </div>
+            <div class="col col-10px"></div>
         </div>
-        <div class="col col-10px"></div>
-    </div>
-    <div class="row">
-        <div class="col col-70px">Baseline</div>
-        <div style="text-align:center" class="col" ng-repeat="baseline in pageLogic.settings.baselines | limitTo:pageLogic.settings.nChannels track by $index">
-            {{baseline}} mV
+        <div class="row">
+            <div class="col col-70px">Baseline</div>
+            <div style="text-align:center" class="col" ng-repeat="baseline in pageLogic.settings.baselines | limitTo:pageLogic.settings.nChannels track by $index">
+                {{baseline}} mV
+            </div>
+            <div class="col col-10px"></div>
         </div>
-        <div class="col col-10px"></div>
-    </div>
-    <div class="row">
-        <div class="col col-70px">
+        <div class="row">
+            <div class="col col-70px">
+            </div>
+            <div style="text-align:center" class="col" ng-repeat="ch in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index ">
+                <button class="button button-small button-balanced" title="Set Baseline" ng-if="!baselining || (baselining && (baseline.channel !== $index))" ng-disabled="baselining"  ng-click="setBaseline($index)">S</button>
+                <button class="button button-small button-assertive" title="Cancel Baseline Measurement" ng-if="baselining && baseline.channel === $index" ng-click="cancelBaseline($index)">Cancel</button>
+                <button class="button button-small button-assertive" title="Clear Baseline" ng-if="!baselining || baseline.channel !== $index" ng-disabled="baselining" ng-click="clearBaseline($index)">X</button>
+            </div>
+            <div class="col col-10px"></div>
         </div>
-        <div style="text-align:center" class="col" ng-repeat="ch in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index ">
-            <button class="button button-small button-balanced" title="Set Baseline" ng-if="!baselining || (baselining && (baseline.channel !== $index))" ng-disabled="baselining"  ng-click="setBaseline($index)">S</button>
-            <button class="button button-small button-assertive" title="Cancel Baseline Measurement" ng-if="baselining && baseline.channel === $index" ng-click="cancelBaseline($index)">Cancel</button>
-            <button class="button button-small button-assertive" title="Clear Baseline" ng-if="!baselining || baseline.channel !== $index" ng-disabled="baselining" ng-click="clearBaseline($index)">X</button>
-        </div>
-        <div class="col col-10px"></div>
     </div>
 
   </ion-content>

@@ -2,9 +2,10 @@
     'use strict'
 
     angular.module('flexvolt.hrv', [])
-    .controller('HRVCtrl', ['$scope', '$state', '$ionicPopover', '$ionicModal', 'flexvolt', 'customPopover',
-    function($scope, $state, $ionicPopover, $ionicModal, flexvolt, customPopover) {
+    .controller('HRVCtrl', ['$stateParams', '$scope', '$state', '$ionicPopover', '$ionicModal', 'flexvolt', 'customPopover',
+    function($stateParams, $scope, $state, $ionicPopover, $ionicModal, flexvolt, customPopover) {
         var currentUrl = $state.current.url;
+        $scope.demo = $stateParams;
         console.log('currentUrl = '+currentUrl);
 
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/hrv/settings.html');

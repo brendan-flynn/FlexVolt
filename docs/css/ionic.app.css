@@ -25,6 +25,10 @@ $dark:                            #444 !default;
   background-color: black;
   border: none; }
 
+.fv-message {
+  padding: 25px;
+  color: black; }
+
 path.line {
   fill: none; }
 

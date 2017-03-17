@@ -85,6 +85,12 @@ angular.module('flexvolt.directives', [])
         templateUrl: 'templates/savepanel.html'
     };
 })
+.directive('notConnected', function () {
+    return {
+        restrict: 'E',
+        templateUrl: 'templates/not-connected.html'
+    };
+});
 ;
 
 }());

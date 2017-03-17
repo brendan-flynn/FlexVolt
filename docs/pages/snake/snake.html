@@ -9,11 +9,8 @@
         <settings-popover></settings-popover>
     </ion-nav-buttons>
     <ion-content class="has-header fv-theme">
-      <div class="fv-message" ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
-          <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
-          <div>If you are having trouble connecting, check connection settings, or try Demos to see what this task would do.</div>
-      </div>
-      <div id="snakeWindow"></div>
+      <not-connected></not-connected>
+      <div ng-show="demo || flexvolt.api.connection.state === 'connected'" id="snakeWindow"></div>
       <div style="padding: 5px 25px">
           <h3>Snake Game</h3>
           <p>This task is still under construction.  The goals for this task:</p>
