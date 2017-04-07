@@ -384,6 +384,7 @@ angular.module('flexvolt.flexvolt', [])
             waitingForResponse = false;
             bluetoothPlugin.unsubscribe(
               api.currentDevice,
+              function() {
               bluetoothPlugin.disconnect(
                   api.currentDevice,
                   function () {
@@ -405,7 +406,8 @@ angular.module('flexvolt.flexvolt', [])
                       }
                   },
                   function (err) { console.log('EERROR: during connectionResetHandler disconnect: ' + JSON.stringify(err))}
-                ),
+                  )
+              },
               function(err){console.log('ERROR: during connectionResetHandler unsubscribe: ' + JSON.stringify(err))}
             );
         }

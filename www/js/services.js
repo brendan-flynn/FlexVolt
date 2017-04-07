@@ -25,8 +25,11 @@ angular.module('flexvolt.services', [])
         clear: undefined,
         getDevices: undefined,
         write: undefined,
-        subscribe: undefined
+        subscribe: undefined,
+        unsubscribe: undefined
     };
+
+    var onReceiveListener, onReceiveErrorListener
 
     var BLE_SERVICES_LIST = ['ffe0']; // currently just the temperature service hijacked by Bolutek BLE module
 
@@ -265,22 +268,30 @@ angular.module('flexvolt.services', [])
                 } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.subscribe = function(device, callback, errFunc){
-                var onReceiveCallback = function(obj){
-                    //console.log('received!');
-                    var bytes = new Uint8Array(obj.data);
-                    callback(bytes);
-                };
                 try {
+                    // out with the old
+                    if (onReceiveListener) {chrome.serial.onReceive.removeListener(onReceiveListener);}
+                    if (onReceiveErrorListener) {chrome.serial.onReceiveError.removeListener(onReceiveErrorListener);}
+                    // setup the new
+                    onReceiveListener = function(obj){
+                        //console.log('received!');
+                        var bytes = new Uint8Array(obj.data);
+                        callback(bytes);
+                    };
+                    onReceiveErrorListener = errFunc;
+                    // in with the new
                     //console.log('settings up event listeners');
-                    chrome.serial.onReceive.addListener(onReceiveCallback);
-                    chrome.serial.onReceiveError.addListener(errFunc);
+                    chrome.serial.onReceive.addListener(onReceiveListener);
+                    chrome.serial.onReceiveError.addListener(onReceiveErrorListener);
                 } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.unsubscribe = function(device, success, errFunc) {
+                console.log('DEBUG: BT Unsubscribe');
                 try {
                     //console.log('removing event listeners');
-                    chrome.serial.onReceive.removeListener();
-                    chrome.serial.onReceiveError.removeListener();
+                    chrome.serial.onReceive.removeListener(onReceiveListener);
+                    chrome.serial.onReceiveError.removeListener(onReceiveErrorListener);
+                    console.log('DEBUG: Chrome Unsubscribe complete.');
                     success();
                 } catch (err) {errFunc(err);}
             };
