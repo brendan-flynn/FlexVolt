@@ -11,6 +11,7 @@
             <p>Device: {{con.flexvoltName}}</p>
             <p>Model: {{con.model.name}}</p>
             <p>Version: {{con.version}}  &nbsp&nbsp&nbsp  S/N: {{con.serialNumber}}</p>
+            <p ng-if="con.batteryVoltage">Battery: {{con.batteryVoltage | number:2}} V</p>
             <div class="row">
                 <div class="col col-40">
                     <button class="button button-small button-balanced" ng-click="flexvolt.api.resetConnection()">Reset connection</button>

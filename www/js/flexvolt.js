@@ -121,7 +121,8 @@ angular.module('flexvolt.flexvolt', [])
             state: undefined,
             data: undefined,
             dataOnRequested: undefined,
-            flexvoltName: undefined
+            flexvoltName: undefined,
+            batteryVoltage: undefined
         },
         settings: {
             frequencyCustom : 0,
@@ -162,7 +163,7 @@ angular.module('flexvolt.flexvolt', [])
             bluetoothPlugin.unsubscribe(
                 api.currentDevice,
                 function(){
-                  console.log('DEBUG: successful unsubscribe');
+                    console.log('DEBUG: successful unsubscribe');
                 },
                 simpleLog
             );
@@ -385,27 +386,27 @@ angular.module('flexvolt.flexvolt', [])
             bluetoothPlugin.unsubscribe(
               api.currentDevice,
               function() {
-              bluetoothPlugin.disconnect(
-                  api.currentDevice,
-                  function () {
-                      api.currentDevice = undefined;
-                      if (cb){
-                          console.log('DEBUG: Reseting Connection.');
-                          $timeout(cb,250);
-                      } else {
-                          api.connection.state ='begin';
-                          bluetoothPlugin.clear(
-                            null,
-                            function() {
-                              console.log('DEBUG: Cleared Connection');
-                            }, function() {
-                              console.log('ERROR: Error clearing bluetooth');
-                            }
-                          );
+                  bluetoothPlugin.disconnect(
+                      api.currentDevice,
+                      function () {
+                          api.currentDevice = undefined;
+                          if (cb){
+                              console.log('DEBUG: Reseting Connection.');
+                              $timeout(cb,250);
+                          } else {
+                              api.connection.state ='begin';
+                              bluetoothPlugin.clear(
+                                  null,
+                                  function() {
+                                      console.log('DEBUG: Cleared Connection');
+                                  }, function() {
+                                      console.log('ERROR: Error clearing bluetooth');
+                                  }
+                              );
 
-                      }
-                  },
-                  function (err) { console.log('EERROR: during connectionResetHandler disconnect: ' + JSON.stringify(err))}
+                          }
+                      },
+                      function (err) { console.log('EERROR: during connectionResetHandler disconnect: ' + JSON.stringify(err))}
                   )
               },
               function(err){console.log('ERROR: during connectionResetHandler unsubscribe: ' + JSON.stringify(err))}
@@ -516,6 +517,7 @@ angular.module('flexvolt.flexvolt', [])
                 console.log('INFO: Connected to ' + JSON.stringify(api.currentDevice));
                 updateSettingsRepeatCount = 0;
                 api.pollVersion()
+                   .then(api.pollBattery)
                    .then(api.updateSettings)
                    .catch(function(err){console.log('poll/update caught with msg: '+err);});
              } else {
@@ -556,6 +558,8 @@ angular.module('flexvolt.flexvolt', [])
                             api.connection.version = Number(data[0]);
                             api.connection.serialNumber = Number((data[1]*(2^8))+data[2]);
                             api.connection.modelNumber = Number(data[3]);
+                            var voltageTemp = Number(data[4]);
+                            updateBatteryVoltage(voltageTemp);
                             api.connection.model = MODEL_LIST[api.connection.modelNumber];
                             if (api.connection.modelNumber <= 2) {
                               // It's a USB connection - 5 Volts
@@ -591,6 +595,52 @@ angular.module('flexvolt.flexvolt', [])
                 }, 200);
             }
         };
+
+        api.pollBattery = function(){
+            deferred.pollingBattery = $q.defer();
+            if (api.connection.version > 3) {
+                if (api.connection.state === 'connected') {
+                    api.connection.state = 'polling';
+                    bluetoothPlugin.clear(
+                        api.currentDevice,
+                        function () {
+                            waitForInput('T',false,api.connection.connectedWait,116,parseBatteryInfo);
+                        },
+                        function(){console.log('ERROR: Error clearing bluetoothPlugin in pollBattery');}
+                    );
+                } else {
+                  var msg = 'Cannot Poll Battery - Not Connected';
+                  console.log('WARNING' + msg);
+                  deferred.pollingBattery.reject(msg);
+                }
+            } else {
+                console.log('DEBUG: Cannot poll battery - older version sensor');
+                deferred.pollingBattery.resolve();
+            }
+            return deferred.pollingBattery.promise;
+
+            function parseBatteryInfo(){
+                // console.log('DEBUG: parsing battery info');
+                write('Q');
+                $timeout(function(){
+                    if (deferred.pollingBattery) {
+                        // console.log('DEBUG: deferred polling battery');
+                        if (dIn.length >= 1){
+                            // console.log('DEBUG: battery parsing input: ' + JSON.stringify(dIn));
+                            api.connection.state = 'connected';
+                            var data = dIn.slice(0,1);
+                            var voltageTemp = Number(data[0]);
+                            updateBatteryVoltage(voltageTemp);
+                            dIn = dIn.slice(1);
+                            deferred.pollingBattery.resolve();
+                        } else {
+                            deferred.pollingBattery.reject('ERROR: did not receive battery information');
+                        }
+                    }
+                }, 200);
+            }
+        };
+
         api.updateSettings = function(){
 
           /* Register Control Words
@@ -873,7 +923,12 @@ angular.module('flexvolt.flexvolt', [])
                                 dataInd++;
                             }
 
-                        } else {
+                        } else if (tmp === 116) { //'t' - voltage statement
+                            var batteryVoltage = dataIn[readInd++];
+                            console.log('INFO: Got Battery Level: ' + JSON.stringify(batteryVoltage));
+                            updateBatteryVoltage(batteryVoltage);
+                            break; // kick back out - don't want to add logic hear to figure out if we still have a full data point available
+                        }else {
                             console.log('WARNING: unexpected Char '+tmp);
                         }
                     }
@@ -885,6 +940,23 @@ angular.module('flexvolt.flexvolt', [])
             // copy, clear, return.  REMEMBER - bluetoothPlugin is ASYNC!
             return dataParsed;
         };
+
+        function updateBatteryVoltage(valFromPic) {
+            var adcFullScale = 255;
+            var adcVRef = 2.048;
+            var vddMultiplier = 4;
+            // console.log('DEBUG: valFromPic: ' + JSON.stringify(valFromPic));
+            // valFromPic is measured using ADC ref of 1.024V.
+            // [0, 255] => [0, 1.024]V
+            valFromPic += 1;  // empirical - seems to always read a little low.
+            var adcVoltage = (valFromPic / adcFullScale) * adcVRef;
+            // console.log('DEBUG: adcVoltage: ' + adcVoltage);
+
+            // adc input comes from DAC output.  DAC output = Vdd / 8.  ie 4.2V => .525
+            var vdd = adcVoltage * vddMultiplier;
+            console.log('DEBUG: Battery Voltage: ' + JSON.stringify(vdd));
+            api.connection.batteryVoltage = vdd;
+        }
 
         // @input data String
         function write( char ) {
@@ -915,6 +987,15 @@ angular.module('flexvolt.flexvolt', [])
         init();
         // This starts it all!
         $timeout(api.startConnect, DISCOVER_DELAY_MS);
+
+        $interval(
+            function(){
+                if (api.connection.data === 'on'){
+                  return;
+                } else {
+                  api.pollBattery();
+                }
+            }, 60000);
 
         function updateDots(){
             dots += '. ';
