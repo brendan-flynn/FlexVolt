@@ -443,7 +443,7 @@ angular.module('flexvolt.flexvolt', [])
               var tmpPreferred = devices.getPreferred();
               var tmpUnknown = devices.getUnknown();
               api.tryList = tmpPreferred.concat(tmpUnknown);
-              deferred.discover.resolve();
+              if (deferred.discover) {deferred.discover.resolve();}
             }, 1000); // TODO - get rid of this, make it smarter
 
             return deferred.discover.promise;
@@ -928,7 +928,7 @@ angular.module('flexvolt.flexvolt', [])
                             console.log('INFO: Got Battery Level: ' + JSON.stringify(batteryVoltage));
                             updateBatteryVoltage(batteryVoltage);
                             break; // kick back out - don't want to add logic hear to figure out if we still have a full data point available
-                        }else {
+                        } else {
                             console.log('WARNING: unexpected Char '+tmp);
                         }
                     }
