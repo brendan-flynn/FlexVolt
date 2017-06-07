@@ -33,6 +33,13 @@
         //                        ref:"snake",
         //                        btnName:"Snake Demo"
         //                    }
+                    },
+                    row2:{
+                        b1:{
+                            icon:"icon ion-speedometer",
+                            ref:"balloon({demo: true})",
+                            btnName:"Balloon Demo"
+                        }
                     }
                 },
                 development: {

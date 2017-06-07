@@ -23,6 +23,7 @@
         'flexvolt.taskLogic',
         'flexvolt.dsp',
         // pages
+        'flexvolt.balloon',
         'flexvolt.connection',
         'flexvolt.demos',
         'flexvolt.ekg',
@@ -182,6 +183,14 @@
             url: '/myometer:demo',
             templateUrl: 'pages/myometer/myometer.html',
             controller: 'MyometerCtrl',
+            onEnter: dataOn,
+            onExit: exitFunction
+        })
+
+        .state('balloon', {
+            url: '/balloon:demo',
+            templateUrl: 'pages/balloon/balloon.html',
+            controller: 'BalloonCtrl',
             onEnter: dataOn,
             onExit: exitFunction
         })

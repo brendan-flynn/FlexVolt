@@ -33,6 +33,11 @@
                             icon:"icon ion-speedometer",
                             ref:"myometer",
                             btnName:"Myometer"
+                        },
+                        b2: {
+                            icon:"icon ion-speedometer",
+                            ref:"balloon",
+                            btnName:"Balloon"
                         }
                     }
                 },

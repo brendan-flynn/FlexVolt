@@ -1,0 +1,33 @@
+
+
+<ion-view title="Balloon">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+        <settings-popover></settings-popover>
+    </ion-nav-buttons>
+    <ion-content class="has-header fv-theme">
+        <not-connected></not-connected>
+        <div ng-if="demo">
+            <span>Simulate</span>
+            <button class="button button-small button-balanced" ng-click="inflate()">Inflate</button>
+            <button class="button button-small button-balanced" ng-click="bulge()">Bulge</button>
+            <button class="button button-small button-balanced" ng-click="deflate()">Deflate</button>
+        </div>
+        <div ng-show="demo || flexvolt.api.connection.state === 'connected'">
+          <div id="balloonContainer">
+            <div id="balloonDriftYContainer">
+              <div id="balloonDriftXContainer">
+                <div id="balloonBody"></div>
+                <div id="balloonKnot"></div>
+                <svg id="balloonStringSVG">
+                  <path id="balloonString" stroke="black" fill="transparent"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+    </ion-content>
+</ion-view>
