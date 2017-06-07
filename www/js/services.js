@@ -355,20 +355,28 @@ angular.module('flexvolt.services', [])
             //console.log(chrome.serial);
             bluetoothPlugin.isConnected = function(connectedCB, notConnectedCB, errFunc){
                 console.log('DEBUG: bluetoothPlugin.isConnected');
-                connectedCB();
+                try {
+                    connectedCB();
+                } catch (err) {errFunc(err);}connectedCB();
             };
             bluetoothPlugin.connect = function(device, callback, errFunc){
                 console.log('DEBUG: browser bluetoothPlugin.connect');
-                bluetoothPlugin.connectionId = info.connectionId;
-                callback();
+                bluetoothPlugin.connectionId = 'fakeFlexVoltId';
+                try {
+                    callback();
+                } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.disconnect = function(device, callback, errFunc){
                 console.log('DEBUG: bluetoothPlugin.disconnect');
-                callback();
+                try {
+                    callback();
+                } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.clear = function(callback,errFunc){
                 console.log('DEBUG: bluetoothPlugin.clear - Deprecated');
-                callback();
+                try {
+                    callback();
+                } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.getDevices = function(singleDeviceCallback,errFunc){
                 console.log('DEBUG: browser bluetoothPlugin.list');
@@ -380,14 +388,20 @@ angular.module('flexvolt.services', [])
             };
             bluetoothPlugin.unsubscribe = function(device, success, errFunc) {
                 console.log('DEBUG: browser bluetoothPlugin.unsubscribe');
-                success();
+                try {
+                    success();
+                } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.write = function(device, data, callback, errFunc){
-                callback();
+                try {
+                    callback();
+                } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.writeArray = function(device, dataArray, success, error) {
                 console.log('DEBUG: browser bluetoothPlugin.writeArray');
-                success();
+                try {
+                    success();
+                } catch (err) {errFunc(err);}
             }
         }
 
