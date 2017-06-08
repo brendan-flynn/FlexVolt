@@ -9,37 +9,15 @@
             <center>Motion Mode</center>
           </div>
 
-          <ion-toggle ng-model="plot.thresh" ng-change="onChange()" ng-checked="plot.thresh">
-              <span ng-if="plot.thresh"> Use Thresholds </span>
-              <span ng-if="!plot.thresh"> Follow RMS </span>
-          </ion-toggle>
-
-
           <div class="item item-divider">
             <center>Horizontal X: Chan 1</center>
           </div>
 
-          <label>Top Threshold: {{thresh.xH}}</label><br/>
-          {{bounds.min}} <input type="range" step="0.05" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="thresh.xH" style="vertical-align:middle"> {{bounds.max}}<br/>
-          <label>Bottom Threshold: {{thresh.xL}}</label><br/>
-          {{bounds.min}} <input type="range" step="0.05" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="thresh.xL" style="vertical-align:middle"> {{bounds.max}}<br/>
+          <label>Intensity Threshold: {{settings.intensity.threshold}}</label><br/>
+          {{settings.intensity.min}}% <input type="range" step="{{settings.intensity.step}}" min="{{settings.intensity.min}}" max="{{settings.intensity.max}}" ng-model="settings.intensity.threshold" style="vertical-align:middle"> {{settings.intensity.max}}%<br/>
+          <label>Time Threshold: {{settings.time.threshold}}</label><br/>
+          {{settings.time.min}} <input type="range" step="settings.time.step" min="{{settings.time.min}}" max="{{settings.time.max}}" ng-model="settings.time.threshold" style="vertical-align:middle"> {{settings.time.max}}<br/>
 
-          <div class="item item-divider">
-            <center>Vertical Y: Chan 2</center>
-          </div>
-
-          <label>Top Threshold: {{thresh.yH}}</label><br/>
-          {{bounds.min}} <input type="range" step="0.05" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="thresh.yH" ng-change="onChange()" style="vertical-align:middle"> {{bounds.max}}<br/>
-          <label>Bottom Threshold: {{thresh.yL}}</label><br/>
-          {{bounds.min}} <input type="range" step="0.05" min="{{bounds.min}}" max="{{bounds.max}}" ng-model="thresh.yL" ng-change="onChange()" style="vertical-align:middle"> {{bounds.max}}<br/>
-
-          <!-- old way -->
-      <!--<label class="item item-input" ng-class="{'has-error' : setForm.horzHT.$invalid}">-->
-        <!--<span class="input-label">Upper Thresh: </span>-->
-        <!--<input name="horzHT" type="number" ng-change="onChange()" ng-model="settings.horzHighThresh" min="0" max="255">-->
-      <!--</label>-->
-      <!--<span ng-if="setForm.horzHT.$error.max || setForm.horzHT.$error.min">Outside 0-255 Range!</span>-->
-      <!--<span ng-if="setForm.horzHT.$error.number">Not a number!</span>-->
       </div>
     </form>
 

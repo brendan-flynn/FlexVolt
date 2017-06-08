@@ -1,27 +1,22 @@
 <ion-modal-view class="help-modal-container" ng-click="helpModal.hide()">
   <ion-header-bar class="bar bar-header bar-balanced">
-      <h1 class="title">Go Dot Help</h1>
+      <h1 class="title">Balloon Help</h1>
       <!--<button class="button button-icon icon ion-help" ng-click="helpover.show($event)"></button>-->
   </ion-header-bar>
   <ion-content>
       <div class="help-modal">
           <div>
-              Go Dot moves around the screen based on your muscle activity!
+              Inflate the balloon with your muscles!
           </div>
-          <p>Horizontal (X) = chan 1.  Vertical (Y) = chan 2</p>
           <div class="item item-divider">
-            <center>Motion Modes</center>
+            <center>Inflate Instructions</center>
           </div>
           <p>
-              Follow RMS tracks the RMS (root-mean-square) of your muscle signal.
-              Stronger signals place the dot further up (Y) or right (X)
+              To add air to the balloon, flex you muscle.
+              Your muscle contraction intensity must be greater than the intensity threshold and must last longer than the time threshold.
           </p>
           <p>
-              Threshold mode moves Go Dot if your muscle signals are above/below set thresholds.
-              Each channel has 2 thresholds.  Signals above Top Threshold move Go Dot right/up.
-              Signals below Bottom Threshold move Go Dot left/down.
-              Change thresholds in the settings menu.
-              To experiment, go to the Go Dot Demo.
+              For example, if your goal is to flex 50% of maximum contraction for 5 seconds, set the intensity threshold to 50% and the time threshold to 5 seconds.
           </p>
 
           <div style="text-align: center;">

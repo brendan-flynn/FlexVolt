@@ -138,6 +138,33 @@ i.record-icon {
   fill: none;
   stroke: #000; }
 
+#balloonContainer {
+  position: relative;
+  /*background: yellow;*/
+  overflow: hidden; }
+
+#balloonDriftYContainer {
+  position: relative; }
+
+#balloonDriftXContainer {
+  position: relative; }
+
+#balloonBody {
+  border-radius: 70% 90% 10% 90%;
+  /*70% 90% 10% 90%*/
+  position: absolute;
+  background: -webkit-radial-gradient(40% 20%, #acd9fc 10%, #0090ff 50%, #002f53 90%);
+  -webkit-transition: width 0.8s, height 0.8s, -webkit-transform 0.8s;
+  /* Safari */
+  -webkit-transform: rotate(45deg); }
+
+#balloonKnot {
+  border-radius: 100%;
+  position: absolute;
+  background: #002f53;
+  -webkit-transition: width 0.8s, height 0.8s, -webkit-transform 0.8s;
+  /* Safari */ }
+
 /*!
   Ionicons, v2.0.1
   Created by Ben Sperry for the Ionic Framework, http://ionicons.com/

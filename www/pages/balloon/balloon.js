@@ -3,14 +3,16 @@
 
     angular.module('flexvolt.balloon', [])
 
-    .controller('BalloonCtrl', ['$stateParams', '$scope', '$state', '$timeout', '$ionicPopover', '$ionicModal', 'flexvolt', 'xyDot', 'xyLogic', 'hardwareLogic', 'customPopover',
-    function($stateParams, $scope, $state, $timeout, $ionicPopover, $ionicModal, flexvolt, xyDot, xyLogic, hardwareLogic, customPopover) {
+    .controller('BalloonCtrl', ['$stateParams', '$scope', '$state', '$timeout', '$ionicPopover', '$ionicModal', 'flexvolt', 'balloonLogic', 'hardwareLogic', 'customPopover',
+    function($stateParams, $scope, $state, $timeout, $ionicPopover, $ionicModal, flexvolt, balloonLogic, hardwareLogic, customPopover) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
         $scope.demo = $stateParams.demo;
         console.log($scope.demo);
 
-        customPopover.add($ionicPopover, $scope, 'popover', 'pages/balloon/settings.html',xyLogic.updateSettings);
+        $scope.settings = balloonLogic.settings;
+
+        customPopover.add($ionicPopover, $scope, 'popover', 'pages/balloon/settings.html',balloonLogic.updateSettings);
         // customPopover.add($ionicPopover, $scope, 'helpover','pages/godot/help.html');
         customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/balloon/balloon-help.html');
 
@@ -96,6 +98,10 @@
 
           resize(); // gets size and initializes all size-dependent items
 
+          // set the size once, so it doesn't reset every device rotation
+          var tmp = Math.min(width,height);
+          balloonSize = tmp/4;
+
           // Establish transitions for the balloon container using two drift divs
           // make these smaller than the parent element so they don't change the size as they drift
           balloonDriftXContainerEl.style.transition = "transform "+ driftDelayX +"s";
@@ -133,8 +139,9 @@
           balloonContainerEl.style.width = width;
           balloonContainerEl.style.height = height;
           centerX = width/2;
-          var tmp = Math.min(width,height);
-          balloonSize = tmp/4;
+          // Don't reset the size every resize - could include screen rotation, which would be annoying
+          // var tmp = Math.min(width,height);
+          // balloonSize = tmp/4;
           var r = balloonSize/2;
           knotSize = balloonSize*0.1;
           knotX = centerX - knotSize/2;
@@ -175,11 +182,20 @@
           balloonBodyEl.style.transform = "translate(" + balloonX + "px," + balloonY + "px) rotate(45deg)";
         }
 
+        $scope.flex = function(intensity) {
+          console.log('flexing: ' + intensity);
+          if (intensity > balloonLogic.settings.intensity.threshold) {
+            $scope.inflate();
+          } else if (intensity > balloonLogic.settings.intensity.threshold/2) {
+            $scope.bulge();
+          }
+        }
+
         // make it bigger, then redraw (use percentage growth?)
         $scope.inflate = function() {
           balloonSize += inflateStep;
           update();
-        }
+        };
 
         $scope.bulge = function() {
           balloonSize += bulgeStep;
@@ -188,13 +204,19 @@
             balloonSize -= bulgeStep;
             update();
           }, transitionLength*1000);
-        }
+        };
 
         // make it smaller, then redraw
         $scope.deflate = function() {
           balloonSize -= deflateStep;
           update();
-        }
+        };
+
+        // make it smaller, then redraw
+        $scope.reset = function() {
+          var tmp = Math.min(width,height);
+          balloonSize = tmp/4;
+        };
 
         function updateDriftX() {
           driftIndexX ++;

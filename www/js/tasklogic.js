@@ -408,6 +408,56 @@ angular.module('flexvolt.taskLogic', [])
         ready: function(){return deferred.promise;}
     };
 }])
+.factory('balloonLogic', ['$q', 'storage', 'logicOptions', function($q, storage, logicOptions) {
+
+    var deferred = $q.defer();
+    var settings = {
+      filters: [],
+        baseline: undefined,
+        label: undefined,
+        presets: [],
+        intensity: {
+          min: 0,
+          max: 100,
+          step: 5,
+          threshold: 50
+        },
+        time: {
+          min: 0,
+          max: 10,
+          step: 1,
+          threshold: 2
+        }
+    };
+
+    storage.get('balloonSettings')
+        .then(function(tmp){
+            if (tmp){
+                for (var field in tmp){
+                    settings[field] = tmp[field];
+                }
+            } else {
+              // Defaults - high pass to remove DC, RMS to downsample
+              var filter1 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.name === 'Frequency - High Pass';})[0]);
+              filter1.params.f1.value = 5;
+              settings.filters.push(filter1);
+              var filter2 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.type === 'RMS';})[0]);
+              filter2.params.windowSize.value = 21;
+              settings.filters.push(filter2);
+            }
+            deferred.resolve();
+        });
+
+    function updateSettings(){
+        storage.set({balloon:settings});
+    }
+
+    return {
+        settings: settings,
+        updateSettings: updateSettings,
+        ready: function(){return deferred.promise;}
+    };
+}])
 .factory('snakeLogic', [function() {
 
 

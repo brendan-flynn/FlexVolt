@@ -10,11 +10,12 @@
     </ion-nav-buttons>
     <ion-content class="has-header fv-theme">
         <not-connected></not-connected>
-        <div ng-if="demo">
-            <span>Simulate</span>
-            <button class="button button-small button-balanced" ng-click="inflate()">Inflate</button>
-            <button class="button button-small button-balanced" ng-click="bulge()">Bulge</button>
+        <div ng-if="demo" style="padding: 5px;">
+            <span>Simulate Muscle Signals</span>
+            <button class="button button-small button-balanced" ng-click="flex(50)">Flex 50%</button>
+            <button class="button button-small button-balanced" ng-click="flex(100)">Flex 100%</button>
             <button class="button button-small button-balanced" ng-click="deflate()">Deflate</button>
+            <button class="button button-small button-balanced" ng-click="reset()">Reset</button>
         </div>
         <div ng-show="demo || flexvolt.api.connection.state === 'connected'">
           <div id="balloonContainer">
