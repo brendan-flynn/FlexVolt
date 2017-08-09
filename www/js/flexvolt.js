@@ -362,8 +362,26 @@ angular.module('flexvolt.flexvolt', [])
                   $timeout(api.updatePorts, DISCOVER_DELAY_MS);
                 }
             } else if (api.connection.state === 'connected'){
-                console.log('WARNING: Connection lost!');
-                connectionResetHandler(api.discoverFlexVolts);
+                console.log('WARNING: Connection lost!  Attempting to reconnect with ' + api.connection.flexvoltName + '.');
+                api.connection.state = 'reconnecting';
+                // reset connection, then get a list of available devices and try to reconnect to the currentDevice
+                connectionResetHandler(function() {
+                  api.discoverFlexVolts()
+                    .then(function() {
+                      var match = api.tryList.filter(function(availableDevice) {
+                        return availableDevice.name === api.connection.flexvoltName;
+                      });
+                      if (match && match.length > 0) {
+                        console.log('DEBUG: found the formerly connected device.  Attempting to reconnect');
+                        api.currentDevice = match[0];
+                        api.connection.state = 'connecting';
+                        attemptToConnect(api.currentDevice);
+                      } else {
+                        console.log('DEBUG: Connection dropped, unable to find previously connected device.');
+                        api.connection.state = 'begin';
+                      }
+                    });
+                });
             } else if (api.connection.state === 'updating settings'){
                 api.connection.state = 'connected';
                 write('Q');
@@ -990,10 +1008,12 @@ angular.module('flexvolt.flexvolt', [])
 
         $interval(
             function(){
-                if (api.connection.data === 'on'){
-                  return;
-                } else {
-                  api.pollBattery();
+                if (api.connection.state === 'connected') {
+                  if (api.connection.data === 'on') {
+                    return;
+                  } else {
+                    api.pollBattery();
+                  }
                 }
             }, 60000);
 
@@ -1018,15 +1038,17 @@ angular.module('flexvolt.flexvolt', [])
             if (api.connection.state === 'begin'){
                 return 'Waiting for Input.  Tap button below to try to connect.';
             } else if (api.connection.state === 'searching'){
-                return 'Scanning available ports for FlexVolts.'+dots;
+                return 'Scanning available ports for FlexVolts.' + dots;
             } else if (api.connection.state === 'connecting'){
-                return 'Atempting to establish a connection with device: ' + api.currentDevice.name + '. '+dots;
+                return 'Atempting to establish a connection with device: ' + api.currentDevice.name + '. ' + dots;
+            } else if (api.connection.state === 'reconnecting'){
+                return 'Attempting to re-establish a connection with device: ' + api.connection.flexvoltName + '. ' + dots;
             } else if (api.connection.state === 'connected'){
                 return 'Connected.';
             } else if (api.connection.state === 'polling'){
-                return 'Polling Version. '+dots;
+                return 'Polling Version. ' + dots;
             } else if (api.connection.state === 'updating settings'){
-                return 'Updating Settings. '+dots;
+                return 'Updating Settings. ' + dots;
             } else if (api.connection.state === 'no flexvolts found'){
                 return 'No FlexVolt devices found.  Is your FlexVolt powered on and paired/connected?';
             } else {return 'Info not avaiable.';}
