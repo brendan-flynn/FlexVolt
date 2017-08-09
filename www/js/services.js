@@ -160,7 +160,7 @@ angular.module('flexvolt.services', [])
             window.flexvoltPlatform = 'chrome';
             console.log('INFO: ionic ready, using chrome, platform: '+window.platform);
             //console.log(chrome.serial);
-            bluetoothPlugin.isConnected = function(connectedCB, notConnectedCB, errFunc){
+            bluetoothPlugin.isConnected = function(device, connectedCB, notConnectedCB, errFunc){
                 console.log('DEBUG: bluetoothPlugin.isConnected');
                 try {
                     chrome.serial.getInfo(bluetoothPlugin.connectionId, function(info){
