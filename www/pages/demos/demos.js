@@ -36,7 +36,7 @@
                     },
                     row2:{
                         b1:{
-                            icon:"icon ion-speedometer",
+                            icon:"icon ion-android-pin",
                             ref:"balloon({demo: true})",
                             btnName:"Balloon Demo"
                         }

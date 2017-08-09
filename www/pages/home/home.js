@@ -35,7 +35,7 @@
                             btnName:"Myometer"
                         },
                         b2: {
-                            icon:"icon ion-speedometer",
+                            icon:"icon ion-android-pin",
                             ref:"balloon",
                             btnName:"Balloon"
                         }
