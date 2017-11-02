@@ -61,8 +61,16 @@
 
             if (xyLogic.settings.plot.thresh){
                 //calculate RMS, then apply thresholds for motion
-                var xtmp = rms(dataIn[0]);
-                var ytmp = rms(dataIn[1]);
+                var xtmp = 0;
+                if (dataIn[0] !== angular.undefined && dataIn[0].length > 0) {
+                    xtmp = rms(dataIn[0]);
+                }
+                
+                var ytmp = 0;
+                if (dataIn[1] !== angular.undefined && dataIn[1].length > 0) {
+                    ytmp = rms(dataIn[1]);
+                }
+
                 if (xtmp > xyLogic.settings.thresh.xH){
                     x += speed;
                 } else if (xtmp < xyLogic.settings.thresh.xL){
