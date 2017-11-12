@@ -486,10 +486,12 @@ angular.module('flexvolt.flexvolt', [])
             }
         }
         api.manualConnect = function(device){
-            console.log('DEBUG: Manual connect '+device.name);
+            console.log('manual connect with device: ' + JSON.stringify(device));
             connectionResetHandler(function(){
                 api.connection.state = 'connecting';
-                attemptToConnect(device);
+                api.currentDevice = device;
+                console.log('DEBUG: Manual connect ' + api.currentDevice);
+                attemptToConnect(api.currentDevice);
             });
         };
         function attemptToConnect ( device ) {

@@ -229,23 +229,28 @@ angular.module('flexvolt.services', [])
                 console.log('DEBUG: bluetoothPlugin.disconnect');
                 try {
                     // find and disconnect all existing connections
-                    //console.log('In disconnect, connectionId: '+bluetoothPlugin.connectionId);
-                    chrome.serial.getConnections( function(connectionInfos){
-                        if (chrome.runtime.lastError) {
-                            console.log('ERROR: Chrome runtime error during serial.getConnections: '+chrome.runtime.lastError.message);
-                        }
-                        connectionInfos.forEach(function(con){
-                            console.log('Disconnecting connectionId '+con.connectionId);
-                            chrome.serial.disconnect(con.connectionId, function(){
-                                if (chrome.runtime.lastError) {
-                                    console.log('ERROR: Chrome runtime error during serial.disconnect: '+chrome.runtime.lastError.message);
-                                }
-                                    //console.log('disconnecting');
-                            });
-                        });
-                        bluetoothPlugin.connectionId = undefined;
+                    console.log('In disconnect, connectionId: '+bluetoothPlugin.connectionId);
+                    if (bluetoothPlugin.connectionId) {
+                      chrome.serial.getConnections( function(connectionInfos){
+                          if (chrome.runtime.lastError) {
+                              console.log('ERROR: Chrome runtime error during serial.getConnections: '+chrome.runtime.lastError.message);
+                          }
+                          connectionInfos.forEach(function(con){
+                              console.log('Disconnecting connectionId '+con.connectionId);
+                              chrome.serial.disconnect(con.connectionId, function(){
+                                  if (chrome.runtime.lastError) {
+                                      console.log('ERROR: Chrome runtime error during serial.disconnect: '+chrome.runtime.lastError.message);
+                                  }
+                                      //console.log('disconnecting');
+                              });
+                          });
+                          bluetoothPlugin.connectionId = undefined;
+                          callback();
+                      });
+                    } else {
+                        console.log('connectionId undefined, skipping the disconnect step.');
                         callback();
-                    });
+                    }
                 } catch (err) {errFunc(err);}
             };
             bluetoothPlugin.clear = function(callback,errFunc){
