@@ -466,24 +466,29 @@ angular.module('flexvolt.services', [])
 
     function gotEntry(entry){
       var deferred = $q.defer();
-      file.currentEntry = entry;
-      file.id = chrome.fileSystem.retainEntry(file.currentEntry)
-      chrome.fileSystem.getDisplayPath(file.currentEntry, function(displayPath){
-        if (!file.currentEntry || !file.currentEntry.isDirectory){
-            file.currentEntry = undefined;
-            file.path = undefined;
-            file.id = undefined;
-            console.log('DEBUG: Resolving gotEntry with no entry and no displayPath');
-            deferred.resolve();
-        } else {
-            chrome.fileSystem.getDisplayPath(file.currentEntry, function(displayPath){
-              console.log('INFO: Loaded displayPath: '+angular.toJson(displayPath));
-              file.path = displayPath;
-              storage.set({saveDirectory:{path: file.path, entry: file.currentEntry, id: file.id }});
+      if (angular.isDefined(entry)) {
+        file.currentEntry = entry;
+        file.id = chrome.fileSystem.retainEntry(file.currentEntry)
+        chrome.fileSystem.getDisplayPath(file.currentEntry, function(displayPath){
+          if (!file.currentEntry || !file.currentEntry.isDirectory){
+              file.currentEntry = undefined;
+              file.path = undefined;
+              file.id = undefined;
+              console.log('DEBUG: Resolving gotEntry with no entry and no displayPath');
               deferred.resolve();
-            });
-        }
-      });
+          } else {
+              chrome.fileSystem.getDisplayPath(file.currentEntry, function(displayPath){
+                console.log('INFO: Loaded displayPath: '+angular.toJson(displayPath));
+                file.path = displayPath;
+                storage.set({saveDirectory:{path: file.path, entry: file.currentEntry, id: file.id }});
+                deferred.resolve();
+              });
+          }
+        });
+      } else {
+        // user cancelled - shouldn't get here
+      }
+
 
       return deferred.promise;
     }
@@ -554,10 +559,15 @@ angular.module('flexvolt.services', [])
           var deferred = $q.defer();
 
           chrome.fileSystem.chooseEntry({type:'openDirectory'}, function(entry){
-            gotEntry(entry).
-              then(function(){
-                deferred.resolve();
-              });
+            if (chrome.runtime.lastError) {
+                console.log('ERROR: Chrome runtime error during fileSystem.chooseEntry: '+chrome.runtime.lastError.message);
+                deferred.reject();
+            } else {
+              gotEntry(entry).
+                then(function(){
+                  deferred.resolve();
+                });
+            }
           });
 
           return deferred.promise;

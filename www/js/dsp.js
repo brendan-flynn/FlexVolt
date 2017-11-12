@@ -268,6 +268,7 @@ angular.module('flexvolt.dsp', [])
         }
 
         api.controls.startRecording = function(){
+            if (angular.isDefined(file.path)) {
             api.controls.recording = true;
             api.controls.recordTimer = 0;
             timerInterval = $interval(function(){
@@ -280,6 +281,12 @@ angular.module('flexvolt.dsp', [])
                 +d.getHours()+'-'+d.getMinutes()+'-'
                 +d.getSeconds();
             file.openFile(recordedDataFile);
+            } else {
+              $ionicPopup.alert({
+                title: 'Data Export - Folder Not Set',
+                template: 'Please set an export folder on the settings page.'
+              });
+            }
         };
 
         api.controls.stopRecording = function(){
