@@ -806,7 +806,9 @@ angular.module('flexvolt.d3plots', [])
 
     api.resize = function(){
         var html = document.getElementById(htmlElement);
-        width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
+        // width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
+        var calculatedWidth = window.innerWidth - 10 - 150;
+        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
         api.reset();
