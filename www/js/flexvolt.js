@@ -101,6 +101,7 @@ angular.module('flexvolt.flexvolt', [])
 
     // api... contains the API that will be exposed via the 'flexvolt' service.
     var api = {
+        startConnect: undefined,
         disconnect: undefined,
         updatePorts: undefined,
         turnDataOn: undefined,
@@ -127,7 +128,7 @@ angular.module('flexvolt.flexvolt', [])
         settings: {
             frequencyCustom : 0,
             timer0PartialCount : 0,
-            timer0AdjustVal : 2,
+            timer0AdjustVal : 11, // empirical
             prescalerPic : 2,
             downSampleCount : 0,
             plugTestDelay : 0
