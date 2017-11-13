@@ -16,8 +16,8 @@
 
 angular.module('flexvolt.dsp', [])
 
-.factory('dataHandler', ['flexvolt', '$stateParams', '$interval', '$state', 'storage', 'hardwareLogic', 'filters', 'file', 'records',
-    function (flexvolt, $stateParams, $interval, $state, storage, hardwareLogic, filters, file, records) {
+.factory('dataHandler', ['flexvolt', '$stateParams', '$ionicPopup', '$interval', '$state', 'storage', 'hardwareLogic', 'filters', 'file', 'records',
+    function (flexvolt, $stateParams, $ionicPopup, $interval, $state, storage, hardwareLogic, filters, file, records) {
 
         window.file = file;
         // list of possible filters
@@ -37,7 +37,7 @@ angular.module('flexvolt.dsp', [])
             startTime: undefined,
             randAmplitude: 10,
             amplitudes: [.20, .50, .20, .22, .70, .20, .10, .10],
-            frequencies: [0.05, 10, 15, 20, 30, 50, 70, 100]
+            frequencies: [0.05, 0.10, 0.5, 1, 30, 50, 70, 100]
         };
 
         var timerInterval;
@@ -126,25 +126,104 @@ angular.module('flexvolt.dsp', [])
         console.log('DEBUG: filterList: '+filterList);
 
         // Set metrics buffering
+        // api.setMetrics = function(nDataPoints){
+        //     metricsFlag = true;
+        //     metricsArr = [];
+        //     for (var iChan = 0; iChan < nChannels; iChan++) {
+        //       metricsArr[iChan] = {
+        //         min: 0,
+        //         max: 0,
+        //         mean: 0
+        //       };
+        //     }
+        //     if (nDataPoints !== angular.undefined){
+        //         metricsNPoints = nDataPoints; // default
+        //     }
+        // };
+
         api.setMetrics = function(nDataPoints){
             metricsFlag = true;
             metricsArr = [];
+            for (var iChan = 0; iChan < nChannels; iChan++) {
+              metricsArr[iChan] = [];
+            }
             if (nDataPoints !== angular.undefined){
                 metricsNPoints = nDataPoints; // default
             }
         };
 
+        // api.getMetrics = function(){
+        //     var tic = performance.now();
+        //     var ret = [];
+        //     for (var ch = 0; ch < metricsArr.length; ch++){
+        //         ret[ch] = {
+        //             minAmplitude: metricsArr[ch].min,
+        //             maxAmplitude: metricsArr[ch].max,
+        //             meanAmplitude: metricsArr[ch].mean
+        //         };
+        //     }
+        //     var toc = performance.now();
+        //     console.log('getMetrics new took ' + (toc-tic));
+        //     return ret;
+        // };
+
+        api.getMetrics = function(){
+            // var tic = performance.now();
+            var ret = [];
+            for (var ch = 0; ch < metricsArr.length; ch++){
+                ret[ch] = {
+                    minAmplitude: undefined,
+                    maxAmplitude: undefined,
+                    meanAmplitude: undefined
+                };
+                var tmp = metricsArr[ch];
+                ret[ch].minAmplitude = Math.min.apply(Math,tmp);
+                ret[ch].maxAmplitude = Math.max.apply(Math,tmp);
+                var tmpSum = 0;
+                for (var i = 0; i < tmp.length; i++){
+                    tmpSum += tmp[i];
+                }
+                ret[ch].meanAmplitude = tmpSum/tmp.length;
+            }
+            // var toc = performance.now();
+            // console.log('getMetrics old took ' + (toc-tic));
+            return ret;
+        };
+
         api.rmMetrics = function(){metricsFlag = false;};
 
+        // function addToMetrics(data){
+        //     var tic = performance.now();
+        //     for (var ch = 0; ch < data.length; ch++){
+        //         if (metricsArr[ch] === angular.undefined){
+        //             metricsArr[ch] = {
+        //               min: 0,
+        //               max: 0,
+        //               mean: 0
+        //             };
+        //         }
+        //         metricsArr[ch].max = Math.max(metricsArr[ch].max, Math.max.apply(Math, data[ch]));
+        //         metricsArr[ch].min = Math.min(metricsArr[ch].min, Math.min.apply(Math, data[ch]));
+        //         data[ch].forEach(function(datum) {
+        //           metricsArr[ch].mean = metricsArr[ch].mean + (datum - metricsArr[ch].mean)/metricsNPoints;
+        //         });
+        //     }
+        //     var toc = performance.now();
+        //     console.log('addToMetrics new took ' + (toc-tic));
+        // }
+
         function addToMetrics(data){
+            // var tic = performance.now();
             for (var ch = 0; ch < data.length; ch++){
                 if (metricsArr[ch] !== angular.undefined){
                     metricsArr[ch] = metricsArr[ch].concat(data[ch]);
                 } else {
                     metricsArr[ch] = data[ch];
                 }
-                metricsArr[ch].splice(0,metricsArr[ch].length-metricsNPoints);
+                metricsArr[ch] = metricsArr[ch].slice(metricsArr[ch].length-metricsNPoints);
             }
+            // var toc = performance.now();
+            // console.log('addToMetrics old took ' + (toc-tic));
         }
 
         api.controls.serveRecord = function() {
@@ -194,6 +273,7 @@ angular.module('flexvolt.dsp', [])
             // Make this faster by only processing nChannels
             parsedData.splice(nChannels);
 
+            // run any filters
             for (var i = 0; i < nChannels; i++){
                 for (var ind in filterList[i]){
                     parsedData[i] = filterList[i][ind].apply(parsedData[i], hardwareLogic.settings.frequency );
@@ -269,18 +349,18 @@ angular.module('flexvolt.dsp', [])
 
         api.controls.startRecording = function(){
             if (angular.isDefined(file.path)) {
-            api.controls.recording = true;
-            api.controls.recordTimer = 0;
-            timerInterval = $interval(function(){
-                api.controls.recordTimer += 1;
-            },1000);
-            initRecordedData();
-            var d = new Date();
-            recordedDataFile = 'flexvolt-recorded-data--'+d.getFullYear()+'-'
-                +(d.getMonth()+1)+'-'+d.getDate()+'--'
-                +d.getHours()+'-'+d.getMinutes()+'-'
-                +d.getSeconds();
-            file.openFile(recordedDataFile);
+              api.controls.recording = true;
+              api.controls.recordTimer = 0;
+              timerInterval = $interval(function(){
+                  api.controls.recordTimer += 1;
+              },1000);
+              initRecordedData();
+              var d = new Date();
+              recordedDataFile = 'flexvolt-recorded-data--'+d.getFullYear()+'-'
+                  +(d.getMonth()+1)+'-'+d.getDate()+'--'
+                  +d.getHours()+'-'+d.getMinutes()+'-'
+                  +d.getSeconds();
+              file.openFile(recordedDataFile);
             } else {
               $ionicPopup.alert({
                 title: 'Data Export - Folder Not Set',
@@ -313,26 +393,6 @@ angular.module('flexvolt.dsp', [])
             }
             localRecordedData = [];
             records.put(newRecord);
-        };
-
-        api.getMetrics = function(){
-            var ret = [];
-            for (var ch = 0; ch < metricsArr.length; ch++){
-                ret[ch] = {
-                    minAmplitude: undefined,
-                    maxAmplitude: undefined,
-                    meanAmplitude: undefined
-                };
-                var tmp = metricsArr[ch];
-                ret[ch].minAmplitude = Math.min.apply(Math,tmp);
-                ret[ch].maxAmplitude = Math.max.apply(Math,tmp);
-                var tmpSum = 0;
-                for (var i = 0; i < tmp.length; i++){
-                    tmpSum += tmp[i];
-                }
-                ret[ch].meanAmplitude = tmpSum/tmp.length;
-            }
-            return ret;
         };
 
         return api;
