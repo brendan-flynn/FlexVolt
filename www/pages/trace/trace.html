@@ -1,6 +1,7 @@
 <ion-view title="Trace">
     <ion-nav-buttons side="left">
         <help-popover></help-popover>
+        <save-panel ng-if="!mobile"></save-panel>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
@@ -13,7 +14,7 @@
       <div ng-show="demo || flexvolt.api.connection.state === 'connected'" id="traceWindow" class="row fullsizeplot"></div>
       <!-- <div id="traceWindow" class="row fullsizeplot" style="overflow: scroll;"></div> -->
 
-      <save-panel></save-panel>
+      <save-panel ng-if="mobile"></save-panel>
 
   </ion-content>
 </ion-view>

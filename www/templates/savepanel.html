@@ -28,12 +28,12 @@ and open the template in the editor.
                 class="button button-icon icon ion-stop record-icon"
                 ng-click="dataHandler.controls.stopRecording()">
         </button>
+        <button class="button button-clear record-icon-text" ng-style="dataHandler.controls.recording ? {'color': 'black'} : {'color': 'gray'} ">
+            {{dataHandler.controls.recordTimer}}s
+        </button>
     </div>
-    <div class="col record-icon-text" ng-style="dataHandler.controls.recording ? {'color': 'black'} : {'color': 'gray'} ">
-      Rec {{dataHandler.controls.recordTimer}}s
-    </div>
-    <div class="col" style="text-align:right; padding: 5px;">
-        <button title="View Recorded Data"
+    <!-- <div class="col" style="text-align:right; padding: 5px;"> -->
+        <!-- <button title="View Recorded Data"
               ng-disabled="records.getForTask('trace').length <= 0"
               class="button button-icon icon ion-search record-icon"
               ng-click="dataHandler.viewRecordedData()">
@@ -43,10 +43,10 @@ and open the template in the editor.
                 ng-options="record.dateTime for record in records.getForTask('trace')"
                 ng-change="onRecordSelected()"
                 style="padding: 5px;">
-        </select>
+        </select> -->
         <!-- <button title="Capture Image"
                 class="button button-icon icon ion-camera record-icon"
                 ng-click="captureScreen()">
         </button> -->
-    </div>
+    <!-- </div> -->
 </div>

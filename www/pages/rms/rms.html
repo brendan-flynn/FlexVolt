@@ -1,6 +1,7 @@
 <ion-view title="RMS vs Time">
     <ion-nav-buttons side="left">
         <help-popover></help-popover>
+        <save-panel ng-if="!mobile"></save-panel>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
@@ -11,7 +12,7 @@
       <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
       <not-connected></not-connected>
       <div ng-show="demo || flexvolt.api.connection.state === 'connected'" class="row row-full-height">
-          <save-panel></save-panel>
+          <save-panel ng-if="mobile"></save-panel>
           <div class="col col-150px">
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
                    style="font-size: 14px; line-height:14px;">

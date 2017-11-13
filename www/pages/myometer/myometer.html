@@ -3,6 +3,7 @@
 <ion-view title="Myometer">
     <ion-nav-buttons side="left">
         <help-popover></help-popover>
+        <save-panel ng-if="!mobile"></save-panel>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
@@ -12,7 +13,7 @@
   <ion-content class="has-header fv-theme" scroll="false">
     <not-connected></not-connected>
     <div ng-show="demo || flexvolt.api.connection.state === 'connected'">
-        <save-panel></save-panel>
+        <save-panel ng-if="mobile"></save-panel>
         <div id="myometerWindow"></div>
         <div class="row">
             <div class="col col-70px"></div>
