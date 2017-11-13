@@ -423,10 +423,10 @@ angular.module('flexvolt.taskLogic', [])
           threshold: 50
         },
         time: {
-          min: 0,
-          max: 10,
-          step: 1,
-          threshold: 2
+          min: 0.2,
+          max: 5,
+          step: 0.1,
+          threshold: 1
         }
     };
 

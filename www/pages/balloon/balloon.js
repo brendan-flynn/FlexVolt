@@ -11,6 +11,7 @@
         console.log('demo: ' + $scope.demo);
 
         $scope.settings = balloonLogic.settings;
+        $scope.updating = false;
 
         var afID;
         var frameCounts = 0;
@@ -33,6 +34,13 @@
         var driftArrayX = [-0.05, 0.05], driftArrayY = [-0.05, 0.05];
         var driftIndexX = 0, driftIndexY = 0;
         var driftDelayX = 2, driftDelayY = 3; // seconds
+        var STATE_BELOW_THRESHOLD = 0;
+        var STATE_ABOVE_FLEX_THRESHOLD = 1;
+        var STATE_ABOVE_BULGE_THRESHOLD = 2;
+        var STATE_FLEXED = 3;
+        var STATE_BULGED = 4;
+        var flexThresholdTimeout, bulgeThresholdTimeout, flexStart, bulgeStart;
+        var flexState = STATE_BELOW_THRESHOLD;
 
         var balloonContainerEl, balloonDriftXContainerEl, balloonDriftYContainerEl, balloonBodyEl, balloonKnotEl, balloonStringEl, balloonStringSVGEl;
 
@@ -46,6 +54,7 @@
         }
 
         function updateAnimate(demo){
+            if ($scope.updating)return; // don't try to draw any graphics while the settings are being changed
             //console.log('updating, demo:'+$stateParams.demo);
             //console.log('updating, threshmode:'+settings.plot.mode);
             var speed = 4;
@@ -64,11 +73,62 @@
             var tmp = rms(dataIn[0]);
             // console.log(tmp);
             if (tmp > balloonLogic.settings.intensity.threshold/100){
-                console.log('inflate');
-                $scope.inflate();
+                if (flexState === STATE_BELOW_THRESHOLD || flexState === STATE_ABOVE_BULGE_THRESHOLD) {
+                  if (flexThresholdTimeout) {$timeout.cancel(flexThresholdTimeout);}
+                  // console.log('transition to flexed');
+                  flexState = STATE_ABOVE_FLEX_THRESHOLD;
+                  flexStart = Math.round(performance.now());
+                  flexThresholdTimeout = $timeout(function(){
+                    if (flexState === STATE_ABOVE_FLEX_THRESHOLD) {
+                      // console.log('flex still flexed - inflate');
+                      flexState = STATE_FLEXED;
+                      $scope.inflate();
+                    } else if (flexState === STATE_ABOVE_BULGE_THRESHOLD) {
+                      // console.log('flex dropped to bulge - bulge');
+                      flexState = STATE_BULGED;
+                      $scope.bulge();
+                    }
+                  }, balloonLogic.settings.time.threshold*1000);
+                }
             } else if (tmp > balloonLogic.settings.intensity.threshold/2/100) {
-                console.log('bulge');
-                $scope.bulge();
+                if (flexState === STATE_BELOW_THRESHOLD) {
+                  if (bulgeThresholdTimeout) {$timeout.cancel(bulgeThresholdTimeout);}
+                  // console.log('transition to bulged');
+                  flexState = STATE_ABOVE_BULGE_THRESHOLD;
+                  bulgeStart = Math.round(performance.now());
+                  bulgeThresholdTimeout = $timeout(function(){
+                    if (flexState === STATE_ABOVE_BULGE_THRESHOLD) {
+                      // console.log('bulge still bulged - bulge');
+                      flexState = STATE_BULGED;
+                      $scope.bulge();
+                    }
+                  }, balloonLogic.settings.time.threshold*1000);
+                } else if (flexState === STATE_ABOVE_FLEX_THRESHOLD) {
+                  if (flexThresholdTimeout) {$timeout.cancel(flexThresholdTimeout);}
+                  var t = Math.round(performance.now());
+                  if (angular.isDefined(bulgeStart) && (t-bulgeStart > balloonLogic.settings.time.threshold*1000)) {
+                    // console.log('bulge went to flex and back - bulge');
+                    flexState = STATE_BULGED;
+                    $scope.bulge();
+                  }
+                }
+            } else {
+                if (flexThresholdTimeout) {$timeout.cancel(flexThresholdTimeout);}
+                if (bulgeThresholdTimeout) {$timeout.cancel(bulgeThresholdTimeout);}
+                if (flexState === STATE_ABOVE_BULGE_THRESHOLD || flexState === STATE_ABOVE_FLEX_THRESHOLD) {
+                  var t = Math.round(performance.now());
+                  if (angular.isDefined(flexStart) && t-flexStart > balloonLogic.settings.time.threshold*1000/2) {
+                    // console.log('flex or bulge only made it halfway - bulge');
+                    flexState = STATE_BULGED;
+                    $scope.bulge();
+                  }
+                  flexStart = undefined; bulgeStart = undefined;
+                  flexState = STATE_BELOW_THRESHOLD;
+                } else if (flexState === STATE_FLEXED || flexState === STATE_BULGED) {
+                  // console.log('already flexed or bulged - reset');
+                  flexStart = undefined; bulgeStart = undefined;
+                  flexState = STATE_BELOW_THRESHOLD;
+                }
             }
         }
 
@@ -98,19 +158,6 @@
             }
         });
 
-        window.onresize = function(){
-            if (afID){
-              window.cancelAnimationFrame(afID);
-            }
-            afID = undefined;
-
-            $scope.updating  = true;
-            console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
-            resize();
-            $scope.updating  = false;
-            paintStep();
-        };
-
         function init() {
           balloonContainerEl = document.getElementById("balloonContainer");
           balloonDriftXContainerEl = document.getElementById("balloonDriftXContainer");
@@ -135,6 +182,17 @@
           console.log('size: ' + balloonSize);
 
           resize(); // gets size and initializes all size-dependent items
+
+          window.onresize = function(){
+              if (afID){
+                window.cancelAnimationFrame(afID);
+              }
+              afID = undefined;
+
+              console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
+              resize();
+              paintStep();
+          };
 
           // Establish transitions for the balloon container using two drift divs
           // make these smaller than the parent element so they don't change the size as they drift
@@ -163,6 +221,7 @@
         }
 
         function resize() {
+          $scope.updating  = true;
           //width = balloonContainerEl.clientWidth;
           //height = balloonContainerEl.clientHeight;
           width = window.innerWidth;
@@ -188,6 +247,7 @@
 
           drawString();
           update();
+          $scope.updating  = false;
         }
 
         function drawString(){
@@ -217,7 +277,7 @@
         }
 
         $scope.flex = function(intensity) {
-          console.log('flexing: ' + intensity);
+          // console.log('flexing: ' + intensity);
           if (intensity > balloonLogic.settings.intensity.threshold) {
             $scope.inflate();
           } else if (intensity > balloonLogic.settings.intensity.threshold/2) {
