@@ -108,6 +108,8 @@
             rmsTimeLogic.ready()
                 .then(function(){
                     $scope.pageLogic = rmsTimeLogic;
+                    // in case general settings has a lower nChannels
+                    rmsTimeLogic.settings.nChannels = Math.min(rmsTimeLogic.settings.nChannels, hardwareLogic.settings.nChannels);
                     //console.log('INFO: Settings: '+angular.toJson(rmsTimeLogic.settings));
                     dataHandler.init(rmsTimeLogic.settings.nChannels);
 

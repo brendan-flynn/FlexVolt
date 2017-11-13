@@ -61,26 +61,22 @@
 
             if (xyLogic.settings.plot.thresh){
                 //calculate RMS, then apply thresholds for motion
-                var xtmp = 0;
                 if (dataIn[0] !== angular.undefined && dataIn[0].length > 0) {
-                    xtmp = rms(dataIn[0]);
+                    var xtmp = rms(dataIn[0]);
+                    if (xtmp > xyLogic.settings.thresh.xH){
+                        x += speed;
+                    } else if (xtmp < xyLogic.settings.thresh.xL){
+                        x -= speed;
+                    }
                 }
                 
-                var ytmp = 0;
                 if (dataIn[1] !== angular.undefined && dataIn[1].length > 0) {
-                    ytmp = rms(dataIn[1]);
-                }
-
-                if (xtmp > xyLogic.settings.thresh.xH){
-                    x += speed;
-                } else if (xtmp < xyLogic.settings.thresh.xL){
-                    x -= speed;
-                }
-
-                if (ytmp > xyLogic.settings.thresh.yH){
-                    y += speed;
-                } else if (ytmp < xyLogic.settings.thresh.yL){
-                    y -= speed;
+                    var ytmp = rms(dataIn[1]);
+                    if (ytmp > xyLogic.settings.thresh.yH){
+                        y += speed;
+                    } else if (ytmp < xyLogic.settings.thresh.yL){
+                        y -= speed;
+                    }
                 }
 
                 if (x > 255){x=255;}
