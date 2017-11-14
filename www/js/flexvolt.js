@@ -262,18 +262,27 @@ angular.module('flexvolt.flexvolt', [])
             }
         }
 
+        // FOR TIMING DEBUGGING
+        // var rCount = 0;
+        // var itt = $interval(function(){
+        //   var t = rCount;
+        //   rCount = 0;
+        //   console.log('Received ' + t + ' bytes.');
+        // },1000)
+
         // Async event listener function to pass to subscribe/addListener
         function onDataReceived(d){
             // console.log('received: type: ' + typeof(d) + ', content: ' + JSON.stringify(d));
+            // rCount += d.length;
             receivedData = true;
             var runSpecial = false;
 
-            var tmp = [];
-            for (var key in d) {
-                if (d.hasOwnProperty(key)) {
-                    tmp.push(d[key]);
+                var tmp = [];
+                for (var key in d) {
+                    if (d.hasOwnProperty(key)) {
+                        tmp.push(d[key]);
+                    }
                 }
-            }
 
             if (waitingForResponse) {
                 while(tmp.length > 0){
@@ -293,9 +302,9 @@ angular.module('flexvolt.flexvolt', [])
                 }
             }
 
-            for (var i = 0; i < tmp.length; i++){
-                dIn.push(tmp[i]);
-            }
+                for (var i = 0; i < tmp.length; i++){
+                    dIn.push(tmp[i]);
+                }
             //console.log('DEBUG: dIn ended up containing: ' + JSON.stringify(dIn));
 
             if (runSpecial){
