@@ -208,7 +208,10 @@
       function updateAnimate(){
         if ($scope.updating)return; // don't try to draw any graphics while the settings are being changed
 
-        var dataIn = dataHandler.getData();
+        var dataBundle = dataHandler.getData(); // [timestamps, dataIn]
+        if (dataBundle === null || dataBundle === angular.undefined ||
+            dataBundle[0] === angular.undefined){return;}
+        var dataIn = dataBundle[1];
         if (dataIn === null || dataIn === angular.undefined ||
             dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
 

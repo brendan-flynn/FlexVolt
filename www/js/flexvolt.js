@@ -84,6 +84,10 @@ angular.module('flexvolt.flexvolt', [])
     var pollingTimeout, pollingInterval;
     var updateSettingsRepeatCount = 0;
 
+    // Time Stamps
+    var timestamp;
+    var timestampInterval;
+
     var GAIN = 1845; // Primary gain = 405.  Secondary gain =
     var SupplyVoltageBattery = 3.7;
     var SupplyVoltageUSB = 5.0;
@@ -277,12 +281,12 @@ angular.module('flexvolt.flexvolt', [])
             receivedData = true;
             var runSpecial = false;
 
-                var tmp = [];
-                for (var key in d) {
-                    if (d.hasOwnProperty(key)) {
-                        tmp.push(d[key]);
-                    }
+            var tmp = [];
+            for (var key in d) {
+                if (d.hasOwnProperty(key)) {
+                    tmp.push(d[key]);
                 }
+            }
 
             if (waitingForResponse) {
                 while(tmp.length > 0){
@@ -302,9 +306,9 @@ angular.module('flexvolt.flexvolt', [])
                 }
             }
 
-                for (var i = 0; i < tmp.length; i++){
-                    dIn.push(tmp[i]);
-                }
+            for (var i = 0; i < tmp.length; i++){
+                dIn.push(tmp[i]);
+            }
             //console.log('DEBUG: dIn ended up containing: ' + JSON.stringify(dIn));
 
             if (runSpecial){
@@ -916,6 +920,7 @@ angular.module('flexvolt.flexvolt', [])
         api.getDataParsed = function(){
             var tmpLow, tmpLow2;
             var dataParsed = [];
+            var dataTimes = [];
             if (!checkingForData && api.connection.state === 'connected' && api.connection.data === 'on'){
                 checkingForData = true;
                 var dataIn = dIn.slice(0);
@@ -928,6 +933,7 @@ angular.module('flexvolt.flexvolt', [])
                     while(readInd < (dataIn.length-api.readParams.expectedBytes) ){
                         var tmp = dataIn[readInd++];
                         if (tmp === api.readParams.expectedChar){
+                            dataTimes.push(timestamp); timestamp+=timestampInterval;
                             if (!hardwareLogic.settings.bitDepth10) {
                                 for (var i = 0; i < hardwareLogic.settings.nChannels; i++){
                                     dataParsed[i][dataInd] = factor8Bit*(dataIn[readInd++] - api.readParams.offset); // centering on 0!
@@ -968,7 +974,7 @@ angular.module('flexvolt.flexvolt', [])
                 checkingForData = false;
             }
             // copy, clear, return.  REMEMBER - bluetoothPlugin is ASYNC!
-            return dataParsed;
+            return [dataTimes, dataParsed];
         };
 
         function updateBatteryVoltage(valFromPic) {
@@ -998,6 +1004,8 @@ angular.module('flexvolt.flexvolt', [])
 
         api.turnDataOn = function(){
             api.connection.dataOnRequested = true;
+            timestampInterval = 1000/hardwareLogic.settings.frequency; // millis
+            timestamp = Date.now(); // start the timer (millis) NOTE it will lag real time by however long it takes to turn data on
             turnDataOn();
         };
         api.turnDataOff = function(){

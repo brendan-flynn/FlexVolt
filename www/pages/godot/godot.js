@@ -52,7 +52,9 @@
                 }
             } else {
                 //if (!flexvolt.api.isConnected){return;}  BROKEN?!
-                var dataIn = flexvolt.api.getDataParsed();
+                var dataBundle = flexvolt.api.getDataParsed(); // [timestamps, dataIn]
+                if (dataBundle === null || dataBundle === angular.undefined || dataBundle[0] === angular.undefined){return;}
+                var dataIn = dataBundle[1];
                 if (dataIn === null || dataIn === angular.undefined || dataIn[0] === angular.undefined){return;}
 
                 var n = dataIn[0].length;
@@ -69,7 +71,7 @@
                         x -= speed;
                     }
                 }
-                
+
                 if (dataIn[1] !== angular.undefined && dataIn[1].length > 0) {
                     var ytmp = rms(dataIn[1]);
                     if (ytmp > xyLogic.settings.thresh.yH){

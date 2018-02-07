@@ -516,15 +516,14 @@ angular.module('flexvolt.d3plots', [])
     var leftPadding = 10;
     var rightPadding = 10;
 
-    var margin, width, height, plotElement, htmlElement, dT;
+    var margin, width, height, plotElement, htmlElement;
     var mar = 4;
     margin = {left: 50, right: mar, top: mar, bottom: 35};
     var PADDINGOFFSET = 8;
 
     var svg, x, scaleX, y, autoY, xAxis, yAxis, zoom, line;
-    var panExtent, xMax;
-    var data = [], xPos = 0, startPos = 0;
-    var tmpData = [];
+    var panExtent, xMax, stopPos, startPos;
+    var time = [], data = [];
 
     var yMax;
 
@@ -565,16 +564,16 @@ angular.module('flexvolt.d3plots', [])
 //        svg.selectAll('path.line').call(line);
 
       // reset axes - had to add some code to handle the axis ticks being in seconds, not ms
-      scaleX = d3.scale.linear()
-          .domain([x.domain()[0]*dT, x.domain()[1]*dT])
-          .range([0, width]);
-
-      xAxis = d3.svg.axis()
-          .scale(scaleX)
-          .tickSize(-height)
-          .tickPadding(10)
-          .tickSubdivide(true)
-          .orient('bottom');
+      // scaleX = d3.scale.linear()
+      //     .domain([x.domain()[0]*dT, x.domain()[1]*dT])
+      //     .range([0, width]);
+      //
+      // xAxis = d3.svg.axis()
+      //     .scale(scaleX)
+      //     .tickSize(-height)
+      //     .tickPadding(10)
+      //     .tickSubdivide(true)
+      //     .orient('bottom');
 
       svg.select('.x.axis').call(xAxis);
       svg.select('.y.axis').call(yAxis);
@@ -634,28 +633,21 @@ angular.module('flexvolt.d3plots', [])
             d3.select('svg').remove();
         }
 
-        xPos = 0;
-        startPos = 0;
+        time = [];
         data = [];
-        tmpData = [];
         for (var i = 0; i < api.settings.nChannels;i++){
             data[i] = [];
-            tmpData[i] = angular.undefined;
         }
 
-        x = d3.scale.linear()
-            .domain([0, xMax])
-            .range([0, width]);
-
-        scaleX = d3.scale.linear()
-            .domain([x.domain()[0]*dT, x.domain()[1]*dT])
+        x = d3.time.scale()
+            .domain([startPos, stopPos])
             .range([0, width]);
 
         y = d3.scale.linear().range([height, 0]);
         if (api.settings.autoscaleY){
             y.domain([0, autoY()]);
-        }else {
-            y.domain([-0.01*yMax, yMax*1.01]);
+        } else {
+            y.domain([-1.01*yMax, yMax*1.01]);
         }
 
         if (api.settings.zoomOption === 'NONE'){
@@ -692,11 +684,11 @@ angular.module('flexvolt.d3plots', [])
 
         line = d3.svg.line()
             .interpolate('linear')
-            .x(function(d, i) { return x(startPos + i); })
-            .y(function(d, i) { return y(d); });
+            .x(function(d) { return x(d.time); })
+            .y(function(d) { return y(d.value); });
 
         xAxis = d3.svg.axis()
-            .scale(scaleX)
+            .scale(x)
             .tickSize(-height)
             .tickPadding(10)
             .tickSubdivide(true)
@@ -711,17 +703,15 @@ angular.module('flexvolt.d3plots', [])
 
         svg.append('g')
             .attr('class', 'x axis')
-//            .attr('fill','none')
             .attr('transform', 'translate(0,' + height + ')')
             .call(xAxis);
 
         svg.append('g')
             .attr('class', 'y axis')
-//            .attr('fill','none')
             .call(yAxis);
 
         svg.append('g')
-            .attr('class', 'y axis')
+            .attr('class', 'y label')
             .append('text')
             .attr('class', 'axis-label')
             .attr('transform', 'rotate(-90)')
@@ -730,7 +720,7 @@ angular.module('flexvolt.d3plots', [])
             .text('RMS Muscle Signal, mV');
 
         svg.append('g')
-            .attr('class', 'x axis')
+            .attr('class', 'x label')
             .append('text')
             .attr('class', 'axis-label')
             .attr('y', height+35)
@@ -753,14 +743,14 @@ angular.module('flexvolt.d3plots', [])
         width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
-        dT = 1/userFrequency;
-        xMax = maxX/dT; // seconds
+        xMax = maxX*1000; // milliseconds
         panExtent = {x: [0,xMax], y: [-0.01*yMax,1.01*yMax] };
 
         yMax = vMax;
 
-        xPos = 0;
-        startPos = 0;
+        startPos = Date.now();
+        stopPos = startPos + xMax;
+        console.log('start: ' + startPos + ', stop: ' + stopPos + ', yMax: ' + yMax);
 
         api.settings.zoomOption = newZoomOption;
         api.settings.nChannels = nChannels;
@@ -768,20 +758,31 @@ angular.module('flexvolt.d3plots', [])
         api.reset();
     };
 
-    api.update = function(dataIn){
-        startPos = xPos > 0?xPos-1:0;
-        xPos += dataIn[0].length;
-        if (xPos >= xMax){
-            xPos = xPos%xMax;
-            startPos = 0;
+    api.update = function(dataBundle){
+        var timestamps = dataBundle[0];
+        var dataIn = dataBundle[1];
+
+        // see if data goes past current window
+        if (timestamps[timestamps.length-1] > stopPos){
+            console.log('reset!');
+            startPos = stopPos;
+            stopPos = startPos + xMax;
+
+            x.domain([startPos, stopPos]);
+            xAxis.scale(x);
+            svg.select("g.x.axis").call(xAxis);
+
+            // find first new time point
+            var startInd = timestamps.findIndex(function(el){return el >= startPos});
+            timestamps.splice(0,startInd);
             for (var ind in dataIn){
-                dataIn[ind].splice(0,dataIn[ind].length-xPos); // over ran width, splice out data up to width
+                dataIn[ind].splice(0,startInd); // over ran width, splice out data up to width
             }
             svg.selectAll('path.line').remove();
+            time = [];
             data = [];
             for (var i = 0; i < api.settings.nChannels;i++){
                 data[i] = [];
-                tmpData[i] = angular.undefined;
             }
         }
 
@@ -789,18 +790,21 @@ angular.module('flexvolt.d3plots', [])
             y.domain([0, autoY()]);
         }
 
-        for (var i = 0; i < api.settings.nChannels; i++){
-            data[i] = data[i].concat(dataIn[i]);
-            if (tmpData[i]) {dataIn[i].splice(0,0,tmpData[i]);}
+        time = time.concat(timestamps);
+        for (var i=0; i<api.settings.nChannels; i++){
+            var d2 = [];
+            for (var j=0; j<timestamps.length; j++){
+              d2[j] = {time: timestamps[j], value: .5};//dataIn[i][j]};
+            }
+            data[i] = data[i].concat(d2);
 
             svg.append('svg:path')
-                .datum(dataIn[i])
+                .datum(d2)
                 .attr('class', 'line')
                 .attr('clip-path', 'url(#clip)')
                 .attr('stroke', colorList[i%colorList.length])
                 .attr('d', line);
 
-            tmpData[i] = dataIn[i].slice(-1)[0];
         }
     };
 

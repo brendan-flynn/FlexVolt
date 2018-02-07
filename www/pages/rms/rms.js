@@ -79,12 +79,17 @@
                 updateMetrics();
             }
 
-            var dataIn = dataHandler.getData();
-            //console.log(dataIn);
-            // animate
+            var dataBundle = dataHandler.getData(); // [timestamps, dataIn]
+            if (dataBundle === null || dataBundle === angular.undefined ||
+                dataBundle[0] === angular.undefined || dataBundle[0].length ===0){return;}
+
+            var dataIn = dataBundle[1];
             if (dataIn === null || dataIn === angular.undefined ||
                 dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
-            rmsTimePlot.update(dataIn);
+
+            //console.log(dataIn);
+            // animate          
+            rmsTimePlot.update(dataBundle);
         }
 
         function updateMetrics(){
