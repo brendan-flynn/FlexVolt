@@ -128,11 +128,13 @@ i.record-icon{
 
 .y.axis line,
 .x.axis line {
-  stroke: none;
+  fill: none;
+  stroke: #000;
 }
 
 .x.axis path {
-  display: none;
+  fill: none;
+  stroke: #000;
 }
 
 

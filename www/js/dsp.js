@@ -81,7 +81,7 @@ angular.module('flexvolt.dsp', [])
 
             for (var i = 0; i<nPoints; i++) {
                 demoVals.time += 1/demoVals.fs;
-                getTimes[i] = demoVals.time;
+                genTimes[i] = demoVals.time;
                 for (var ch = 0; ch < nChannels; ch++){
                     if (i === 0){
                         genData[ch] = [];

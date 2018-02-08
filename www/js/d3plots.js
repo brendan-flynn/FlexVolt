@@ -633,6 +633,8 @@ angular.module('flexvolt.d3plots', [])
             d3.select('svg').remove();
         }
 
+        startPos = Date.now();
+        stopPos = startPos + xMax;
         time = [];
         data = [];
         for (var i = 0; i < api.settings.nChannels;i++){
@@ -687,24 +689,36 @@ angular.module('flexvolt.d3plots', [])
             .x(function(d) { return x(d.time); })
             .y(function(d) { return y(d.value); });
 
+        var nTicks = Math.floor(width/75)-1;
+        var tickSpan = Math.ceil((stopPos - startPos)/(1000*nTicks));
+        console.log('nTicks: ' + nTicks + ', tickSpan: ' + tickSpan);
         xAxis = d3.svg.axis()
             .scale(x)
-            .tickSize(-height)
-            .tickPadding(10)
+            // .tickSize(-height+10)
+            // .tickPadding(10)
             .tickSubdivide(true)
-            .orient('bottom');
+            .orient('bottom')
+            .tickFormat(d3.time.format("%I:%M:%S"))
+            .ticks(nTicks);
+            // .ticks(d3.time.seconds, tickSpan); // ends up with strange numbers
 
         yAxis = d3.svg.axis()
             .scale(y)
             .tickPadding(10)
-            .tickSize(-width)
+            .tickSize(0)
             .tickSubdivide(true)
             .orient('left');
 
         svg.append('g')
             .attr('class', 'x axis')
             .attr('transform', 'translate(0,' + height + ')')
-            .call(xAxis);
+            .call(xAxis)
+            .selectAll("text")
+            .attr("y", 2)
+            .attr("x", 9)
+            .attr("dy", ".35em")
+            .attr("transform", "rotate(25)")
+            .style("text-anchor", "start");
 
         svg.append('g')
             .attr('class', 'y axis')
@@ -750,7 +764,6 @@ angular.module('flexvolt.d3plots', [])
 
         startPos = Date.now();
         stopPos = startPos + xMax;
-        console.log('start: ' + startPos + ', stop: ' + stopPos + ', yMax: ' + yMax);
 
         api.settings.zoomOption = newZoomOption;
         api.settings.nChannels = nChannels;
@@ -792,14 +805,14 @@ angular.module('flexvolt.d3plots', [])
 
         time = time.concat(timestamps);
         for (var i=0; i<api.settings.nChannels; i++){
-            var d2 = [];
             for (var j=0; j<timestamps.length; j++){
-              d2[j] = {time: timestamps[j], value: .5};//dataIn[i][j]};
+              data[i].push({time: timestamps[j], value: dataIn[i][j]});
             }
-            data[i] = data[i].concat(d2);
+
+            // console.log(data[i]);
 
             svg.append('svg:path')
-                .datum(d2)
+                .datum(data[i])
                 .attr('class', 'line')
                 .attr('clip-path', 'url(#clip)')
                 .attr('stroke', colorList[i%colorList.length])
