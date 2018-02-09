@@ -116,6 +116,7 @@ angular.module('flexvolt.flexvolt', [])
         flexvoltPortList: [],
         tryList: undefined,
         currentDevice: undefined,
+        updateBatteryIndicator: function(newLevel){}, // defined by connection-indicator ctrl
         connection: { // properties dependent on the device connected
             initialWait: undefined,
             connectedWait: undefined,
@@ -993,6 +994,7 @@ angular.module('flexvolt.flexvolt', [])
             var vdd = adcVoltage * vddMultiplier;
             console.log('DEBUG: Battery Voltage: ' + JSON.stringify(vdd));
             api.connection.batteryVoltage = vdd;
+            api.updateBatteryIndicator();
         }
 
         // @input data String

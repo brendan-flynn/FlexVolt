@@ -5,15 +5,52 @@
     .directive('connectionStatus', function(){
         return {
             restrict: 'E',
-            controller: function($scope, flexvolt){
-    //            $scope.isFlexVoltConnected = flexvolt.isConnected;
-                $scope.isFlexVoltConnected = flexvolt.getConnectionStatus;
+            controller: function($scope, $timeout, flexvolt){
 
-    //            $scope.$watch(
-    //                flexvolt.getConnectionStatus,
-    //                function(){$scope.isFlexVoltConnected = flexvolt.getConnectionStatus;},
-    //                true
-    //            );
+                $scope.batteryLevelStyle = {
+                  "background": "white",
+                  "width": "0px"
+                };
+
+                // var batteryElem = document.getElementById("battery");
+                // var batteryFullWidth = getComputedStyle(batteryElem, null).getPropertyValue("--battery-width");
+                // batteryFullWidth = batteryFullWidth.slice(0,batteryFullWidth.indexOf("p"));
+                // batteryFullWidth = Math.ceil(batteryFullWidth*.9);
+                var batteryFullWidth = 30;
+                var batteryLow = 3.2;
+                var batteryHigh = 4.2;
+
+                function updateIndicator() {
+                    if (angular.isDefined(flexvolt.api.connection.batteryVoltage) &&
+                        flexvolt.api.connection.batteryVoltage !== null &&
+                        flexvolt.getConnectionStatus()) {
+                        var newLevel = (flexvolt.api.connection.batteryVoltage - batteryLow)/(batteryHigh-batteryLow);
+                        newLevel = Math.max(newLevel, 0);
+                        newLevel = Math.min(newLevel, 1);
+
+                        // change batter color based on charge level (red, orange, green);
+                        var newBackground;
+                        if (newLevel > .40) {newBackground = "#0f0";}
+                        else if (newLevel > .15) {newBackground = "orange";}
+                        else {newBackground = "red"}
+                        var adjustedLevel = Math.round(newLevel * batteryFullWidth);
+
+                        $scope.batteryLevelStyle = {
+                          "background": newBackground,
+                          "width": adjustedLevel+"px"
+                        };
+
+                        // var elem = document.getElementById("battery-level");
+                        // if (angular.isDefined(elem) && elem !== null) {
+                        //   elem.style.setProperty("width",adjustedLevel + "px");
+                        //   elem.style.setProperty("background",newBackground);
+                        // } else {console.log('can\'t update battery indicator');}
+                    }
+                }
+
+                flexvolt.api.updateBatteryIndicator = updateIndicator;
+                $timeout(updateIndicator, 100); // have to call this every time this indicator is created on each page
+                $timeout(updateIndicator, 500); // have to call this every time this indicator is created on each page
             },
             templateUrl: 'pages/connection/connection-indicator.html'
         };

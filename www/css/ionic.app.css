@@ -109,6 +109,43 @@ i.record-icon {
   flex: 0 0 10px;
   max-width: 10px; }
 
+/* Battery Monitor */
+
+.battery {
+	--battery-width: 46px;
+  --battery-height: 22px;
+  --battery-border: 3px;
+  --battery-full-width: calc(var(--battery-width) - 10px - 2*var(--battery-border));
+  width: calc(var(--battery-width) + 2*var(--battery-border));
+  height: calc(var(--battery-height) + 2*var(--battery-border));
+  padding-top: 6px;
+  display: inline-block;
+}
+.battery-body {
+  background: #fff;
+  border: var(--battery-border) solid #000;
+  margin: 0px;
+  width: calc(var(--battery-width) - 10px);
+  height: calc(var(--battery-height));
+  position: absolute;
+  border-radius: 5px;
+}
+.battery-nub {
+  background: transparent;
+  border: calc(var(--battery-border)/2) solid #000;
+  margin: calc(var(--battery-height)*1/4) calc(var(--battery-width) - 10px);
+  width: calc(var(--battery-width)*.05);
+  height: calc(var(--battery-height)/2);
+  position: absolute;
+  border-radius: 2px;
+}
+.battery-level {
+  background: #0f0;
+  margin: var(--battery-border);
+  height: calc(var(--battery-height) - 2*var(--battery-border));
+  position: absolute;
+}
+
 /* Plotting styles */
 .fullsizeplot {
   position: absolute;
