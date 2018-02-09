@@ -518,14 +518,14 @@ angular.module('flexvolt.d3plots', [])
 
     var margin, width, height, plotElement, htmlElement;
     var mar = 4;
-    margin = {left: 50, right: mar, top: mar, bottom: 35};
+    margin = {left: 50, right: mar, top: mar, bottom: 50};
     var PADDINGOFFSET = 8;
 
-    var svg, x, scaleX, y, autoY, xAxis, yAxis, zoom, line;
-    var panExtent, xMax, stopPos, startPos;
-    var time = [], data = [];
-
-    var yMax;
+    var svg, x, y, autoY, xAxis, yAxis, line;
+    var panExtent, zoom;
+    var xMax, yMax, stopPos, startPos;
+    var data = [], tmpData = [];
+    var downSampleN, downSampleCounter, downSampleMultiplier = 2;
 
     var api = {
       init:undefined,
@@ -533,6 +533,8 @@ angular.module('flexvolt.d3plots', [])
       resize:undefined,
       update:undefined,
       settings:{
+        windowSizeInSeconds: undefined,
+        userFrequency: undefined,
         nChannels: 1,
         zoomOption: 0,
         autoscaleY: false
@@ -626,6 +628,14 @@ angular.module('flexvolt.d3plots', [])
         return ret;
     };
 
+    function zeroData() {
+        data = [];
+        for (var i = 0; i < api.settings.nChannels;i++){
+            data[i] = [];
+            tmpData[i] = undefined;
+        }
+    }
+
     api.reset = function(){
 
         if (svg){
@@ -635,11 +645,8 @@ angular.module('flexvolt.d3plots', [])
 
         startPos = Date.now();
         stopPos = startPos + xMax;
-        time = [];
-        data = [];
-        for (var i = 0; i < api.settings.nChannels;i++){
-            data[i] = [];
-        }
+        zeroData();
+        downSampleCounter = 0;
 
         x = d3.time.scale()
             .domain([startPos, stopPos])
@@ -690,8 +697,6 @@ angular.module('flexvolt.d3plots', [])
             .y(function(d) { return y(d.value); });
 
         var nTicks = Math.floor(width/75)-1;
-        var tickSpan = Math.ceil((stopPos - startPos)/(1000*nTicks));
-        console.log('nTicks: ' + nTicks + ', tickSpan: ' + tickSpan);
         xAxis = d3.svg.axis()
             .scale(x)
             // .tickSize(-height+10)
@@ -700,7 +705,6 @@ angular.module('flexvolt.d3plots', [])
             .orient('bottom')
             .tickFormat(d3.time.format("%I:%M:%S"))
             .ticks(nTicks);
-            // .ticks(d3.time.seconds, tickSpan); // ends up with strange numbers
 
         yAxis = d3.svg.axis()
             .scale(y)
@@ -737,7 +741,7 @@ angular.module('flexvolt.d3plots', [])
             .attr('class', 'x label')
             .append('text')
             .attr('class', 'axis-label')
-            .attr('y', height+35)
+            .attr('y', height+50)
             .attr('x', width/2)
             .text('Time, s');
 
@@ -750,25 +754,33 @@ angular.module('flexvolt.d3plots', [])
 
     };
 
-    api.init = function(element, nChannels, newZoomOption, maxX, userFrequency, vMax){
+    function calculateDownSample() {
+      var maxDataPoints = api.settings.windowSizeInSeconds * api.settings.userFrequency; // max number of datapoints
+      downSampleN = Math.round(maxDataPoints / width / downSampleMultiplier); // we will downsample since we can't show them all anyway
+    }
+
+    api.init = function(element, nChannels, zoomOption, windowSizeInSeconds, userFrequency, vMax){
         htmlElement = element;
         plotElement = '#'+element;
         var html = document.getElementById(htmlElement);
         width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
-        xMax = maxX*1000; // milliseconds
+        api.settings.zoomOption = zoomOption;
+        api.settings.nChannels = nChannels;
+        api.settings.userFrequency = userFrequency;
+        api.settings.windowSizeInSeconds = windowSizeInSeconds; // It's in seconds!
+
+        xMax = api.settings.windowSizeInSeconds*1000; // size of Window in milliseconds (all times are in ms)
+        yMax = vMax;
+        calculateDownSample(); // check out downSampleMultiplier
         panExtent = {x: [0,xMax], y: [-0.01*yMax,1.01*yMax] };
 
-        yMax = vMax;
-
+        // window start/stop points in time
         startPos = Date.now();
         stopPos = startPos + xMax;
 
-        api.settings.zoomOption = newZoomOption;
-        api.settings.nChannels = nChannels;
-
-        api.reset();
+        api.reset(); // setup all the svg/d3 stuff
     };
 
     api.update = function(dataBundle){
@@ -778,39 +790,50 @@ angular.module('flexvolt.d3plots', [])
         // see if data goes past current window
         if (timestamps[timestamps.length-1] > stopPos){
             console.log('reset!');
+
+            // reset stored data and remove all lines from plot
+            zeroData();
+            svg.selectAll('path.line').remove();
+
+            // throw away any data points that would be on the previous plot
+            var ind = timestamps.findIndex(function(el){return el >= stopPos});
+            timestamps.slice(0,ind);
+            for (var iC=0; iC < api.settings.nChannels; iC++){
+              dataIn[iC].slice(0,ind)
+            }
+
+            // update time window for x axis
             startPos = stopPos;
             stopPos = startPos + xMax;
-
             x.domain([startPos, stopPos]);
             xAxis.scale(x);
             svg.select("g.x.axis").call(xAxis);
-
-            // find first new time point
-            var startInd = timestamps.findIndex(function(el){return el >= startPos});
-            timestamps.splice(0,startInd);
-            for (var ind in dataIn){
-                dataIn[ind].splice(0,startInd); // over ran width, splice out data up to width
-            }
-            svg.selectAll('path.line').remove();
-            time = [];
-            data = [];
-            for (var i = 0; i < api.settings.nChannels;i++){
-                data[i] = [];
-            }
         }
 
         if (api.settings.autoscaleY){
             y.domain([0, autoY()]);
         }
 
-        time = time.concat(timestamps);
+        // convert the new data to the object format desired by d3, then add it to the current data object
         for (var i=0; i<api.settings.nChannels; i++){
+            // put last element from previous path into first position, so lines connect
+            if (tmpData[i]) {data[i].splice(0,0,tmpData[i]);}
+
+            // cycling through nChannels times, only modify downSampleCounter once
+            var tmpDownSampleCounter = downSampleCounter;
+
             for (var j=0; j<timestamps.length; j++){
-              data[i].push({time: timestamps[j], value: dataIn[i][j]});
+                if (dataIn[i][j] !== angular.undefined) {
+                    tmpDownSampleCounter ++;
+                    if (tmpDownSampleCounter === downSampleN) {
+                        data[i].push({time: timestamps[j], value: dataIn[i][j]});
+                        tmpDownSampleCounter = 0;
+                    }
+                }
             }
 
-            // console.log(data[i]);
-
+            // add a new path with the updated data
+            // (plus one data point from the preceding path so the paths are continuous)
             svg.append('svg:path')
                 .datum(data[i])
                 .attr('class', 'line')
@@ -818,15 +841,18 @@ angular.module('flexvolt.d3plots', [])
                 .attr('stroke', colorList[i%colorList.length])
                 .attr('d', line);
 
+            tmpData[i] = data[i].slice(-1)[0]; // grab last element to connect next path
+            data[i] = []; // already plotted data - clear it for next update
         }
     };
 
     api.resize = function(){
         var html = document.getElementById(htmlElement);
-        // width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
         var calculatedWidth = window.innerWidth - 10 - 150;
         width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
+
+        calculateDownSample(); // number of pixels changed - might need to alter downsampling
 
         api.reset();
     };

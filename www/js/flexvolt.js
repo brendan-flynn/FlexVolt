@@ -928,6 +928,7 @@ angular.module('flexvolt.flexvolt', [])
                     // initialize parsed data vector
                     dataParsed = new Array(hardwareLogic.settings.nChannels);
                     for (var i = 0; i < hardwareLogic.settings.nChannels; i++){ dataParsed[i]=[]; }
+                    dataTimes = [];
                     // Parse channels
                     var readInd = 0, dataInd = 0;
                     while(readInd < (dataIn.length-api.readParams.expectedBytes) ){
@@ -1006,6 +1007,7 @@ angular.module('flexvolt.flexvolt', [])
             api.connection.dataOnRequested = true;
             timestampInterval = 1000/hardwareLogic.settings.frequency; // millis
             timestamp = Date.now(); // start the timer (millis) NOTE it will lag real time by however long it takes to turn data on
+            console.log('INFO: TimestampInterval: ' + timestampInterval);
             turnDataOn();
         };
         api.turnDataOff = function(){

@@ -32,12 +32,12 @@ angular.module('flexvolt.dsp', [])
         var nChannels = 1; // default
         var metricsArr, metricsFlag = false, metricsNPoints = 500;
         var demoVals = {
-            fs: 500,
+            fs: 1000,
             time: 0,
             startTime: undefined,
             randAmplitude: 10,
-            amplitudes: [.20, .50, .20, .22, .70, .20, .10, .10],
-            frequencies: [0.05, 0.10, 0.5, 1, 30, 50, 70, 100]
+            amplitudes: [.50, .50, .50, .50, .50, .50, .50, .50],
+            frequencies: [0, 0.10, 0.5, 1, 5, 10, 50, 100]
         };
 
         var timerInterval;
@@ -80,13 +80,13 @@ angular.module('flexvolt.dsp', [])
             demoVals.startTime = tmpTime;
 
             for (var i = 0; i<nPoints; i++) {
-                demoVals.time += 1/demoVals.fs;
+                demoVals.time += 1000/demoVals.fs;
                 genTimes[i] = demoVals.time;
                 for (var ch = 0; ch < nChannels; ch++){
                     if (i === 0){
                         genData[ch] = [];
                     }
-                    genData[ch][i] = G*demoVals.amplitudes[ch]*Math.sin(demoVals.time*2*Math.PI*demoVals.frequencies[ch]);
+                    genData[ch][i] = G*demoVals.amplitudes[ch]*Math.sin((demoVals.time/1000)*2*Math.PI*demoVals.frequencies[ch]);
                 }
             }
             return [genTimes, genData];
@@ -106,8 +106,9 @@ angular.module('flexvolt.dsp', [])
 
         // Handles changes to settings in real time
         api.init = function(nChan){
-            var tmp = new Date();
-            demoVals.startTime = tmp.getTime();  // only needed for demo simulation
+            var tmp = Date.now();
+            demoVals.startTime = tmp;  // only needed for demo simulation
+            demoVals.time = tmp;
             demoVals.fs = hardwareLogic.settings.frequency;
             nChannels = nChan;  // have a default of 1
 
@@ -268,7 +269,7 @@ angular.module('flexvolt.dsp', [])
 
             // save raw data if specified
             if (api.controls.recording){
-                recordedDataTime.concat(timestamps);
+                recordedDataTime = recordedDataTime.concat(timestamps);
                 for (var i = 0; i < nChannels; i++){
                     recordedDataRaw[i] = recordedDataRaw[i].concat(parsedData[i]);
                     localRecordedData[i] = localRecordedData[i].concat(parsedData[i]);
@@ -355,6 +356,10 @@ angular.module('flexvolt.dsp', [])
         api.controls.startRecording = function(){
             if (angular.isDefined(file.path)) {
               api.controls.recording = true;
+              api.controls.recordTimer = 0;
+              timerInterval = $interval(function(){
+                  api.controls.recordTimer += 1;
+              },1000);
               initRecordedData();
               var d = new Date();
               recordedDataFile = 'flexvolt-recorded-data--'+d.getFullYear()+'-'
@@ -373,6 +378,11 @@ angular.module('flexvolt.dsp', [])
         api.controls.stopRecording = function(){
             console.log('stopped recording');
             api.controls.recording = false;
+            if (timerInterval){
+                $interval.cancel(timerInterval);
+                timerInterval = undefined;
+            }
+            api.controls.recordTimer = 0;
 
             // write and close txt file
             saveRecordedData();
