@@ -29,9 +29,6 @@ $dark:                            #444 !default;
   padding: 25px;
   color: black; }
 
-path.line {
-  fill: none; }
-
 .my-icon-col {
   text-align: center !important; }
 
@@ -118,25 +115,37 @@ i.record-icon {
   left: 0;
   right: 0;
   top: 0;
-  bottom: 0; }
+  bottom: 0;
+}
 
 .axisnoline path {
   fill: none;
-  stroke: none; }
+  stroke: none;
+}
 
 .axis {
-  shape-rendering: crispEdges; }
+  shape-rendering: crispEdges;
+}
 
 .y.axis line,
 .x.axis line {
-  stroke: none; }
+  fill: none;
+  stroke: #000;
+}
 
-.x.axis path {
-  display: none; }
-
+.y.axis path,
 .y.axis path {
   fill: none;
-  stroke: #000; }
+  stroke: #000;
+}
+
+.grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+}
+.grid path {
+      stroke-width: 0;
+}
 
 #balloonContainer {
   position: relative;

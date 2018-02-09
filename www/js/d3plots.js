@@ -468,7 +468,9 @@ angular.module('flexvolt.d3plots', [])
         api.reset();
     }
 
-    api.update = function(dataIn, isLive){
+    api.update = function(dataBundle, isLive){
+        var timestamps = dataBundle[0];
+        var dataIn = dataBundle[1];
         startPos = xPos > 0?xPos-1:0;
         xPos += dataIn[0].length;
         if (isLive) {
@@ -699,12 +701,17 @@ angular.module('flexvolt.d3plots', [])
         var nTicks = Math.floor(width/75)-1;
         xAxis = d3.svg.axis()
             .scale(x)
-            // .tickSize(-height+10)
-            // .tickPadding(10)
             .tickSubdivide(true)
             .orient('bottom')
             .tickFormat(d3.time.format("%I:%M:%S"))
             .ticks(nTicks);
+
+        function make_x_axis() {
+            return d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+                .ticks(nTicks)
+        }
 
         yAxis = d3.svg.axis()
             .scale(y)
@@ -724,6 +731,14 @@ angular.module('flexvolt.d3plots', [])
             .attr("transform", "rotate(25)")
             .style("text-anchor", "start");
 
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", "translate(0," + height + ")")
+            .call(make_x_axis()
+                .tickSize(-height, 0, 0)
+                .tickFormat("")
+            )
+
         svg.append('g')
             .attr('class', 'y axis')
             .call(yAxis);
@@ -741,9 +756,9 @@ angular.module('flexvolt.d3plots', [])
             .attr('class', 'x label')
             .append('text')
             .attr('class', 'axis-label')
-            .attr('y', height+50)
+            .attr('y', height+45)
             .attr('x', width/2)
-            .text('Time, s');
+            .text('Time, mm:ss');
 
         // keeps the zoom frame inside the plot window!
         svg.append('clipPath')
@@ -789,7 +804,6 @@ angular.module('flexvolt.d3plots', [])
 
         // see if data goes past current window
         if (timestamps[timestamps.length-1] > stopPos){
-            console.log('reset!');
 
             // reset stored data and remove all lines from plot
             zeroData();

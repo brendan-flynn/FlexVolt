@@ -7,7 +7,7 @@ and open the template in the editor.
 <div ng-controller="RecordCtrl"
      style="height: 45px; padding: 0px;"
      class="row"
-     ng-if="!mobile && flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on'">
+     ng-if="!mobile && ((flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on') || demo) ">
     <div class="col" style="text-align: left; padding: 0px;">
         <button title="Pause"
                 ng-disabled="dataHandler.controls.paused"
