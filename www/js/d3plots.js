@@ -858,6 +858,7 @@ angular.module('flexvolt.d3plots', [])
             tmpData[i] = data[i].slice(-1)[0]; // grab last element to connect next path
             data[i] = []; // already plotted data - clear it for next update
         }
+        downSampleCounter = tmpDownSampleCounter;
     };
 
     api.resize = function(){

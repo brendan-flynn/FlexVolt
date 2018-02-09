@@ -127,6 +127,10 @@ i.record-icon {
   shape-rendering: crispEdges;
 }
 
+path.line {
+  fill: none;
+}
+
 .y.axis line,
 .x.axis line {
   fill: none;
@@ -134,7 +138,7 @@ i.record-icon {
 }
 
 .y.axis path,
-.y.axis path {
+.x.axis path {
   fill: none;
   stroke: #000;
 }
@@ -171,8 +175,8 @@ i.record-icon {
   border-radius: 100%;
   position: absolute;
   background: #002f53;
-  -webkit-transition: width 0.8s, height 0.8s, -webkit-transform 0.8s;
-  /* Safari */ }
+  -webkit-transition: width 0.8s, height 0.8s, -webkit-transform 0.8s; /* Safari */
+}
 
 /*!
   Ionicons, v2.0.1
