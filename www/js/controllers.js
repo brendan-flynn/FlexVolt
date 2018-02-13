@@ -51,8 +51,8 @@
 
         paintStep();
     }])
-    .controller('RecordCtrl', ['$scope', '$state', 'dataHandler', 'hardwareLogic', 'records',
-        function($scope, $state, dataHandler, hardwareLogic, records){
+    .controller('RecordCtrl', ['$scope', '$state', '$ionicPopover', '$ionicModal', 'dataHandler', 'hardwareLogic', 'records',
+        function($scope, $state, $ionicPopover, $ionicModal, dataHandler, hardwareLogic, records){
 
         console.log('Record Ctrl loaded');
         /***********Record Control****************/
@@ -65,14 +65,53 @@
         dataHandler.controls.resume(); // reset to a user-friendly state of displaying data
         var task = $state.current.name;
 
-        $scope.onRecordSelected = function(){
-          if (dataHandler.controls.selectedRecord) {
-              if (dataHandler.controls.live){
-                  dataHandler.controls.toggleLive();
-              }
-              dataHandler.controls.serveRecord();
+        // var template = '<ion-popover-view><ion-header-bar> <h1 class="title">My Popover Title</h1> </ion-header-bar> <ion-content> Hello! </ion-content></ion-popover-view>';
+        $scope.recordModal = $ionicModal.fromTemplateUrl('templates/recordlist.html', {
+          scope: $scope,
+          animation: 'slide-in-up'
+        }).then(function(modal) {
+          $scope.recordModal = modal;
+        });
+        $scope.viewRecordedData = function($event) {
+          console.log('working on it');
+          // $scope.popover.show()
+          $scope.recordModal.show();
+        };
+        $scope.cancelSelectRecord = function($event) {
+          $scope.recordModal.hide();
+        };
+        $scope.selectRecord = function(record){
+          if (angular.isDefined(record) && angular.isDefined(record.dateTime)) {
+            dataHandler.controls.selectedRecord = record;
           }
         };
+        $scope.viewRecord = function() {
+          var r = dataHandler.controls.selectedRecord;
+          if (angular.isDefined(r) && angular.isDefined(r.dateTime)) {
+            if (dataHandler.controls.live){
+                dataHandler.controls.toggleLive();
+            }
+            dataHandler.controls.serveRecord();
+          }
+        }
+        $scope.$on('$destroy', function() {
+          $scope.recordModal.remove();
+        });
+        $scope.$on('modal.hidden', function() {
+          // Execute action
+        });
+        $scope.$on('modal.removed', function() {
+          // Execute action
+        });
+
+        // $scope.onRecordSelected = function(){
+        //   if (dataHandler.controls.selectedRecord) {
+        //       if (dataHandler.controls.live){
+        //           dataHandler.controls.toggleLive();
+        //       }
+        //       dataHandler.controls.serveRecord();
+        //   }
+        // };
 
         $scope.toggleLive = function(){
             dataHandler.controls.toggleLive();

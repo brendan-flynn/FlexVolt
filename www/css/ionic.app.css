@@ -109,6 +109,20 @@ i.record-icon {
   flex: 0 0 10px;
   max-width: 10px; }
 
+/* Control Panels */
+.control-panel-container {
+  padding: 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.control-panel-strip {
+  padding: 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-left: 1px solid rgb(75,75,75);
+  border-right: 1px solid rgb(75,75,75);
+}
 /* Battery Monitor */
 
 .battery {

@@ -644,6 +644,45 @@ angular.module('flexvolt.services', [])
           }
         };
 
+        function readFile(filename) {
+          var deferred = $q.defer();
+          chrome.fileSystem.getWritableEntry(file.currentEntry, function(entry) {
+            entry.getFile(filename, {create: false}, function(fileEntry) {
+              fileEntry.file(function(theFile) {
+                var reader = new FileReader();
+
+                reader.onerror = function(e){
+                  console.log('error loading file ' + filename + ' code: ' + JSON.stringify(e));
+                  deferred.reject();
+                };
+                reader.onloadend = function(e) {
+                  var result = e.target.result;
+                  deferred.resolve(result);
+                };
+
+                reader.readAsText(theFile);
+              });
+            });
+          });
+          return deferred.promise;
+        };
+
+        file.readFile = function(filename) {
+          var deferred = $q.defer();
+          if (filename.indexOf('.') < 0){
+            filename = filename + '.txt';
+          }
+          if (!file.currentEntry || !file.currentEntry.isDirectory){
+            return file.getDirectory().
+              then(function(){
+                return readFile(filename);
+              });
+          } else {
+            //console.log('already have a directory - writing');
+            return readFile(filename);
+          }
+        };
+
         window.fs = chrome.fileSystem;
     } else {
         file.getDirectory = function(){

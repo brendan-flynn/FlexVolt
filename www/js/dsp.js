@@ -16,8 +16,8 @@
 
 angular.module('flexvolt.dsp', [])
 
-.factory('dataHandler', ['flexvolt', '$stateParams', '$ionicPopup', '$interval', '$state', 'storage', 'hardwareLogic', 'filters', 'file', 'records',
-    function (flexvolt, $stateParams, $ionicPopup, $interval, $state, storage, hardwareLogic, filters, file, records) {
+.factory('dataHandler', ['flexvolt', '$stateParams', '$ionicPopup', '$interval', '$state', 'storage', 'hardwareLogic', 'filters', 'file', 'records', 'rmsTimeLogic', 'traceLogic',
+    function (flexvolt, $stateParams, $ionicPopup, $interval, $state, storage, hardwareLogic, filters, file, records, rmsTimeLogic, traceLogic) {
 
         window.file = file;
         // list of possible filters
@@ -28,6 +28,7 @@ angular.module('flexvolt.dsp', [])
         var recordedDataRaw = [];
         var recordedDataProcessed = [];
         var recordedDataFile = undefined;
+        var currentRecordMetaData = undefined;
         var selectedRecordLocal = undefined;
         var nChannels = 1; // default
         var metricsArr, metricsFlag = false, metricsNPoints = 500;
@@ -228,10 +229,6 @@ angular.module('flexvolt.dsp', [])
             // console.log('addToMetrics old took ' + (toc-tic));
         }
 
-        api.controls.serveRecord = function() {
-            selectedRecordLocal = api.controls.selectedRecord.data;
-        };
-
         api.getData = function(){
             var dataBundle;
             var parsedData, timestamps;
@@ -240,7 +237,6 @@ angular.module('flexvolt.dsp', [])
                 // only serve this data once, then undefined
                 dataBundle = selectedRecordLocal; // [timestamps, dataIn]
                 selectedRecordLocal = undefined;
-                return dataBundle;
             } else {
               if ($stateParams.demo){
                   // simulate data
@@ -353,6 +349,19 @@ angular.module('flexvolt.dsp', [])
           api.controls.live = !api.controls.live;
         }
 
+        function initRecord() {
+          currentRecordMetaData = {
+            taskName: $state.current.name,
+            startTime: (new Date()).toLocaleString(),
+            hardwareSettings: hardwareLogic.settings,
+            softwareSettings: {
+              rmsTimeLogic: rmsTimeLogic.settings,
+              traceLogic: traceLogic.settings
+            },
+            fileName: recordedDataFile,
+          }
+        }
+
         api.controls.startRecording = function(){
             if (angular.isDefined(file.path)) {
               api.controls.recording = true;
@@ -361,6 +370,7 @@ angular.module('flexvolt.dsp', [])
                   api.controls.recordTimer += 1;
               },1000);
               initRecordedData();
+              initRecord();
               var d = new Date();
               recordedDataFile = 'flexvolt-recorded-data--'+d.getFullYear()+'-'
                   +(d.getMonth()+1)+'-'+d.getDate()+'--'
@@ -387,18 +397,26 @@ angular.module('flexvolt.dsp', [])
             // write and close txt file
             saveRecordedData();
             file.closeFile();
-            recordedDataFile = undefined;
 
-            // put the record in records container for later viewing
-            var newRecord = {
-              task: $state.current.name,
-              dateTime: (new Date()).toLocaleString(),
-              length: localRecordedData[0].length,
-              settings: hardwareLogic.settings,
-              data: localRecordedData
-            }
+
+            // add fields to record metadata
+            currentRecordMetaData.dataLength = localRecordedData[0].length,
+            currentRecordMetaData.stopTime = new Date();
+
+            // clear globals
             localRecordedData = [];
+            recordedDataFile = undefined;
             records.put(newRecord);
+        };
+
+        api.controls.serveRecord = function() {
+            console.log('loading ' + JSON.stringify(api.controls.selectedRecord));
+            file.readFile(api.controls.selectedRecord.fileName)
+                .then(function(result){
+                    console.log(result);
+                    selectedRecordLocal = result; // [timestamps, dataIn]
+                })
+
         };
 
         return api;

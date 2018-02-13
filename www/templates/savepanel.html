@@ -5,10 +5,9 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 <div ng-controller="RecordCtrl"
-     style="height: 45px; padding: 0px;"
-     class="row"
+     class="control-panel-container"
      ng-if="!mobile && ((flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on') || demo) ">
-    <div class="col" style="text-align: left; padding: 0px;">
+    <div class="control-panel-strip" style="text-align: left;">
         <button title="Pause"
                 ng-disabled="dataHandler.controls.paused"
                 class="button button-icon icon ion-pause record-icon"
@@ -28,8 +27,13 @@ and open the template in the editor.
                 class="button button-icon icon ion-stop record-icon"
                 ng-click="dataHandler.controls.stopRecording()">
         </button>
-        <button class="button button-clear record-icon-text" ng-style="dataHandler.controls.recording ? {'color': 'black'} : {'color': 'gray'} ">
+        <button class="button button-clear record-icon-text" ng-style="dataHandler.controls.recording ? {'color': 'black'} : {'color': 'rgb(75,75,75)'} ">
             {{dataHandler.controls.recordTimer}}s
+        </button>
+        <button title="Select Recorded Data"
+                ng-disabled="dataHandler.controls.recording || records.getForTask('rms').length <= 0"
+                class="button button-icon icon ion-search record-icon"
+                ng-click="viewRecordedData($event)">
         </button>
     </div>
     <!-- <div class="col" style="text-align:right; padding: 5px;"> -->

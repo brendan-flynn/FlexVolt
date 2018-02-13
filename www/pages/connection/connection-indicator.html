@@ -5,9 +5,8 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 
-<div style="padding: 0px; padding-left: 10px; padding-right:10px;"
-class="row">
-  <div class="col" style="text-align: left; padding: 0px; padding-left: 10px; border-left: 1px solid black; padding-right: 10px; border-right: 1px solid black;">
+<div class="control-panel-container">
+  <div class="control-panel-strip">
     <button ui-sref="connection" class="button button-icon" style="">
         <i ng-if="flexvolt.getConnectionStatus()" class="icon ion-radio-waves positive"></i>
         <i ng-if="!flexvolt.getConnectionStatus()" class="icon ion-radio-waves assertive"></i>
