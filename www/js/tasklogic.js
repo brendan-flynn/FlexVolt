@@ -262,6 +262,13 @@ angular.module('flexvolt.taskLogic', [])
                     settings[field] = tmp[field];
                 }
                 //console.log('DEBUG: settings: '+angular.toJson(settings));
+            } else {
+                var filter1 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.name === 'Frequency - High Pass';})[0]);
+                filter1.params.f1.value = 5;
+                settings.filters.push(filter1);
+                var filter2 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.type === 'RMS';})[0]);
+                filter2.params.windowSize.value = 21;
+                settings.filters.push(filter2);
             }
             deferred.resolve();
         });
@@ -330,7 +337,7 @@ angular.module('flexvolt.taskLogic', [])
                 }
                 //console.log('DEBUG: settings: '+angular.toJson(settings));
             } else {
-              settings.zoomOption = 'X AND Y';
+              settings.zoomOption = 'NONE';
 
               var F1 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.type === 'RMS';})[0]);
               F1.params.windowSize.value = 21;

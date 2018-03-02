@@ -176,6 +176,7 @@ i.record-icon {
 
 .axis {
   shape-rendering: crispEdges;
+  font-size: 13px;  /* tick label sizes */
 }
 
 path.line {

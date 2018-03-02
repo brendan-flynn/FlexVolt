@@ -1,7 +1,7 @@
-<ion-view title="RMS vs Time">
+<ion-view title="">
     <ion-nav-buttons side="left">
         <help-popover></help-popover>
-        <save-panel ng-if="!mobile"></save-panel>
+        <save-panel></save-panel>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
@@ -12,8 +12,8 @@
       <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
       <not-connected></not-connected>
       <div ng-show="demo || flexvolt.api.connection.state === 'connected'" class="row row-full-height">
-          <save-panel ng-if="mobile"></save-panel>
-          <div class="col col-150px">
+          <!-- <save-panel ng-if="mobile"></save-panel> -->
+          <div ng-if="!mobile" class="col col-150px">
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
                    style="font-size: 14px; line-height:14px;">
                   <div ng-click="showLabelPopup($index)">
@@ -21,11 +21,21 @@
                         style="float:left; width: 14px; height: 14px; margin:2px; border-width:1px; border-color:black"></span>
                       {{label.name}}
                   </div>
-                  <div class="row">
+                  <div ng-if="!mobile" class="row">
                       <div class="col">Min : Mean : Max</div>
                   </div>
-                  <div class="row">
+                  <div ng-if="!mobile" class="row">
                       <div class="col">{{metrics[$index].minAmplitude | number:2}} : {{metrics[$index].meanAmplitude | number:2}} : {{metrics[$index].maxAmplitude | number:2}}</div>
+                  </div>
+              </div>
+          </div>
+          <div ng-if="mobile" class="col col-70px">
+              <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
+                   style="font-size: 14px; line-height:14px;">
+                  <div ng-click="showLabelPopup($index)">
+                      <span ng-style="{'background-color': label.color}"
+                        style="display: inline-block; width: 14px; height: 14px;"></span>
+                      {{label.name}}
                   </div>
               </div>
           </div>

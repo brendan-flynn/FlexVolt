@@ -523,7 +523,7 @@ angular.module('flexvolt.d3plots', [])
     margin = {left: 50, right: mar, top: mar, bottom: 50};
     var PADDINGOFFSET = 8;
 
-    var svg, x, y, autoY, xAxis, yAxis, line;
+    var svg, x, y, autoY, xAxis, make_x_axis, yAxis, line;
     var panExtent, zoom;
     var xMax, yMax, stopPos, startPos;
     var data = [], tmpData = [];
@@ -645,9 +645,9 @@ angular.module('flexvolt.d3plots', [])
             d3.select('svg').remove();
         }
 
-        startPos = Date.now();
-        stopPos = startPos + xMax;
-        zeroData();
+        // startPos = Date.now();
+        // stopPos = startPos + xMax;
+        // zeroData();
         downSampleCounter = 0;
 
         x = d3.time.scale()
@@ -658,7 +658,7 @@ angular.module('flexvolt.d3plots', [])
         if (api.settings.autoscaleY){
             y.domain([0, autoY()]);
         } else {
-            y.domain([-1.01*yMax, yMax*1.01]);
+            y.domain([-0.01*yMax, yMax*1.01]);
         }
 
         if (api.settings.zoomOption === 'NONE'){
@@ -706,7 +706,7 @@ angular.module('flexvolt.d3plots', [])
             .tickFormat(d3.time.format("%I:%M:%S"))
             .ticks(nTicks);
 
-        function make_x_axis() {
+        make_x_axis = function() {
             return d3.svg.axis()
                 .scale(x)
                 .orient("bottom")
@@ -771,31 +771,69 @@ angular.module('flexvolt.d3plots', [])
 
     function calculateDownSample() {
       var maxDataPoints = api.settings.windowSizeInSeconds * api.settings.userFrequency; // max number of datapoints
-      downSampleN = Math.round(maxDataPoints / width / downSampleMultiplier); // we will downsample since we can't show them all anyway
+      downSampleN = Math.max(1,Math.round(maxDataPoints / width / downSampleMultiplier)); // we will downsample since we can't show them all anyway
     }
 
-    api.init = function(element, nChannels, zoomOption, windowSizeInSeconds, userFrequency, vMax){
+    api.init = function(element, rmsTimeLogicSettings, hardwareLogicSettings){
         htmlElement = element;
         plotElement = '#'+element;
         var html = document.getElementById(htmlElement);
-        width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
+        var calculatedWidth = window.innerWidth - 10 - 150;
+        if (window.cordova) {calculatedWidth += 80;}
+        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding,
+        // width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
-        api.settings.zoomOption = zoomOption;
-        api.settings.nChannels = nChannels;
-        api.settings.userFrequency = userFrequency;
-        api.settings.windowSizeInSeconds = windowSizeInSeconds; // It's in seconds!
+        api.settings.zoomOption = rmsTimeLogicSettings.zoomOption;
+        api.settings.nChannels = rmsTimeLogicSettings.nChannels;
+        api.settings.userFrequency = hardwareLogicSettings.frequency;
+        api.settings.windowSizeInSeconds = rmsTimeLogicSettings.xMax; // It's in seconds!
 
         xMax = api.settings.windowSizeInSeconds*1000; // size of Window in milliseconds (all times are in ms)
-        yMax = vMax;
+        yMax = hardwareLogicSettings.vMax;
         calculateDownSample(); // check out downSampleMultiplier
         panExtent = {x: [0,xMax], y: [-0.01*yMax,1.01*yMax] };
 
         // window start/stop points in time
         startPos = Date.now();
         stopPos = startPos + xMax;
+        zeroData();
+
 
         api.reset(); // setup all the svg/d3 stuff
+    };
+
+    api.initPlayback = function(element, rmsTimeLogicSettings, hardwareLogicSettings, dataBundle){
+        htmlElement = element;
+        plotElement = '#'+element;
+        var html = document.getElementById(htmlElement);
+        var calculatedWidth = window.innerWidth - 10 - 150;
+        if (window.cordova) {calculatedWidth += 80;}
+        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding,
+
+        // width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
+        height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
+
+        api.settings.zoomOption = rmsTimeLogicSettings.zoomOption;
+        api.settings.nChannels = rmsTimeLogicSettings.nChannels;
+        api.settings.userFrequency = hardwareLogicSettings.frequency;
+        var timestamps = dataBundle[0];
+        startPos = timestamps[0];
+        stopPos = timestamps[timestamps.length-1];
+        xMax = (stopPos-startPos)/1000;
+        api.settings.windowSizeInSeconds = xMax; // It's in seconds!
+
+        xMax = api.settings.windowSizeInSeconds*1000; // size of Window in milliseconds (all times are in ms)
+        yMax = hardwareLogicSettings.vMax;
+        calculateDownSample(); // check out downSampleMultiplier
+        panExtent = {x: [0,xMax], y: [-0.01*yMax,1.01*yMax] };
+
+        // window start/stop points in time
+        // startPos = Date.now();
+        // stopPos = startPos + xMax;
+        zeroData();
+        api.reset(); // setup all the svg/d3 stuff
+        api.update(dataBundle);
     };
 
     api.update = function(dataBundle){
@@ -808,6 +846,7 @@ angular.module('flexvolt.d3plots', [])
             // reset stored data and remove all lines from plot
             zeroData();
             svg.selectAll('path.line').remove();
+            svg.selectAll('g.grid').remove();
 
             // throw away any data points that would be on the previous plot
             var ind = timestamps.findIndex(function(el){return el >= stopPos});
@@ -821,7 +860,22 @@ angular.module('flexvolt.d3plots', [])
             stopPos = startPos + xMax;
             x.domain([startPos, stopPos]);
             xAxis.scale(x);
-            svg.select("g.x.axis").call(xAxis);
+            svg.select("g.x.axis")
+              .call(xAxis)
+              .selectAll("text")
+              .attr("y", 2)
+              .attr("x", 9)
+              .attr("dy", ".35em")
+              .attr("transform", "rotate(25)")
+              .style("text-anchor", "start");
+
+            svg.append("g")
+              .attr("class", "grid")
+              .attr("transform", "translate(0," + height + ")")
+              .call(make_x_axis()
+                .tickSize(-height, 0, 0)
+                .tickFormat("")
+              );
         }
 
         if (api.settings.autoscaleY){
@@ -864,6 +918,7 @@ angular.module('flexvolt.d3plots', [])
     api.resize = function(){
         var html = document.getElementById(htmlElement);
         var calculatedWidth = window.innerWidth - 10 - 150;
+        if (window.cordova) {calculatedWidth += 80;}
         width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 

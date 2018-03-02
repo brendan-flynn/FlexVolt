@@ -87,8 +87,7 @@
             if (dataIn === null || dataIn === angular.undefined ||
                 dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
 
-            //console.log(dataIn);
-            // animate          
+            // animate
             rmsTimePlot.update(dataBundle);
         }
 
@@ -102,7 +101,9 @@
                 //console.log('updating');
                 afID = window.requestAnimationFrame(paintStep);
 
-                updateAnimate();
+                if (dataHandler.controls.live) {
+                  updateAnimate();
+                }
 
             } else if ($state.current.url === '/connection'){
                 afID = window.requestAnimationFrame(paintStep);
@@ -122,8 +123,22 @@
                         dataHandler.addFilter(rmsTimeLogic.settings.filters[i]);
                     }
                     dataHandler.setMetrics(60);
-                    rmsTimePlot.init('rmsTimeWindow', rmsTimeLogic.settings.nChannels, rmsTimeLogic.settings.zoomOption, rmsTimeLogic.settings.xMax, hardwareLogic.settings.frequency, hardwareLogic.settings.vMax);
-                    paintStep();
+
+                    if (dataHandler.controls.live) {
+                      console.log('rms standard init');
+                        rmsTimePlot.init('rmsTimeWindow', rmsTimeLogic.settings, hardwareLogic.settings);
+                        paintStep();
+                    } else {
+                      console.log('rms playback init');
+                        var dataBundle = dataHandler.getData(); // [timestamps, dataIn]
+                        if (dataBundle === null || dataBundle === angular.undefined ||
+                            dataBundle[0] === angular.undefined || dataBundle[0].length ===0){return;}
+
+                        var dataIn = dataBundle[1];
+                        if (dataIn === null || dataIn === angular.undefined ||
+                            dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
+                        rmsTimePlot.initPlayback('rmsTimeWindow', rmsTimeLogic.settings, hardwareLogic.settings, dataBundle);
+                    }
                 });
         }
 
@@ -136,9 +151,15 @@
             console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
             rmsTimePlot.resize();
             $scope.updating  = false;
-            paintStep();
+            if (dataHandler.controls.live) {
+              paintStep();
+            } else {
+              init();
+            }
         };
 
         init();
+
+        dataHandler.resetPage = init;
     }])
 }());

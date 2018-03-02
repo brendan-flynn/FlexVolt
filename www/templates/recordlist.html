@@ -3,12 +3,19 @@
     <h1 class="title">Recordings List</h1>
   </ion-header-bar>
   <ion-content>
-    <div ng-repeat="record in records.getAll() track by $index" ng-click="selectRecord(record)">
-      {{record.dateTime}}
+    <div class="row">
+      <div class="col">Date/Time</div>
+      <div class="col">Record Length</div>
+    </div>
+    <div class="list">
+      <div class="item row" ng-repeat="record in records.getAll() track by $index" ng-class="selectedStyle($index)" ng-click="selectRecord($index)">
+        <div class="col">{{record.startTime}}</div>
+        <div class="col">{{record.timeLength}}s</div>
+      </div>
     </div>
     <div>
-      <button ng-click="viewRecord(record)">View</button>
-      <button ng-click="cancelSelectRecord()">Cancel</button>
+      <button class="button" ng-disabled="selectRecordDisabled()" ng-click="viewRecord()">View</button>
+      <button class="button" ng-click="cancelSelectRecord()">Cancel</button>
     </div>
   </ion-content>
 </ion-modal-view>

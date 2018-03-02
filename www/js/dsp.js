@@ -30,6 +30,7 @@ angular.module('flexvolt.dsp', [])
         var recordedDataFile = undefined;
         var currentRecordMetaData = undefined;
         var selectedRecordLocal = undefined;
+        var backupPageSettings = undefined;
         var nChannels = 1; // default
         var metricsArr, metricsFlag = false, metricsNPoints = 500;
         var demoVals = {
@@ -52,6 +53,8 @@ angular.module('flexvolt.dsp', [])
             getData: undefined,
             addFilter: undefined,
             rmFilter: undefined,
+
+            resetPage: undefined,
 
             controls: {
                 live: true, // live vs playingBack
@@ -235,8 +238,7 @@ angular.module('flexvolt.dsp', [])
             // Get Data (real or simulated)
             if (!api.controls.live) {
                 // only serve this data once, then undefined
-                dataBundle = selectedRecordLocal; // [timestamps, dataIn]
-                selectedRecordLocal = undefined;
+                dataBundle = [selectedRecordLocal[0].slice(0), selectedRecordLocal[1].slice(0)]; // [timestamps, dataIn]
             } else {
               if ($stateParams.demo){
                   // simulate data
@@ -287,7 +289,7 @@ angular.module('flexvolt.dsp', [])
                 for (var i = 0; i < nChannels; i++){
                     recordedDataProcessed[i] = recordedDataProcessed[i].concat(parsedData[i]);
                 }
-                if (recordedDataProcessed[0].length > 5000) {
+                if (recordedDataProcessed[0].length > 1000) {
                   saveRecordedData();
                 }
             }
@@ -325,16 +327,19 @@ angular.module('flexvolt.dsp', [])
         }
 
         function saveRecordedData(){
+            var t1 = performance.now();
             var tmp = [recordedDataTime];
             for (var i = 0; i < nChannels; i ++){
-              tmp.push(recordedDataRaw[i].map(function(val){return typeof(val)==='number'?(val*1000).toFixed(3):val}));
+              tmp.push(recordedDataRaw[i].map(function(val){return typeof(val)==='number'?(val).toFixed(3):val}));
             }
             for (var i = 0; i < nChannels; i ++){
-              tmp.push(recordedDataProcessed[i].map(function(val){return typeof(val)==='number'?(val*1000).toFixed(3):val}));
+              tmp.push(recordedDataProcessed[i].map(function(val){return typeof(val)==='number'?(val).toFixed(3):val}));
             }
             clearRecordedData();
             // add data to the running txt file
             file.writeFile(recordedDataFile, tmp);
+            var t2 = performance.now();
+            console.log('data save took ' + (t2-t1) + 'ms');
         };
 
         api.controls.pause = function() {
@@ -343,10 +348,21 @@ angular.module('flexvolt.dsp', [])
 
         api.controls.resume = function() {
             api.controls.paused = false;
+            if (!api.controls.live) {
+              api.controls.toggleLive();
+            }
         }
 
         api.controls.toggleLive = function() {
+          if (!api.controls.live) {
+            rmsTimeLogic.settings = backupPageSettings;
+            console.log(rmsTimeLogic.settings);
+            backupPageSettings = undefined;
+            selectedRecordLocal = undefined;
+            if (api.resetPage) {api.resetPage()} // back to normal
+          }
           api.controls.live = !api.controls.live;
+          console.log('toggled live: ' + api.controls.live);
         }
 
         function initRecord() {
@@ -355,8 +371,8 @@ angular.module('flexvolt.dsp', [])
             startTime: (new Date()).toLocaleString(),
             hardwareSettings: hardwareLogic.settings,
             softwareSettings: {
-              rmsTimeLogic: rmsTimeLogic.settings,
-              traceLogic: traceLogic.settings
+              rms: rmsTimeLogic.settings,
+              trace: traceLogic.settings
             },
             fileName: recordedDataFile,
           }
@@ -369,14 +385,17 @@ angular.module('flexvolt.dsp', [])
               timerInterval = $interval(function(){
                   api.controls.recordTimer += 1;
               },1000);
-              initRecordedData();
-              initRecord();
               var d = new Date();
               recordedDataFile = 'flexvolt-recorded-data--'+d.getFullYear()+'-'
                   +(d.getMonth()+1)+'-'+d.getDate()+'--'
                   +d.getHours()+'-'+d.getMinutes()+'-'
                   +d.getSeconds();
-              file.openFile(recordedDataFile);
+              initRecord();
+              initRecordedData();
+              file.openFile(recordedDataFile)
+                .then(function(){
+                  file.writeFile(recordedDataFile, JSON.stringify(currentRecordMetaData));
+                })
             } else {
               $ionicPopup.alert({
                 title: 'Data Export - Folder Not Set',
@@ -402,19 +421,69 @@ angular.module('flexvolt.dsp', [])
             // add fields to record metadata
             currentRecordMetaData.dataLength = localRecordedData[0].length,
             currentRecordMetaData.stopTime = new Date();
+            var start = new Date(currentRecordMetaData.startTime);
+            var stop = new Date(currentRecordMetaData.stopTime);
+            var delta = stop - start;
+            var second = 1000;
+            var minute = 60 * second;
+            var hour = 60 * minute;
+            var day = 24 * hour;
+
+            var hours = Math.floor(delta / hour);
+            if (hours === 0) {hours = '00'}
+            else if (hours < 9) {hours = '0' + hours}
+            else {hours = '' + hours}
+            delta -= hours * hour;
+            var minutes = Math.floor(delta / minute);
+            if (minutes === 0) {minutes = '00'}
+            else if (minutes < 9) {minutes = '0' + minutes}
+            else {minutes = '' + minutes}
+            delta -= minutes * minute;
+            var seconds = Math.floor(delta / second);
+            if (seconds === 0) {seconds = '00'}
+            else if (seconds < 9) {seconds = '0' + seconds}
+            else {seconds = '' + seconds}
+
+            currentRecordMetaData.timeLength = hours + ':' + minutes + ':' + seconds;
 
             // clear globals
             localRecordedData = [];
             recordedDataFile = undefined;
-            records.put(newRecord);
+            records.put(currentRecordMetaData);
+            currentRecordMetaData= undefined;
         };
 
         api.controls.serveRecord = function() {
             console.log('loading ' + JSON.stringify(api.controls.selectedRecord));
+            var t1 = performance.now();
             file.readFile(api.controls.selectedRecord.fileName)
                 .then(function(result){
-                    console.log(result);
-                    selectedRecordLocal = result; // [timestamps, dataIn]
+                    var recordArr = result.split('\r\n');
+                    var recordSettings = JSON.parse(recordArr[0]);
+                    backupPageSettings = rmsTimeLogic.settings;
+                    var taskName = recordSettings.taskName;
+                    rmsTimeLogic.settings = recordSettings.softwareSettings[taskName];
+                    recordArr.splice(0,2);
+                    var nChannels = recordSettings.softwareSettings[recordSettings.taskName].nChannels;
+                    console.log('nChannels: ' + nChannels);
+                    var timestamps = [];
+                    var dataIn = [];
+                    for (var iN = 0; iN < nChannels; iN++) {
+                      dataIn[iN] = [];
+                    }
+                    for (var iD = 0; iD < recordArr.length; iD++){
+                      if (recordArr[iD].length > 0) {
+                        var tmp = recordArr[iD].split(',');
+                        timestamps[iD] = parseInt(tmp[0]);
+                        for (var iC=0; iC < nChannels; iC++) {
+                          dataIn[iC][iD] = parseFloat(tmp[iC+1]);
+                        }
+                      }
+                    }
+                    selectedRecordLocal = [timestamps, dataIn]; // [timestamps, dataIn]
+                    var t2 = performance.now();
+                    console.log('loading took ' + (t2-t1) + 'ms');
+                    if (api.resetPage) {api.resetPage()}
                 })
 
         };

@@ -6,7 +6,7 @@ and open the template in the editor.
 -->
 <div ng-controller="RecordCtrl"
      class="control-panel-container"
-     ng-if="!mobile && ((flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on') || demo) ">
+     ng-if="((flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on') || demo) ">
     <div class="control-panel-strip" style="text-align: left;">
         <button title="Pause"
                 ng-disabled="dataHandler.controls.paused"
@@ -14,7 +14,7 @@ and open the template in the editor.
                 ng-click="dataHandler.controls.pause()">
         </button>
         <button title="Resume"
-                ng-disabled="!dataHandler.controls.paused"
+                ng-disabled="!dataHandler.controls.paused && dataHandler.controls.live"
                 class="button button-icon icon ion-play record-icon"
                 ng-click="dataHandler.controls.resume()">
         </button>

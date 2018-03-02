@@ -7,7 +7,7 @@
       // Format for a record:
       // dummyrecord = {
       //   filename: 'flexvolt-recorded-data-DATE-TIME.txt',
-      //   task: '$state.current.name',
+      //   taskName: '$state.current.name',
       //   hardwareSettings: 'hardwareLogic.settings',
       //   softwareSettings: // filters, window sizes, etc.
       //   length: datalength,
@@ -42,15 +42,17 @@
       };
 
       records.clearForTask = function(task) {
-        recordData = recordData.filter(function(record) {return record.task !== task;});
+        recordData = recordData.filter(function(record) {return record.taskName !== task;});
+        storage.set({records:recordData});
       };
 
       records.getForTask = function(task) {
-        return recordData.filter(function(record) {return record.task === task;});
+        return recordData.filter(function(record) {return record.taskName === task;});
       };
 
       records.clearAll = function() {
         recordData = [];
+        storage.set({records:recordData});
       };
 
       records.getAll = function() {

@@ -1028,7 +1028,7 @@ angular.module('flexvolt.flexvolt', [])
 
         init();
         // This starts it all!
-        // $timeout(api.startConnect, DISCOVER_DELAY_MS);
+        $timeout(api.startConnect, DISCOVER_DELAY_MS);
 
         $interval(
             function(){

@@ -242,8 +242,6 @@
           }
         }
 
-        //console.log(dataOut);
-
         myometerPlot.update(dataOut);
       }
 

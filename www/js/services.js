@@ -531,13 +531,16 @@ angular.module('flexvolt.services', [])
     function convertArrToCSV(dataArr) {
         var str = '';
 
-        var nPts = dataArr[0].length;
+        var nPts = dataArr[0].length // length of time array
 
         for (var jPts = 0; jPts < nPts; jPts++) {
             var line = '';
 
-            for (var i = 0; i < dataArr.length; i++) {
-                line += dataArr[i][jPts]+',';
+            for (var i = 0; i < dataArr.length; i++) { // for each time or channel array
+                line += dataArr[i][jPts]
+                if (i < dataArr.length-1){
+                  line += ',';
+                }
             }
 
             str += line + '\r\n';
@@ -546,16 +549,103 @@ angular.module('flexvolt.services', [])
         return str;
     }
 
+    var writeFile = function(data){
+      // convert to csv, then text blob
+      if (typeof(data) === 'object' && data.length === undefined) {
+          data = convertToCSV(data);
+      } else if (typeof(data) === 'object' && data.length !== undefined) {
+          data = convertArrToCSV(data);
+      } else if (typeof(data) === 'string') {
+        // do nothing - this works as is
+        data += '\r\n';
+      }
+      data = new Blob([data]);
+
+      file.writer.write(data,{type: 'text/plain'});
+    };
+
 
     if (window.cordova) {
         file.getDirectory = function(){
           console.log('cordova file getDirectory');
+          window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
+            file.currentEntry = dir;
+          });
         };
-        file.readFile = function(){
+        file.openFile = function(filename) {
+          console.log('cordova file openFile');
+          var deferred = $q.defer();
+          // handle extensions
+          if (filename.indexOf('.') < 0){
+            filename = filename + '.txt';
+          }
+
+          file.currentEntry.getFile(filename, {create: true}, function(newEntry) {
+            newEntry.createWriter(function(writer){
+
+              writer.onwriteend = function(){
+                //console.log('Write completed.');
+              };
+
+              writer.onwriteerror = function(e){
+                console.log('ERROR: Error writing file: ' + JSON.stringify(e));
+              };
+
+              file.writer = writer;
+              deferred.resolve();
+            }, errorHandler);
+          });
+
+          return deferred.promise;
+        }
+
+        function readFile(filename) {
+          var deferred = $q.defer();
+          file.currentEntry.getFile(filename, {create: false}, function(fileEntry) {
+            fileEntry.file(function(theFile) {
+              var reader = new FileReader();
+
+              reader.onerror = function(e){
+                console.log('error loading file ' + filename + ' code: ' + JSON.stringify(e));
+                deferred.reject();
+              };
+              reader.onloadend = function(e) {
+                var result = e.target.result;
+                deferred.resolve(result);
+              };
+
+              reader.readAsText(theFile);
+            });
+          });
+          return deferred.promise;
+        };
+
+        file.readFile = function(filename){
           console.log('cordova file readFile');
+          var deferred = $q.defer();
+          if (filename.indexOf('.') < 0){
+            filename = filename + '.txt';
+          }
+          if (!file.currentEntry || !file.currentEntry.isDirectory){
+            return file.getDirectory().
+              then(function(){
+                return readFile(filename);
+              });
+          } else {
+            //console.log('already have a directory - writing');
+            return readFile(filename);
+          }
         };
-        file.writeFile = function(){
+        file.writeFile = function(filename, data){
           console.log('cordova file writeFile');
+          if (!file.writer){
+            file.openFile().
+              then(function(){
+                writeFile(data);
+              });
+          } else {
+            writeFile(data);
+          }
         };
 
     } else if (chrome && chrome.fileSystem) {
@@ -579,6 +669,7 @@ angular.module('flexvolt.services', [])
         };
 
         var openFile = function(filename){
+          var deferred = $q.defer();
           // handle extensions
           if (filename.indexOf('.') < 0){
             filename = filename + '.txt';
@@ -600,32 +691,23 @@ angular.module('flexvolt.services', [])
                 };
 
                 file.writer = writer;
+                deferred.resolve();
               }, errorHandler);
             }, errorHandler);
           });
-        };
 
-        var writeFile = function(data){
-          // convert to csv, then text blob
-          if (typeof(data) === 'object' && data.length === undefined) {
-              data = convertToCSV(data);
-          } else if (typeof(data) === 'object' && data.length !== undefined) {
-              data = convertArrToCSV(data);
-          }
-          data = new Blob([data]);
-
-          file.writer.write(data,{type: 'text/plain'});
+          return deferred.promise;
         };
 
         file.openFile = function(filename){
           if (!file.currentEntry || !file.currentEntry.isDirectory){
-            file.getDirectory().
+            return file.getDirectory().
               then(function(){
-                openFile(filename);
+                return openFile(filename);
               });
           } else {
             //console.log('already have a directory - writing');
-            openFile(filename);
+            return openFile(filename);
           }
         };
 

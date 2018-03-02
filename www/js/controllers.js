@@ -59,6 +59,7 @@
 
         $scope.dataHandler = dataHandler;
         $scope.records = records;
+        $scope.selectedRecordIndex = undefined;
         if (!dataHandler.controls.live) {
             dataHandler.controls.toggleLive();
         }
@@ -73,24 +74,38 @@
           $scope.recordModal = modal;
         });
         $scope.viewRecordedData = function($event) {
-          console.log('working on it');
-          // $scope.popover.show()
           $scope.recordModal.show();
         };
         $scope.cancelSelectRecord = function($event) {
           $scope.recordModal.hide();
         };
-        $scope.selectRecord = function(record){
-          if (angular.isDefined(record) && angular.isDefined(record.dateTime)) {
-            dataHandler.controls.selectedRecord = record;
+        $scope.selectRecord = function(recordIndex){
+          $scope.selectedRecordIndex = recordIndex;
+        };
+        $scope.selectedStyle = function($index) {
+          if ($index === $scope.selectedRecordIndex) {
+            return "active"
           }
         };
+        $scope.selectRecordDisabled = function() {
+          if  (angular.isDefined($scope.selectedRecordIndex) &&
+               $scope.selectedRecordIndex >= 0 &&
+               $scope.selectedRecordIndex < records.getAll().length) {
+                 return false;
+          } else {
+            return true
+          }
+        }
         $scope.viewRecord = function() {
-          var r = dataHandler.controls.selectedRecord;
-          if (angular.isDefined(r) && angular.isDefined(r.dateTime)) {
+          console.log('viewing record' + $scope.selectedRecordIndex);
+          var record = records.getAll()[$scope.selectedRecordIndex];
+          console.log(record);
+          if (angular.isDefined(record) && angular.isDefined(record.fileName)) {
+            dataHandler.controls.selectedRecord = record;
             if (dataHandler.controls.live){
                 dataHandler.controls.toggleLive();
             }
+            $scope.recordModal.hide();
             dataHandler.controls.serveRecord();
           }
         }
@@ -103,15 +118,6 @@
         $scope.$on('modal.removed', function() {
           // Execute action
         });
-
-        // $scope.onRecordSelected = function(){
-        //   if (dataHandler.controls.selectedRecord) {
-        //       if (dataHandler.controls.live){
-        //           dataHandler.controls.toggleLive();
-        //       }
-        //       dataHandler.controls.serveRecord();
-        //   }
-        // };
 
         $scope.toggleLive = function(){
             dataHandler.controls.toggleLive();
