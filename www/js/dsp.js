@@ -359,9 +359,12 @@ angular.module('flexvolt.dsp', [])
             console.log(rmsTimeLogic.settings);
             backupPageSettings = undefined;
             selectedRecordLocal = undefined;
+            api.controls.live = !api.controls.live;
             if (api.resetPage) {api.resetPage()} // back to normal
+          } else {
+            api.controls.live = !api.controls.live;
           }
-          api.controls.live = !api.controls.live;
+
           console.log('toggled live: ' + api.controls.live);
         }
 

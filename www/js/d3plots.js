@@ -527,7 +527,7 @@ angular.module('flexvolt.d3plots', [])
     var panExtent, zoom;
     var xMax, yMax, stopPos, startPos;
     var data = [], tmpData = [];
-    var downSampleN, downSampleCounter, downSampleMultiplier = 2;
+    var downSampleN, downSampleCounter, downSampleMultiplier = 1;
 
     var api = {
       init:undefined,
