@@ -91,8 +91,8 @@ angular.module('flexvolt.flexvolt', [])
     var GAIN = 1845; // Primary gain = 405.  Secondary gain =
     var SupplyVoltageBattery = 3.7;
     var SupplyVoltageUSB = 5.0;
-    var VMaxBattery = (1000*(SupplyVoltageBattery/2)/GAIN).toFixed(2); //mV // 1.35
-    var VMaxUSB = (1000*(SupplyVoltageUSB/2)/GAIN).toFixed(2); //mV // 1.35
+    var VMaxBattery = (1000000*(SupplyVoltageBattery/2)/GAIN).toFixed(2); //uV // 1.35
+    var VMaxUSB = (1000000*(SupplyVoltageUSB/2)/GAIN).toFixed(2); //uV // 1.35
     var FactorBattery8Bit = VMaxBattery/128; // 0.0105
     var FactorBattery10Bit = VMaxBattery/512; // 0.0105
     var FactorUSB8Bit = VMaxUSB/128; // 0.0105
@@ -191,7 +191,7 @@ angular.module('flexvolt.flexvolt', [])
             api.settings.plugTestDelay = 0;
 
             // set to default battery mode...
-            hardwareLogic.settings.vMax = VMaxUSB;
+            hardwareLogic.settings.vMax = VMaxBattery;
         }
 
         api.connection.initialWaitList = [500, 1000, 5000, 10000];

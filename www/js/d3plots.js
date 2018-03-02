@@ -658,7 +658,7 @@ angular.module('flexvolt.d3plots', [])
         if (api.settings.autoscaleY){
             y.domain([0, autoY()]);
         } else {
-            y.domain([-0.01*yMax, yMax*1.01]);
+            y.domain([-0.01*yMax, yMax*1.1]);
         }
 
         if (api.settings.zoomOption === 'NONE'){
@@ -750,7 +750,7 @@ angular.module('flexvolt.d3plots', [])
             .attr('transform', 'rotate(-90)')
             .attr('y', (-margin.left) + 15)
             .attr('x', -height/2-50)
-            .text('RMS Muscle Signal, mV');
+            .text('RMS Muscle Signal, uV');
 
         svg.append('g')
             .attr('class', 'x label')
