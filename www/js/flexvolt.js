@@ -89,14 +89,14 @@ angular.module('flexvolt.flexvolt', [])
     var timestampInterval;
 
     var GAIN = 1845; // Primary gain = 405.  Secondary gain =
-    var SupplyVoltageBattery = 3.7;
+    var SupplyVoltageBattery = 4.2;
     var SupplyVoltageUSB = 5.0;
-    var VMaxBattery = (1000000*(SupplyVoltageBattery/2)/GAIN).toFixed(2); //uV // 1.35
-    var VMaxUSB = (1000000*(SupplyVoltageUSB/2)/GAIN).toFixed(2); //uV // 1.35
-    var FactorBattery8Bit = VMaxBattery/128; // 0.0105
-    var FactorBattery10Bit = VMaxBattery/512; // 0.0105
-    var FactorUSB8Bit = VMaxUSB/128; // 0.0105
-    var FactorUSB10Bit = VMaxUSB/512; // 0.0105
+    var VMaxBattery = (1000000*(SupplyVoltageBattery/2)/GAIN).toFixed(2); //1138uV // 1.35
+    var VMaxUSB = (1000000*(SupplyVoltageUSB/2)/GAIN).toFixed(2); //1355uV // 1.35
+    var FactorBattery8Bit = VMaxBattery/128; // 8.89uV
+    var FactorBattery10Bit = VMaxBattery/512; // 2.22uV
+    var FactorUSB8Bit = VMaxUSB/128; // 10.58uV
+    var FactorUSB10Bit = VMaxUSB/512; // 2.65uV
     var factor8Bit = FactorUSB8Bit; // defaults - USB, since 5 Volt window will show all of both sensor outputs
     var factor10Bit = FactorUSB10Bit; // defaults - USB, since 5 Volt window will show all of both sensor outputs
 
