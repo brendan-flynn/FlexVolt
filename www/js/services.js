@@ -438,7 +438,7 @@ angular.module('flexvolt.services', [])
 //
 //    return clipboard;
 //})
-.factory('file', ['$q', 'storage', function($q, storage){
+.factory('file', ['$ionicPlatform', '$q', 'storage', function($ionicPlatform, $q, storage){
     var file = {
         getDirectory: undefined,
         currentEntry: undefined,
@@ -447,27 +447,6 @@ angular.module('flexvolt.services', [])
         readFile: undefined,
         writeFile: undefined
     };
-
-
-    storage.get('saveDirectory')
-      .then(function(tmp){
-          if (tmp){
-              file.currentEntry = tmp['entry'];
-              file.path = tmp['path'];
-              file.id = tmp['id'];
-              chrome.fileSystem.isRestorable(file.id, function(isRestorable){
-                if (isRestorable){
-                  //console.log('isrestorable');
-                  chrome.fileSystem.restoreEntry(file.id, gotEntry)
-                } else {
-                  file.currentEntry = undefined;
-                  file.path = undefined;
-                  file.id = undefined;
-                }
-              });
-              console.log('DEBUG: file settings: '+angular.toJson(tmp));
-          }
-      });
 
     function gotEntry(entry){
       var deferred = $q.defer();
@@ -565,13 +544,21 @@ angular.module('flexvolt.services', [])
     };
 
 
+    file.closeFile = function(){
+      file.writer = undefined;
+    };
+
+
     if (window.cordova) {
         file.getDirectory = function(){
           console.log('cordova file getDirectory');
           window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
             file.currentEntry = dir;
+            file.path = dir.fullPath;
           });
         };
+        $ionicPlatform.ready(file.getDirectory); // there's no user choice, so don't show it to them!
+
         file.openFile = function(filename) {
           console.log('cordova file openFile');
           var deferred = $q.defer();
@@ -650,6 +637,26 @@ angular.module('flexvolt.services', [])
 
     } else if (chrome && chrome.fileSystem) {
 
+        storage.get('saveDirectory')
+          .then(function(tmp){
+              if (tmp){
+                  file.currentEntry = tmp['entry'];
+                  file.path = tmp['path'];
+                  file.id = tmp['id'];
+                  chrome.fileSystem.isRestorable(file.id, function(isRestorable){
+                    if (isRestorable){
+                      //console.log('isrestorable');
+                      chrome.fileSystem.restoreEntry(file.id, gotEntry)
+                    } else {
+                      file.currentEntry = undefined;
+                      file.path = undefined;
+                      file.id = undefined;
+                    }
+                  });
+                  console.log('DEBUG: file settings: '+angular.toJson(tmp));
+              }
+          });
+
         file.getDirectory = function(){
           var deferred = $q.defer();
 
@@ -709,10 +716,6 @@ angular.module('flexvolt.services', [])
             //console.log('already have a directory - writing');
             return openFile(filename);
           }
-        };
-
-        file.closeFile = function(){
-          file.writer = undefined;
         };
 
         file.writeFile = function(filename, data){
