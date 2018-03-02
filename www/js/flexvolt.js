@@ -834,7 +834,7 @@ angular.module('flexvolt.flexvolt', [])
                      * 69'E' = 8 bits, 4ch, 5 Bytes
                      * 70'F' = 8 bits, 8ch, 9 Bytes
                      *  don't use 10-bit!  the bottom 2 bits of most ADCs are noise anyway!
-                     * 72'H' = 10bits, 1ch, 3 Bytes
+                    © * 72'H' = 10bits, 1ch, 3 Bytes
                      * 73'I' = 10bits, 2ch, 4 Bytes
                      * 74'J' = 10bits, 4ch, 6 Bytes
                      * 75'K' = 10bits, 8ch, 11 Bytes
@@ -1009,6 +1009,7 @@ angular.module('flexvolt.flexvolt', [])
             api.connection.dataOnRequested = true;
             timestampInterval = 1000/hardwareLogic.settings.frequency; // millis
             timestamp = Date.now(); // start the timer (millis) NOTE it will lag real time by however long it takes to turn data on
+            $interval(function(){timestamp=Date.now();},100);
             console.log('INFO: TimestampInterval: ' + timestampInterval);
             turnDataOn();
         };
