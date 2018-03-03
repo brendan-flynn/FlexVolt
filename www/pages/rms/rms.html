@@ -15,17 +15,25 @@
           <!-- <save-panel ng-if="mobile"></save-panel> -->
           <div ng-if="!mobile" class="col col-150px">
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
-                   style="font-size: 14px; line-height:14px;">
-                  <div ng-click="showLabelPopup($index)">
-                      <span ng-style="{'background-color': label.color}"
-                        style="float:left; width: 14px; height: 14px; margin:2px; border-width:1px; border-color:black"></span>
+                   style="font-size:14px; line-height:14px; padding:0px;">
+                  <div class="row" style="padding:5px 0px;" ng-click="showLabelPopup($index)" >
                       {{label.name}}
                   </div>
-                  <div ng-if="!mobile" class="row">
-                      <div class="col">Min : Mean : Max</div>
-                  </div>
-                  <div ng-if="!mobile" class="row">
-                      <div class="col">{{metrics[$index].minAmplitude | number:2}} : {{metrics[$index].meanAmplitude | number:2}} : {{metrics[$index].maxAmplitude | number:2}}</div>
+                  <div class="row" style="padding:0px;">
+                      <div class="col col-50px">
+                          <div class="row" style="padding-top:0px;">
+                            <span ng-style="{'background-color': label.color}"
+                              style="width: 35px; height: 10px; border-width:1px; border-color:black"></span>
+                          </div>
+                          <div class="row" style="margin:0px; padding-top:0px;">
+                              <i class="icon ion-refresh rms-page-icon" ng-click="resetMetrics($index)"></i>
+                          </div>
+                      </div>
+                      <div ng-if="!mobile" style="padding:0px;" class="col col-100px">
+                          <div class="row">Max:  {{metrics[$index].maxAmplitude | number:0}}</div>
+                          <div class="row">Mean: {{metrics[$index].meanAmplitude | number:0}}</div>
+                          <div class="row" style="padding-bottom:0px;">Min:  {{metrics[$index].minAmplitude | number:0}}</div>
+                      </div>
                   </div>
               </div>
           </div>
@@ -39,7 +47,7 @@
                   </div>
               </div>
           </div>
-          <div ng-show="demo || flexvolt.api.connection.state === 'connected'" class="col" id="rmsTimeWindow"></div>
+          <div ng-show="demo || flexvolt.api.connection.state === 'connected'" class="col" style="padding:0px;" id="rmsTimeWindow"></div>
       </div>
 
   </ion-content>

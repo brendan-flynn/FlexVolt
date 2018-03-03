@@ -15,6 +15,7 @@
 
         var afID = undefined;
         var metricCounts = 0;
+        var metricUpdatePeriod = 5; // update metrics every n seconds
 
         $scope.demo = $stateParams.demo;
 
@@ -74,7 +75,7 @@
             if ($scope.updating) return;
 
             metricCounts++;
-            if (metricCounts > 60){
+            if (metricCounts > metricUpdatePeriod*60){
                 metricCounts = 0;
                 updateMetrics();
             }
@@ -94,6 +95,11 @@
         function updateMetrics(){
             $scope.metrics = dataHandler.getMetrics();
         }
+
+        $scope.resetMetrics = function(iChan) {
+            dataHandler.resetMetrics(iChan);
+            updateMetrics();
+        };
 
         function paintStep(){
             //console.log('state = '+$state.current.url);
@@ -122,11 +128,13 @@
                     for (var i= 0; i < rmsTimeLogic.settings.filters.length; i++){
                         dataHandler.addFilter(rmsTimeLogic.settings.filters[i]);
                     }
-                    dataHandler.setMetrics(60);
+
+                    dataHandler.setMetrics(hardwareLogic.settings.frequency*metricUpdatePeriod);
 
                     if (dataHandler.controls.live) {
                       console.log('rms standard init');
                         rmsTimePlot.init('rmsTimeWindow', rmsTimeLogic.settings, hardwareLogic.settings);
+                        updateMetrics(); // so they start at 0 instead of blank
                         paintStep();
                     } else {
                       console.log('rms playback init');

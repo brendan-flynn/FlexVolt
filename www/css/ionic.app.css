@@ -50,6 +50,10 @@ i.record-icon {
   font-weight: bold;
   color: black; }
 
+.rms-page-icon {
+  font-size:24px;
+}
+
 /*
 .popup-body{
   //background: blue !important;
@@ -82,14 +86,23 @@ i.record-icon {
   top: 0;
   bottom: 0; }
 
-.col-150px {
+.col-10px {
   -webkit-box-flex: 0;
-  -webkit-flex: 0 0 150px;
+  -webkit-flex: 0 0 10px;
   -moz-box-flex: 0;
-  -moz-flex: 0 0 150px;
-  -ms-flex: 0 0 150px;
-  flex: 0 0 150px;
-  max-width: 150px; }
+  -moz-flex: 0 0 10px;
+  -ms-flex: 0 0 10px;
+  flex: 0 0 10px;
+  max-width: 10px; }
+
+.col-50px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 50px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 50px;
+  -ms-flex: 0 0 50px;
+  flex: 0 0 50px;
+  max-width: 50px; }
 
 .col-70px {
   -webkit-box-flex: 0;
@@ -100,14 +113,41 @@ i.record-icon {
   flex: 0 0 70px;
   max-width: 70px; }
 
-.col-10px {
+.col-80px {
   -webkit-box-flex: 0;
-  -webkit-flex: 0 0 10px;
+  -webkit-flex: 0 0 80px;
   -moz-box-flex: 0;
-  -moz-flex: 0 0 10px;
-  -ms-flex: 0 0 10px;
-  flex: 0 0 10px;
-  max-width: 10px; }
+  -moz-flex: 0 0 80px;
+  -ms-flex: 0 0 80px;
+  flex: 0 0 80px;
+  max-width: 80px; }
+
+.col-90px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 90px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 90px;
+  -ms-flex: 0 0 90px;
+  flex: 0 0 90px;
+  max-width: 90px; }
+
+.col-100px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 100px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 100px;
+  -ms-flex: 0 0 100px;
+  flex: 0 0 100px;
+  max-width: 100px; }
+
+.col-150px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 150px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 150px;
+  -ms-flex: 0 0 150px;
+  flex: 0 0 150px;
+  max-width: 150px; }
 
 /* Control Panels */
 .control-panel-container {

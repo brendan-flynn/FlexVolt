@@ -520,7 +520,7 @@ angular.module('flexvolt.d3plots', [])
 
     var margin, width, height, plotElement, htmlElement;
     var mar = 4;
-    margin = {left: 50, right: mar, top: mar, bottom: 50};
+    margin = {left: 60, right: mar, top: mar, bottom: 50};
     var PADDINGOFFSET = 8;
 
     var svg, x, y, autoY, xAxis, make_x_axis, yAxis, line;
@@ -758,7 +758,7 @@ angular.module('flexvolt.d3plots', [])
             .attr('class', 'axis-label')
             .attr('y', height+45)
             .attr('x', width/2)
-            .text('Time, mm:ss');
+            .text('Time, hh:mm:ss');
 
         // keeps the zoom frame inside the plot window!
         svg.append('clipPath')
