@@ -105,6 +105,9 @@
             if (dataHandler.controls.live){
                 dataHandler.controls.toggleLive();
             }
+            if (dataHandler.controls.paused){
+                dataHandler.controls.unpause();
+            }
             $scope.recordModal.hide();
             dataHandler.controls.serveRecord();
           }

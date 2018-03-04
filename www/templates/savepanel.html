@@ -7,7 +7,7 @@ and open the template in the editor.
 <div ng-controller="RecordCtrl"
      class="control-panel-container"
      ng-if="((flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on') || demo) ">
-    <div class="control-panel-strip" style="text-align: left;">
+    <div ng-if="!mobile" class="control-panel-strip" style="text-align: left;">
         <button title="Pause"
                 ng-disabled="dataHandler.controls.paused"
                 class="button button-icon icon ion-pause record-icon"
@@ -18,14 +18,45 @@ and open the template in the editor.
                 class="button button-icon icon ion-play record-icon"
                 ng-click="dataHandler.controls.resume()">
         </button>
+        <!-- <button title="Pause"
+                class="button button-icon icon record-icon"
+                ng-class="(dataHandler.controls.live && !dataHandler.controls.paused) ? 'ion-pause' : 'ion-play'"
+                ng-click="dataHandler.controls.togglePause()">
+        </button> -->
         <button title="Record Data"
                 class="button button-icon icon ion-record record-icon"
                 ng-disabled="!dataHandler.controls.live || !!dataHandler.controls.recording"
-                ng-click="dataHandler.controls.startRecording()"></button>
+                ng-click="dataHandler.controls.startRecording()">
+        </button>
         <button title="Stop"
                 ng-disabled="!dataHandler.controls.recording"
                 class="button button-icon icon ion-stop record-icon"
                 ng-click="dataHandler.controls.stopRecording()">
+        </button>
+        <!-- <button title="Record Data"
+                class="button button-icon icon record-icon"
+                ng-class="dataHandler.controls.recording? 'ion-stop' : 'ion-record'"
+                ng-click="dataHandler.controls.toggleRecording()">
+        </button> -->
+        <button class="button button-clear record-icon-text" ng-style="dataHandler.controls.recording ? {'color': 'black'} : {'color': 'rgb(75,75,75)'} ">
+            {{dataHandler.controls.recordTimer}}s
+        </button>
+        <button title="Select Recorded Data"
+                ng-disabled="dataHandler.controls.recording || records.getForTask('rms').length <= 0"
+                class="button button-icon icon ion-search record-icon"
+                ng-click="viewRecordedData($event)">
+        </button>
+    </div>
+    <div ng-if="mobile" class="control-panel-strip" style="text-align: left;">
+        <button title="Pause"
+                class="button button-icon icon record-icon"
+                ng-class="(dataHandler.controls.live && !dataHandler.controls.paused) ? 'ion-pause' : 'ion-play'"
+                ng-click="dataHandler.controls.togglePause()">
+        </button>
+        <button title="Record Data"
+                class="button button-icon icon record-icon"
+                ng-class="dataHandler.controls.recording? 'ion-stop' : 'ion-record'"
+                ng-click="dataHandler.controls.toggleRecording()">
         </button>
         <button class="button button-clear record-icon-text" ng-style="dataHandler.controls.recording ? {'color': 'black'} : {'color': 'rgb(75,75,75)'} ">
             {{dataHandler.controls.recordTimer}}s
@@ -37,17 +68,6 @@ and open the template in the editor.
         </button>
     </div>
     <!-- <div class="col" style="text-align:right; padding: 5px;"> -->
-        <!-- <button title="View Recorded Data"
-              ng-disabled="records.getForTask('trace').length <= 0"
-              class="button button-icon icon ion-search record-icon"
-              ng-click="dataHandler.viewRecordedData()">
-        </button>
-        <select ng-if="records.getForTask('trace').length > 0"
-                ng-model="dataHandler.controls.selectedRecord"
-                ng-options="record.dateTime for record in records.getForTask('trace')"
-                ng-change="onRecordSelected()"
-                style="padding: 5px;">
-        </select> -->
         <!-- <button title="Capture Image"
                 class="button button-icon icon ion-camera record-icon"
                 ng-click="captureScreen()">

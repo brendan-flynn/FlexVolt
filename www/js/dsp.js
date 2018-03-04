@@ -310,11 +310,23 @@ angular.module('flexvolt.dsp', [])
         }
 
         api.controls.resume = function() {
-            api.controls.paused = false;
+            api.controls.unpause();
             if (!api.controls.live) {
               api.controls.toggleLive();
             }
         }
+
+        api.controls.unpause = function() {
+            api.controls.paused = false;
+        }
+
+        api.controls.togglePause = function() {
+            if (!api.controls.live || api.controls.paused) {
+                api.controls.resume();
+            } else if (api.controls.live && !api.controls.paused) {
+                api.controls.pause();
+            }
+        };
 
         api.controls.toggleLive = function() {
           if (!api.controls.live) {
@@ -343,6 +355,14 @@ angular.module('flexvolt.dsp', [])
             fileName: recordedDataFile,
           }
         }
+
+        api.controls.toggleRecording = function() {
+            if (api.controls.recording) {
+                api.controls.stopRecording();
+            } else {
+                api.controls.startRecording();
+            }
+        };
 
         api.controls.startRecording = function(){
             if (angular.isDefined(file.path)) {

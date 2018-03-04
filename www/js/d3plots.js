@@ -771,7 +771,7 @@ angular.module('flexvolt.d3plots', [])
 
     function calculateDownSample() {
       var maxDataPoints = api.settings.windowSizeInSeconds * api.settings.userFrequency; // max number of datapoints
-      downSampleN = Math.max(1,Math.round(maxDataPoints / width / downSampleMultiplier)); // we will downsample since we can't show them all anyway
+      downSampleN = Math.max(1,Math.round(maxDataPoints / width / downSampleMultiplier)); // downsample since can't show them all anyway
     }
 
     api.init = function(element, rmsTimeLogicSettings, hardwareLogicSettings){
@@ -818,6 +818,7 @@ angular.module('flexvolt.d3plots', [])
         api.settings.nChannels = rmsTimeLogicSettings.nChannels;
         api.settings.userFrequency = hardwareLogicSettings.frequency;
         var timestamps = dataBundle[0];
+        // window start/stop points in time
         startPos = timestamps[0];
         stopPos = timestamps[timestamps.length-1];
         xMax = (stopPos-startPos)/1000;
@@ -828,9 +829,6 @@ angular.module('flexvolt.d3plots', [])
         calculateDownSample(); // check out downSampleMultiplier
         panExtent = {x: [0,xMax], y: [-0.01*yMax,1.01*yMax] };
 
-        // window start/stop points in time
-        // startPos = Date.now();
-        // stopPos = startPos + xMax;
         zeroData();
         api.reset(); // setup all the svg/d3 stuff
         api.update(dataBundle);
