@@ -301,6 +301,7 @@ angular.module('flexvolt.flexvolt', [])
                     tmp.push(d[key]);
                 }
             }
+            // console.log('received: ' + tmp.length);
 
             if (waitingForResponse) {
                 while(tmp.length > 0){
@@ -987,7 +988,7 @@ angular.module('flexvolt.flexvolt', [])
                     while(readInd < (dataIn.length-api.readParams.expectedBytes) ){
                         var tmp = dataIn[readInd++];
                         if (tmp === api.readParams.expectedChar){
-                            dataTimes.push(timestamp); timestamp+=timestampInterval;
+                            dataTimes.push(timestamp); timestamp+=timestampInterval*hardwareLogic.settings.downSampleCount;
                             if (!hardwareLogic.settings.bitDepth10) {
                                 for (var i = 0; i < hardwareLogic.settings.nChannels; i++){
                                     dataParsed[i][dataInd] = factor8Bit*(dataIn[readInd++] - api.readParams.offset); // centering on 0!

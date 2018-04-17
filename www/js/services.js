@@ -279,8 +279,8 @@ angular.module('flexvolt.services', [])
                     if (onReceiveErrorListener) {chrome.serial.onReceiveError.removeListener(onReceiveErrorListener);}
                     // setup the new
                     onReceiveListener = function(obj){
-                        //console.log('received!');
                         var bytes = new Uint8Array(obj.data);
+                        // console.log('received '+bytes.length+' bytes');
                         callback(bytes);
                     };
                     onReceiveErrorListener = errFunc;

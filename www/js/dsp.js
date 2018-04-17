@@ -264,6 +264,7 @@ angular.module('flexvolt.dsp', [])
 
             timestamps = dataBundle[0];
             parsedData = dataBundle[1];
+            // console.log(JSON.stringify(parsedData));
 
             // save raw data if specified
             if (api.controls.recording){

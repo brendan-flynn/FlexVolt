@@ -658,7 +658,7 @@ angular.module('flexvolt.d3plots', [])
         if (api.settings.autoscaleY){
             y.domain([0, autoY()]);
         } else {
-            y.domain([-0.01*yMax, yMax*1.1]);
+            y.domain([-0.02*yMax, yMax*1.02]);
         }
 
         if (api.settings.zoomOption === 'NONE'){
@@ -827,7 +827,7 @@ angular.module('flexvolt.d3plots', [])
         xMax = api.settings.windowSizeInSeconds*1000; // size of Window in milliseconds (all times are in ms)
         yMax = hardwareLogicSettings.vMax;
         calculateDownSample(); // check out downSampleMultiplier
-        panExtent = {x: [0,xMax], y: [-0.01*yMax,1.01*yMax] };
+        panExtent = {x: [0,xMax], y: [-0.02*yMax,1.02*yMax] };
 
         zeroData();
         api.reset(); // setup all the svg/d3 stuff
@@ -837,6 +837,7 @@ angular.module('flexvolt.d3plots', [])
     api.update = function(dataBundle){
         var timestamps = dataBundle[0];
         var dataIn = dataBundle[1];
+        // console.log(JSON.stringify(dataIn[0]));
 
         // see if data goes past current window
         if (timestamps[timestamps.length-1] > stopPos){
