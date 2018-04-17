@@ -947,12 +947,10 @@ angular.module('flexvolt.flexvolt', [])
                                   tmpLow2 = dataIn[readInd+hardwareLogic.settings.nChannels+1];
                                 }
                                 for (var i = 0; i < Math.min(4, hardwareLogic.settings.nChannels); i++){
-                                    dataParsed[i][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + (tmpLow & 3) - api.readParams.offset); // centering on 0!
-                                    tmpLow = tmpLow >> 2;
+                                    dataParsed[i][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + ((tmpLow>>(2*(3-i))) & 3) - api.readParams.offset); // centering on 0!
                                 }
                                 for (var i = 4; i < hardwareLogic.settings.nChannels; i++){
-                                    dataParsed[i][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + (tmpLow2 & 3) - api.readParams.offset); // centering on 0!
-                                    tmpLow2 = tmpLow2 >> 2;
+                                    dataParsed[i][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + ((tmpLow2>>(2*(3-i))) & 3) - api.readParams.offset); // centering on 0!
                                 }
                                 readInd++; // for the tmpLow read
                                 if (hardwareLogic.settings.nChannels > 4) {
