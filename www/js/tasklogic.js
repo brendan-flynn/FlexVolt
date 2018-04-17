@@ -517,6 +517,17 @@ angular.module('flexvolt.taskLogic', [])
         {text: '2000', value: 2000}
     ];
 
+    var rmsWindowList = [
+        {text: '8', value: 3},
+        {text: '16', value: 4},
+        {text: '32', value: 5},
+        {text: '64', value: 6},
+        {text: '128', value: 7},
+        {text: '256', value: 8},
+        {text: '512', value: 9},
+        {text: '1024', value: 10}
+    ]
+
     var exportModeList = [
         {text: 'Raw Data', value: 'raw'},
         {text: 'Processed Data', value: 'processed'},
@@ -528,7 +539,10 @@ angular.module('flexvolt.taskLogic', [])
         frequency: 1000,
         bitDepth10: false,
         smoothFilterFlag: false,
+        hpFilterFlag: false,
         smoothFilterVal: 8,
+        downSampleCount: 1,
+        rmsWindowSizePower: 5,
         exportMode: 'raw',
         vMax: undefined //1.355mV, usb, default
     };
@@ -565,6 +579,7 @@ angular.module('flexvolt.taskLogic', [])
             }
         },
         frequencyList: frequencyList,
+        rmsWindowList: rmsWindowList,
         settings: settings,
         updateSettings: updateSettings
     };

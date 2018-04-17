@@ -31,6 +31,13 @@ angular.module('flexvolt.flexvolt', [])
  */
 .factory('flexvolt', ['$q', '$timeout', '$interval', 'bluetoothPlugin', 'hardwareLogic', 'devices',
   function($q, $timeout, $interval, bluetoothPlugin, hardwareLogic, devices) {
+    // Breaking Changes
+
+    // Firmware version 5 introduces on-board RMS and HP filters.
+    // The RMS filter uses the same command interface as the previous smoothing filter
+    // The HP filter uses control bits in the former custom frequency command bytes
+    var BREAKING_CHANGE_ONBOARD_RMS_VERSION = 5;
+
     var connectionTestInterval;
     var receivedData;
     var waitingForResponse = false;
@@ -75,6 +82,10 @@ angular.module('flexvolt.flexvolt', [])
       channels: 8
     };
     var FREQUENCY_LIST = [1, 10, 50, 100, 200, 300, 400, 500, 1000, 1500, 2000];
+    var RMS_WINDOW_SIZE_LIST = [10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 250];
+
+    // Settings Masks
+    var HP_FILTER_ON = 0b10000000;
 
     var dots = '';
     // flag to make sure we don't end up with multipe async read calls at once!
@@ -110,6 +121,7 @@ angular.module('flexvolt.flexvolt', [])
         updatePorts: undefined,
         turnDataOn: undefined,
         turnDataOff: undefined,
+        validateSettings: undefined,
         updateSettings: undefined,
         pollVersion: undefined,
         getDataParsed: undefined,
@@ -132,11 +144,13 @@ angular.module('flexvolt.flexvolt', [])
         },
         settings: {
             frequencyCustom : 0,
-            timer0PartialCount : 0,
-            timer0AdjustVal : 11, // empirical
+            timer0PartialCount : 10,
+            timer0AdjustVal : 8, // empirical
             prescalerPic : 2,
-            downSampleCount : 0,
             plugTestDelay : 0
+        },
+        breakingChanges: {
+            onboardRMS: BREAKING_CHANGE_ONBOARD_RMS_VERSION
         },
         readParams : {
             expectedChar : undefined,
@@ -187,7 +201,6 @@ angular.module('flexvolt.flexvolt', [])
             api.settings.timer0PartialCount = 0;
             api.settings.timer0AdjustVal = 2;
             api.settings.prescalerPic = 2;
-            api.settings.downSampleCount = 0;
             api.settings.plugTestDelay = 0;
 
             // set to default battery mode...
@@ -676,6 +689,18 @@ angular.module('flexvolt.flexvolt', [])
             }
         };
 
+        api.validateSettings = function() {
+            if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION){
+                // new settings
+            } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
+                // older versions don't send 10-bit with filter, even if asked for 10 bit
+                if (hardwareLogic.settings.smoothFilterFlag) {
+                    console.log('fixing bitDepth10');
+                    hardwareLogic.settings.bitDepth10 = false;
+                }
+            }
+        }
+
         api.updateSettings = function(){
 
           /* Register Control Words
@@ -713,8 +738,14 @@ angular.module('flexvolt.flexvolt', [])
            *              110 = 128// not likely to be used
            *              111 = off (just use 48MHz/4)
            *
-           * REG2 = Manual Frequency, low byte (16 bits total).  [DEFAULT = 0]
-           * REG3 = Manual Frequency, high byte (16 bits total).  [DEFAULT = 0]
+           * * REG2 = [OLD - Manual Frequency, low byte (16 bits total)]
+           * * REG3 = [Old - Manual Frequency, high byte (16 bits total).  [DEFAULT = 0]]
+           *
+           * REG2 = Filter Controls/RESERVED
+           * REG2<7> = High Pass Filter (1 = on, 0 = off)
+           * REG2<6:0> RESERVED
+           *
+           * REG3 - RESERVED
            *
            * REG4 = Time adjust val (8bits, use 0:255 to achieve -6:249) [DEFAULT=2 => -4]
            *
@@ -727,6 +758,7 @@ angular.module('flexvolt.flexvolt', [])
            *
            * REG8<7:0> = Plug Test Delay (ms).  [DEFAULT=0] If 0, no plug tests.  If greater than 0, returns result of plug test every delay ms.
            */
+            api.validateSettings();
 
             deferred.updateSettings = $q.defer();
             if (api.connection.state === 'connected'){
@@ -772,17 +804,37 @@ angular.module('flexvolt.flexvolt', [])
                     // Register 1
                     REGtmp = 0;
                     REGtmp += api.settings.prescalerPic << 5;
-                    REGtmp += hardwareLogic.settings.smoothFilterVal;
+                    if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
+                        var rmsWindowIndex = hardwareLogic.settings.rmsWindowSizePower;
+                        REGtmp += rmsWindowIndex;
+                    } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
+                        REGtmp += hardwareLogic.settings.smoothFilterVal;
+                    }
                     REG.push(REGtmp); // 01001000 72
 
                     // Register 2
-                    REGtmp = api.settings.frequencyCustom;
-                    REGtmp = (Math.round(REGtmp >> 8)<<8);
-                    REGtmp = api.settings.frequencyCustom-REGtmp;
+                    if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
+                        // Custom frequency register hijacked for HP filter switch
+                        REGtmp = 0;
+                        if (hardwareLogic.settings.hpFilterFlag) {
+                          REGtmp = REGtmp | HP_FILTER_ON;
+                        }
+                    } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
+                        // original custom frequency register
+                        REGtmp = api.settings.frequencyCustom;
+                        REGtmp = (Math.round(REGtmp >> 8)<<8);
+                        REGtmp = api.settings.frequencyCustom-REGtmp;
+                    }
                     REG.push(REGtmp); // 00000000
 
                     // Register 3
-                    REGtmp = api.settings.frequencyCustom>>8;
+                    if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
+                        // Custom frequency register hijacked for HP filter switch
+                        REGtmp = 0;
+                    } else {
+                        // original custom frequency register
+                        REGtmp = api.settings.frequencyCustom>>8;
+                    }
                     REG.push(REGtmp); // 00000000
 
                     // Register 4
@@ -800,7 +852,7 @@ angular.module('flexvolt.flexvolt', [])
                     REG.push(REGtmp); // 00000000
 
                     // Register 7
-                    REGtmp = api.settings.downSampleCount;
+                    REGtmp = hardwareLogic.settings.downSampleCount;
                     REG.push(REGtmp); // 00000001 1
 
                     // Register 8
