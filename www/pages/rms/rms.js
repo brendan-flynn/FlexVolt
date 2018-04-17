@@ -15,7 +15,7 @@
 
         var afID = undefined;
         var metricCounts = 0;
-        var metricUpdatePeriod = 5; // update metrics every n seconds
+        var metricUpdatePeriod = 1; // update metrics every n seconds
 
         $scope.demo = $stateParams.demo;
 

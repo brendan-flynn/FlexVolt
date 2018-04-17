@@ -32,7 +32,9 @@ angular.module('flexvolt.dsp', [])
         var selectedRecordLocal = undefined;
         var backupPageSettings = undefined;
         var nChannels = 1; // default
+        var CHANNELS_MAX = 8;
         var metricsArr, metricsFlag = false, metricsNPoints, metricsNPointsDefault = 500;
+        var metricsMean = [];
         var factor = ((5/2)*1000000/1845).toFixed(2); // 5V split, convert to uV, divide by gain
         var demoVals = {
             fs: 1000,
@@ -138,30 +140,54 @@ angular.module('flexvolt.dsp', [])
         api.setMetrics = function(nDataPoints){
             metricsFlag = true;
             metricsArr = [];
-            for (var iChan = 0; iChan < nChannels; iChan++) {
+            for (var iChan = 0; iChan < CHANNELS_MAX; iChan++) {
               metricsArr[iChan] = {
                 min: 0,
                 max: 0,
                 mean: 0
               };
+              metricsMean[iChan] = [];
             }
             if (nDataPoints !== angular.undefined){
                 metricsNPoints = nDataPoints;
-            } else {metricsNPoints = metricsNPointsDefault;}
+            } else {
+                metricsNPoints = metricsNPointsDefault;
+            }
         };
 
         api.getMetrics = function(){
-            // var tic = performance.now();
             var ret = [];
             for (var ch = 0; ch < metricsArr.length; ch++){
+                // ensure these fields exist
+                if (metricsArr[ch] === angular.undefined){
+                    metricsArr[ch] = {
+                      min: 0,
+                      max: 0,
+                      mean: 0
+                    };
+                }
+                if (metricsMean[ch] === angular.undefined) {
+                  metricsMean[ch] = [];
+                }
+
+                // calculate mean now - if mean array has length
+                if (metricsMean[ch].length > 0) {
+                    var tmp = 0;
+                    for (var j = 0; j < metricsMean[ch].length; j++){
+                      tmp += metricsMean[ch][j];
+                    }
+                    tmp /= metricsMean[ch].length;
+                    metricsArr[ch].mean = tmp;
+                } else {
+                    metricsArr[ch].mean = 0;
+                }
+
                 ret[ch] = {
                     minAmplitude: metricsArr[ch].min,
                     maxAmplitude: metricsArr[ch].max,
                     meanAmplitude: metricsArr[ch].mean
                 };
             }
-            // var toc = performance.now();
-            // console.log('getMetrics new took ' + (toc-tic));
             return ret;
         };
 
@@ -171,25 +197,36 @@ angular.module('flexvolt.dsp', [])
               max: 0,
               mean: 0
             };
+            metricsMean[iChan] = [];
         };
 
-        api.rmMetrics = function(){metricsFlag = false;};
+        api.rmMetrics = function(){
+            metricsFlag = false;
+            for (var iChan = 0; iChan < CHANNELS_MAX; iChan++) {
+                api.resetMetrics(iChan);
+            }
+        };
 
         function addToMetrics(data){
             // var tic = performance.now();
             for (var ch = 0; ch < data.length; ch++){
-                if (metricsArr[ch] === angular.undefined){
+                // ensure these fields exist
+                if (metricsArr[ch] === angular.undefined) {
                     metricsArr[ch] = {
                       min: 0,
                       max: 0,
                       mean: 0
                     };
                 }
+                if (metricsMean[ch] === angular.undefined) {
+                  metricsMean[ch] = [];
+                }
+                // Compare min and max with previous values
                 metricsArr[ch].max = Math.max(metricsArr[ch].max, Math.max.apply(Math, data[ch]));
                 metricsArr[ch].min = Math.min(metricsArr[ch].min, Math.min.apply(Math, data[ch]));
-                data[ch].forEach(function(datum) {
-                  metricsArr[ch].mean = metricsArr[ch].mean + (datum - metricsArr[ch].mean)/metricsNPoints;
-                });
+                // add data to array for averaging - slice to desired length
+                metricsMean[ch] = metricsMean[ch].concat(data[ch]);
+                metricsMean[ch].splice(0,metricsMean[ch].length-metricsNPoints); // keep it the correct length
             }
             // var toc = performance.now();
             // console.log('addToMetrics new took ' + (toc-tic));
