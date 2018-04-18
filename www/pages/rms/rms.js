@@ -18,7 +18,7 @@
         var metricUpdatePeriod = 1; // update metrics every n seconds
 
         $scope.demo = $stateParams.demo;
-
+        $scope.dataHandler = dataHandler; // for controls.live
         $scope.hardwareLogic = hardwareLogic;
 
         $scope.updating = false;
@@ -32,7 +32,9 @@
             init();
 
             $scope.updating  = false;
-            paintStep();
+            if (dataHandler.controls.live) {
+                paintStep();
+            }
         };
 
         $scope.showLabelPopup = function(ind) {
@@ -139,6 +141,7 @@
                     } else {
                       console.log('rms playback init');
                         var dataBundle = dataHandler.getData(); // [timestamps, dataIn]
+                        updateMetrics();
                         if (dataBundle === null || dataBundle === angular.undefined ||
                             dataBundle[0] === angular.undefined || dataBundle[0].length ===0){return;}
 
@@ -166,8 +169,7 @@
             }
         };
 
-        init();
-
         dataHandler.resetPage = init;
+        init();
     }])
 }());

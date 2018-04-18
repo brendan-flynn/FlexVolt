@@ -51,8 +51,8 @@
 
         paintStep();
     }])
-    .controller('RecordCtrl', ['$scope', '$state', '$ionicPopover', '$ionicModal', 'dataHandler', 'hardwareLogic', 'records',
-        function($scope, $state, $ionicPopover, $ionicModal, dataHandler, hardwareLogic, records){
+    .controller('RecordCtrl', ['$scope', '$state', '$stateParams', '$ionicPopover', '$ionicModal', 'dataHandler', 'hardwareLogic', 'records',
+        function($scope, $state, $stateParams, $ionicPopover, $ionicModal, dataHandler, hardwareLogic, records){
 
         console.log('Record Ctrl loaded');
         /***********Record Control****************/
@@ -134,6 +134,53 @@
             } else {
                 // start playback
             }
+        };
+
+        $scope.isDesktopRecordDisabled = function() {
+            var disabled = false;
+
+            // not live, or already recording
+            if (dataHandler.controls.recording || !dataHandler.controls.live) {disabled = true;}
+            // if not demo mode AND not connected with data one
+            if (!$stateParams.demo && (flexvolt.api.connection.state !== 'connected' ||
+            flexvolt.api.connection.data !== 'on')) {disabled = true;}
+            return disabled;
+        };
+
+        $scope.isDesktopPauseDisabled = function() {
+            var disabled = false;
+
+            // not live, or already paused
+            if (dataHandler.controls.paused || !dataHandler.controls.live) {disabled = true;}
+            // if not demo mode AND not connected with data one
+            if (!$stateParams.demo && (flexvolt.api.connection.state !== 'connected' ||
+            flexvolt.api.connection.data !== 'on')) {disabled = true;}
+            return disabled;
+        };
+
+        $scope.isMobileRecordDisabled = function() {
+            var disabled = false;
+            if (dataHandler.controls.recording) {
+                // recording, stop button is displayed
+                // disabled if not recording
+                if (!dataHandler.controls.recording) {disabled = true;};
+            } else if (!dataHandler.controls.recording){
+                // record button shown, disabled when:
+                disabled = $scope.isDesktopRecordDisabled();
+            }
+            return disabled;
+        };
+
+        $scope.isMobilePauseDisabled = function() {
+            var disabled = false;
+            if (!dataHandler.controls.live || dataHandler.controls.paused){
+                // not live, or already paused.  'resume' button is displayed
+                if (dataHandler.controls.live && !dataHandler.controls.paused) {disabled = true;}
+            } else if (dataHandler.controls.live && !dataHandler.controls.paused) {
+                // pause button is displayed
+                $scope.isDesktopPauseDisabled();
+            }
+            return disabled;
         };
 
         /**************************************/

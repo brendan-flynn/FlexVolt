@@ -5,11 +5,10 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 <div ng-controller="RecordCtrl"
-     class="control-panel-container"
-     ng-if="((flexvolt.api.connection.state === 'connected' && flexvolt.api.connection.data === 'on') || demo) ">
+     class="control-panel-container">
     <div ng-if="!mobile" class="control-panel-strip" style="text-align: left;">
         <button title="Pause"
-                ng-disabled="dataHandler.controls.paused"
+                ng-disabled="isDesktopPauseDisabled()"
                 class="button button-icon icon ion-pause record-icon"
                 ng-click="dataHandler.controls.pause()">
         </button>
@@ -25,7 +24,7 @@ and open the template in the editor.
         </button> -->
         <button title="Record Data"
                 class="button button-icon icon ion-record record-icon"
-                ng-disabled="!dataHandler.controls.live || !!dataHandler.controls.recording"
+                ng-disabled="isDesktopRecordDisabled()"
                 ng-click="dataHandler.controls.startRecording()">
         </button>
         <button title="Stop"
@@ -51,11 +50,13 @@ and open the template in the editor.
         <button title="Pause"
                 class="button button-icon icon record-icon"
                 ng-class="(dataHandler.controls.live && !dataHandler.controls.paused) ? 'ion-pause' : 'ion-play'"
+                ng-disabled="isMobilePauseDisabled()"
                 ng-click="dataHandler.controls.togglePause()">
         </button>
         <button title="Record Data"
                 class="button button-icon icon record-icon"
                 ng-class="dataHandler.controls.recording? 'ion-stop' : 'ion-record'"
+                ng-disabled="isMobileRecordDisabled()"
                 ng-click="dataHandler.controls.toggleRecording()">
         </button>
         <button class="button button-clear record-icon-text" ng-style="dataHandler.controls.recording ? {'color': 'black'} : {'color': 'rgb(75,75,75)'} ">

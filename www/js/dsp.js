@@ -207,6 +207,28 @@ angular.module('flexvolt.dsp', [])
             }
         };
 
+        function calculateTotalMetrics(data) {
+            for (var ch = 0; ch < data.length; ch++){
+                // ensure these fields exist
+                if (metricsArr[ch] === angular.undefined) {
+                    metricsArr[ch] = {
+                      min: 0,
+                      max: 0,
+                      mean: 0
+                    };
+                }
+                if (metricsMean[ch] === angular.undefined) {
+                  metricsMean[ch] = [];
+                }
+                // Compare min and max with previous values
+                metricsArr[ch].max = Math.max.apply(Math, data[ch]);
+                metricsArr[ch].min = Math.min.apply(Math, data[ch]);
+                // add data to array for averaging - slice to desired length
+                metricsMean[ch] = metricsMean[ch].concat(data[ch]);
+                // metricsMean[ch].splice(0,metricsMean[ch].length-metricsNPoints); // keep it the correct length
+            }
+        };
+
         function addToMetrics(data){
             // var tic = performance.now();
             for (var ch = 0; ch < data.length; ch++){
@@ -301,8 +323,12 @@ angular.module('flexvolt.dsp', [])
             }
 
             // Calculate metrics if set (using DFT-filtered data array (NOT structurally changed RMS-filtered structure)
-            if (metricsFlag) {
-                addToMetrics(parsedData);
+            if (!api.controls.live) {
+                calculateTotalMetrics(parsedData);
+            } else {
+                if (metricsFlag) {
+                    addToMetrics(parsedData);
+                }
             }
 
             return [timestamps, parsedData];
