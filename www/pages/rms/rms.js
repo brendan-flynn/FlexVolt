@@ -29,7 +29,11 @@
             }
             afID = undefined;
             $scope.updating  = true;
-            init();
+            if (dataHandler.controls.live) {
+                init();
+            } else if (!dataHandler.controls.live) {
+                initPlayBack();
+            }
 
             $scope.updating  = false;
             if (dataHandler.controls.live) {
@@ -118,20 +122,38 @@
             }
         }
 
+        function resetDataHandler() {
+            // in case general settings has a lower nChannels
+            rmsTimeLogic.settings.nChannels = Math.min(rmsTimeLogic.settings.nChannels, hardwareLogic.settings.nChannels);
+            //console.log('INFO: Settings: '+angular.toJson(rmsTimeLogic.settings));
+            dataHandler.init(rmsTimeLogic.settings.nChannels);
+
+            for (var i= 0; i < rmsTimeLogic.settings.filters.length; i++){
+                dataHandler.addFilter(rmsTimeLogic.settings.filters[i]);
+            }
+
+            dataHandler.setMetrics(hardwareLogic.settings.frequency*metricUpdatePeriod);
+        }
+
+        function initPlayBack() {
+            resetDataHandler();
+            console.log('rms playback init');
+            var dataBundle = dataHandler.getData(); // [timestamps, dataIn]
+            updateMetrics();
+            if (dataBundle === null || dataBundle === angular.undefined ||
+                dataBundle[0] === angular.undefined || dataBundle[0].length ===0){return;}
+
+            var dataIn = dataBundle[1];
+            if (dataIn === null || dataIn === angular.undefined ||
+                dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
+            rmsTimePlot.initPlayback('rmsTimeWindow', rmsTimeLogic.settings, hardwareLogic.settings, dataBundle);
+        }
+
         function init(){
             rmsTimeLogic.ready()
                 .then(function(){
                     $scope.pageLogic = rmsTimeLogic;
-                    // in case general settings has a lower nChannels
-                    rmsTimeLogic.settings.nChannels = Math.min(rmsTimeLogic.settings.nChannels, hardwareLogic.settings.nChannels);
-                    //console.log('INFO: Settings: '+angular.toJson(rmsTimeLogic.settings));
-                    dataHandler.init(rmsTimeLogic.settings.nChannels);
-
-                    for (var i= 0; i < rmsTimeLogic.settings.filters.length; i++){
-                        dataHandler.addFilter(rmsTimeLogic.settings.filters[i]);
-                    }
-
-                    dataHandler.setMetrics(hardwareLogic.settings.frequency*metricUpdatePeriod);
+                    resetDataHandler();
 
                     if (dataHandler.controls.live) {
                       console.log('rms standard init');
@@ -139,16 +161,7 @@
                         updateMetrics(); // so they start at 0 instead of blank
                         paintStep();
                     } else {
-                      console.log('rms playback init');
-                        var dataBundle = dataHandler.getData(); // [timestamps, dataIn]
-                        updateMetrics();
-                        if (dataBundle === null || dataBundle === angular.undefined ||
-                            dataBundle[0] === angular.undefined || dataBundle[0].length ===0){return;}
-
-                        var dataIn = dataBundle[1];
-                        if (dataIn === null || dataIn === angular.undefined ||
-                            dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
-                        rmsTimePlot.initPlayback('rmsTimeWindow', rmsTimeLogic.settings, hardwareLogic.settings, dataBundle);
+                        initPlayBack();
                     }
                 });
         }
