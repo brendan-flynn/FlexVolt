@@ -1,4 +1,6 @@
-<div class="fv-message" ng-if="!demo && flexvolt.api.connection.state !== 'connected'">
+<div ng-controller="NotConntectedCtrl">
+<div class="fv-message" ng-if="dataHandlerControls.live && !demo && flexvolt.api.connection.state !== 'connected'"
+     style="position:absolute;top:0;left:0;width:100%;height:100%;background-color:white;opacity:0.85;">
     <div>FlexVolt connection status: {{flexvolt.getDetailedConnectionStatus()}}</div>
     <br>
     <div ui-sref="connection">
@@ -14,4 +16,5 @@
           <i class="icon ion-briefcase"></i>
       </button>
       <span style="vertical-align:middle">Check out the Demos to test out different pages without connecting to a FlexVolt sensor.</span>
+</div>
 </div>

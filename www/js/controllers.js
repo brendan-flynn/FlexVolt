@@ -51,6 +51,11 @@
 
         paintStep();
     }])
+    .controller('NotConntectedCtrl', ['$scope', 'dataHandler',
+        function($scope, dataHandler){
+
+        $scope.dataHandlerControls = dataHandler.controls;
+    }])
     .controller('RecordCtrl', ['$scope', '$state', '$stateParams', '$ionicPopover', '$ionicModal', 'dataHandler', 'hardwareLogic', 'records',
         function($scope, $state, $stateParams, $ionicPopover, $ionicModal, dataHandler, hardwareLogic, records){
 

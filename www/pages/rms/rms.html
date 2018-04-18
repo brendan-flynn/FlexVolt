@@ -10,8 +10,7 @@
     </ion-nav-buttons>
   <ion-content scroll="false" class="has-header fv-theme">
       <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
-      <not-connected></not-connected>
-      <div ng-show="demo || flexvolt.api.connection.state === 'connected'" class="row row-full-height">
+      <div class="row row-full-height">
           <!-- <save-panel ng-if="mobile"></save-panel> -->
           <div ng-if="!mobile" class="col col-150px">
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
@@ -47,7 +46,9 @@
                   </div>
               </div>
           </div>
-          <div ng-show="demo || flexvolt.api.connection.state === 'connected'" class="col" style="padding:0px;" id="rmsTimeWindow"></div>
+          <div class="col" style="padding:0px; position:relative;" id="rmsTimeWindow">
+              <not-connected></not-connected>
+          </div>
       </div>
 
   </ion-content>
