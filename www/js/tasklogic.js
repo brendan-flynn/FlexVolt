@@ -49,12 +49,12 @@ angular.module('flexvolt.taskLogic', [])
             offset: {
               name: 'Value',
               value: 0,
-              unit: 'mV',
+              unit: 'uV',
               input: {
                 type: 'slider',
                 range: {
-                  low: -25,
-                  high: 25,
+                  low: -50,
+                  high: 50,
                   step: 1
                 }
               }

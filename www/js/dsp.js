@@ -611,7 +611,7 @@ angular.module('flexvolt.dsp', [])
     function offset(data, params){
         //console.log('Offset apply'+JSON.stringify(data));
         for (var i in data){
-            data[i] = data[i] + params.offset.value/1000;
+            data[i] = data[i] + params.offset.value;
         }
         //console.log(JSON.stringify(data));
         return data;
