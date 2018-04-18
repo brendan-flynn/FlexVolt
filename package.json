@@ -14,6 +14,7 @@
     "cordova-plugin-bluetooth-serial": "~0.4.6",
     "cordova-plugin-device": "~1.1.4",
     "cordova-plugin-file": "^4.3.3",
+    "cordova-plugin-insomnia": "^4.3.0",
     "cordova-plugin-ionic-keyboard": "^2.0.5",
     "cordova-plugin-ionic-webview": "^1.1.16",
     "cordova-plugin-splashscreen": "~4.0.3",
@@ -50,7 +51,8 @@
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-ionic-webview": {},
       "cordova-plugin-ionic-keyboard": {},
-      "cordova-plugin-file": {}
+      "cordova-plugin-file": {},
+      "cordova-plugin-insomnia": {}
     }
   }
 }

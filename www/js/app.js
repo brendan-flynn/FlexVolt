@@ -122,16 +122,18 @@
     })
     .config(function($stateProvider, $urlRouterProvider) {
 
-      function dataOn($stateParams, flexvolt){
+      function dataOn($stateParams, flexvolt, insomnia){
           if (!$stateParams.demo){
               console.log('DEBUG: app dataOn');
+              insomnia.keepAwake();
               flexvolt.api.turnDataOn();
           }
       }
 
-      function exitFunction($stateParams, flexvolt){
+      function exitFunction($stateParams, flexvolt, insomnia){
         console.log('DEBUG: app dataOff');
         flexvolt.api.turnDataOff(); // always call - even if in demos or not actually connected!
+        insomnia.allowSleepAgain();
 
         // return resize function control (in each page it is redefined to resize that animation/plot
         window.onresize = function(){

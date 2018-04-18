@@ -438,6 +438,39 @@ angular.module('flexvolt.services', [])
 //
 //    return clipboard;
 //})
+.factory('insomnia', ['$ionicPlatform', function($ionicPlatform){
+    var insomnia = {
+        keepAwake: undefined,
+        allowSleepAgain: undefined
+    }
+
+    ionic.Platform.ready(function() {
+        window.device = ionic.Platform.device();
+        window.platform = ionic.Platform.platform();
+        if (window.cordova) {
+            if (window.plugins && window.plugins.insomnia) {
+                insomnia.keepAwake = function(){
+                    console.log('keep awake');
+                    window.plugins.insomnia.keepAwake();
+                };
+                insomnia.allowSleepAgain = function(){
+                    window.plugins.insomnia.allowSleepAgain();
+                    console.log('go to sleep');
+                };
+            }
+        } else if (chrome) {
+            insomnia.keepAwake = function(){
+                // chrome - do nothing
+            };
+            insomnia.allowSleepAgain = function(){
+                // chrome - do nothing
+            };
+        }
+
+    });
+
+    return insomnia;
+}])
 .factory('file', ['$ionicPlatform', '$q', 'storage', function($ionicPlatform, $q, storage){
     var file = {
         getDirectory: undefined,
