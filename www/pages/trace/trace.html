@@ -1,7 +1,7 @@
 <ion-view title="Trace">
     <ion-nav-buttons side="left">
         <help-popover></help-popover>
-        <!-- <save-panel ng-if="!mobile"></save-panel> -->
+        <save-panel ng-if="!mobile"></save-panel>
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
@@ -9,12 +9,17 @@
         <settings-popover></settings-popover>
     </ion-nav-buttons>
   <ion-content class="has-header fv-theme" scroll="false">
-      <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
-      <not-connected></not-connected>
-      <div ng-show="demo || flexvolt.api.connection.state === 'connected'" id="traceWindow" class="row fullsizeplot"></div>
-      <!-- <div id="traceWindow" class="row fullsizeplot" style="overflow: scroll;"></div> -->
+      <div class="row row-full-height">
+          <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
+          <div id="traceWindow"
+               class="row fullsizeplot"
+               style="position:relative;">
+               <not-connected></not-connected>
+           </div>
+          <!-- <div id="traceWindow" class="row fullsizeplot" style="overflow: scroll;"></div> -->
 
-      <save-panel ng-if="mobile"></save-panel>
+          <save-panel ng-if="mobile"></save-panel>
+      </div>
 
   </ion-content>
 </ion-view>

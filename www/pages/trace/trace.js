@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.trace', [])
 
-    .controller('TraceCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopover', '$ionicModal', 'tracePlot', 'traceLogic', 'dataHandler', 'hardwareLogic', 'logicOptions', 'customPopover',
-    function($stateParams, $scope, $state, flexvolt, $ionicPopover, $ionicModal, tracePlot, traceLogic, dataHandler, hardwareLogic, logicOptions, customPopover) {
+    .controller('TraceCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopover', '$ionicPopup', '$ionicModal', 'tracePlot', 'traceLogic', 'dataHandler', 'hardwareLogic', 'logicOptions', 'customPopover',
+    function($stateParams, $scope, $state, flexvolt, $ionicPopover, $ionicPopup, $ionicModal, tracePlot, traceLogic, dataHandler, hardwareLogic, logicOptions, customPopover) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
         $scope.demo = $stateParams.demo;
@@ -50,7 +50,9 @@
             //console.log('state = '+$state.current.url);
             if ($state.current.url === currentUrl){
                 afID = window.requestAnimationFrame(paintStep);
-                updateAnimate();
+                if (dataHandler.controls.live) {
+                    updateAnimate();
+                }
             } else if ($state.current.url === '/connection'){
                 afID = window.requestAnimationFrame(paintStep);
             }
@@ -66,8 +68,24 @@
                         dataHandler.addFilter(traceLogic.settings.filters[i]);
                     }
         //            dataHandler.setMetrics(60);
-                    tracePlot.init('traceWindow',traceLogic.settings.nChannels, hardwareLogic.settings.vMax, $stateParams.demo);
-                    paintStep();
+                    if (dataHandler.controls.live) {
+                        tracePlot.init('traceWindow',traceLogic.settings.nChannels, hardwareLogic.settings.vMax, $stateParams.demo);
+                        paintStep();
+                    } else {
+                        console.log('trace playback not allowed');
+                        $ionicPopup.alert({
+                          title: 'Recorded Data Cannot be Viewed in Trace Page',
+                          template: 'Please go to RMS Page to view saved records.'
+                        });
+                        // var dataBundle = dataHandler.getData(); // [timestamps, dataIn]
+                        // if (dataBundle === null || dataBundle === angular.undefined ||
+                        //     dataBundle[0] === angular.undefined || dataBundle[0].length ===0){return;}
+                        //
+                        // var dataIn = dataBundle[1];
+                        // if (dataIn === null || dataIn === angular.undefined ||
+                        //     dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
+                        // tracePlot.initPlayback('traceWindow', rmsTimeLogic.settings, hardwareLogic.settings, dataBundle);
+                    }
                 });
         }
 
@@ -80,9 +98,14 @@
             //console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
             tracePlot.resize();
             $scope.updating  = false;
-            paintStep();
+            if (dataHandler.controls.live) {
+              paintStep();
+            } else {
+              init();
+            }
         };
 
+        dataHandler.resetPage = init;
         init();
     }])
 }());
