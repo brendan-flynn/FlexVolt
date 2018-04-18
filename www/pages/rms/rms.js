@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.rms', [])
 
-    .controller('RMSCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopup', '$ionicPopover', '$ionicModal', 'rmsTimePlot', 'rmsTimeLogic', 'dataHandler', 'hardwareLogic', 'customPopover',
-    function($stateParams, $scope, $state, flexvolt, $ionicPopup, $ionicPopover, $ionicModal, rmsTimePlot, rmsTimeLogic, dataHandler, hardwareLogic, customPopover) {
+    .controller('RMSCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopup', '$ionicPopover', '$ionicModal', 'rmsTimePlot', 'rmsTimeLogic', 'dataHandler', 'hardwareLogic', 'customPopover', 'appLogic',
+    function($stateParams, $scope, $state, flexvolt, $ionicPopup, $ionicPopover, $ionicModal, rmsTimePlot, rmsTimeLogic, dataHandler, hardwareLogic, customPopover, appLogic) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
 
@@ -154,18 +154,24 @@
         }
 
         window.onresize = function(){
-            if (afID){
-              window.cancelAnimationFrame(afID);
-            }
-            afID = undefined;
-            $scope.updating  = true;
-            console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
-            rmsTimePlot.resize();
-            $scope.updating  = false;
-            if (dataHandler.controls.live) {
-              paintStep();
+            if (window.innerWidth === appLogic.appWidth && window.innerHeight === appLogic.appHeight) {
+                // size didn't actually change - do nothing
             } else {
-              init();
+                appLogic.appWidth = window.innerWidth;
+                appLogic.appHeight = window.innerHeight;
+                if (afID){
+                  window.cancelAnimationFrame(afID);
+                }
+                afID = undefined;
+                $scope.updating  = true;
+                // console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
+                rmsTimePlot.resize();
+                $scope.updating  = false;
+                if (dataHandler.controls.live) {
+                  paintStep();
+                } else {
+                  init();
+                }
             }
         };
 

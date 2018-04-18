@@ -94,7 +94,9 @@
         };
 
         console.log('INFO: screen:  W:'+screen.width+'H:'+screen.height);
-
+        console.log('INFO: Resized to w:'+window.innerWidth+', h:'+window.innerHeight);
+        appLogic.appWidth = window.innerWidth;
+        appLogic.appHeight = window.innerHeight;
 
         // get version
         if (window.cordova) {
