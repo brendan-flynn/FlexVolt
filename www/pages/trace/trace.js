@@ -77,6 +77,7 @@
                           title: 'Recorded Data Cannot be Viewed in Trace Page',
                           template: 'Please go to RMS Page to view saved records.'
                         });
+                        dataHandler.controls.toggleLive();
                         // var dataBundle = dataHandler.getData(); // [timestamps, dataIn]
                         // if (dataBundle === null || dataBundle === angular.undefined ||
                         //     dataBundle[0] === angular.undefined || dataBundle[0].length ===0){return;}
