@@ -412,6 +412,13 @@ angular.module('flexvolt.dsp', [])
           console.log('toggled live: ' + api.controls.live);
         }
 
+        api.controls.closeOut = function() {
+            if (api.controls.recording) {
+                api.controls.toggleRecording();
+            }
+            api.controls.resume();
+        };
+
         function initRecord() {
           currentRecordMetaData = {
             taskName: $state.current.name,
