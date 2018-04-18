@@ -539,12 +539,18 @@ angular.module('flexvolt.taskLogic', [])
         frequency: 1000,
         bitDepth10: false,
         smoothFilterFlag: false,
+        smoothFilterMode: 0, // 0 is shift filter, 1 is RMS
         hpFilterFlag: false,
         smoothFilterVal: 8,
         downSampleCount: 1,
         rmsWindowSizePower: 5,
         exportMode: 'raw',
         vMax: undefined //1.355mV, usb, default
+    };
+
+    var constants = {
+        smoothFilterMode_Shift: 0,
+        smoothFilterMode_RMS: 1
     };
 
     storage.get('hardwareSettings')
@@ -581,7 +587,8 @@ angular.module('flexvolt.taskLogic', [])
         frequencyList: frequencyList,
         rmsWindowList: rmsWindowList,
         settings: settings,
-        updateSettings: updateSettings
+        updateSettings: updateSettings,
+        constants: constants
     };
 }])
 

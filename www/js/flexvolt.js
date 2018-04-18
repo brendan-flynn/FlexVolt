@@ -86,6 +86,9 @@ angular.module('flexvolt.flexvolt', [])
 
     // Settings Masks
     var HP_FILTER_ON = 0b10000000;
+    var SMOOTH_FILTER_MODE_RMS =   0b01000000;
+    var SMOOTH_FILTER_MODE_SHIFT = 0b00000000;
+
 
     var dots = '';
     // flag to make sure we don't end up with multipe async read calls at once!
@@ -742,9 +745,10 @@ angular.module('flexvolt.flexvolt', [])
            * * REG2 = [OLD - Manual Frequency, low byte (16 bits total)]
            * * REG3 = [Old - Manual Frequency, high byte (16 bits total).  [DEFAULT = 0]]
            *
-           * REG2 = Filter Controls/RESERVED
-           * REG2<7> = High Pass Filter (1 = on, 0 = off)
-           * REG2<6:0> RESERVED
+           * REG2 = HP Filter + RESERVED
+           * REG2<7> = High Pass Filter (1 = filter on, 0 = filter off)
+           * REG2<6> = Smooth Filter Mode (1 = RMS Filter, 0 = Smooth Shift Filter)
+           * REG2<5:0> = RESERVED
            *
            * REG3 - RESERVED
            *
@@ -806,8 +810,13 @@ angular.module('flexvolt.flexvolt', [])
                     REGtmp = 0;
                     REGtmp += api.settings.prescalerPic << 5;
                     if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
-                        var rmsWindowIndex = hardwareLogic.settings.rmsWindowSizePower;
-                        REGtmp += rmsWindowIndex;
+                        if (hardwareLogic.settings.smoothFilterMode === hardwareLogic.constants.smoothFilterMode_RMS) {
+                            var rmsWindowIndex = hardwareLogic.settings.rmsWindowSizePower;
+                            REGtmp += rmsWindowIndex;
+                        } else if (hardwareLogic.settings.smoothFilterMode === hardwareLogic.constants.smoothFilterMode_Shift) {
+                            var smoothFilterShiftVal = hardwareLogic.settings.smoothFilterVal;
+                            REGtmp += smoothFilterShiftVal;
+                        }
                     } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
                         REGtmp += hardwareLogic.settings.smoothFilterVal;
                     }
@@ -815,11 +824,21 @@ angular.module('flexvolt.flexvolt', [])
 
                     // Register 2
                     if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
-                        // Custom frequency register hijacked for HP filter switch
+                        // Custom frequency register hijacked for filter switches
+
+                        // HP filter
                         REGtmp = 0;
                         if (hardwareLogic.settings.hpFilterFlag) {
                           REGtmp = REGtmp | HP_FILTER_ON;
                         }
+
+                        // smooth filter mode (default is shift filter)
+                        if (hardwareLogic.settings.smoothFilterMode === hardwareLogic.constants.smoothFilterMode_RMS) {
+                            REGtmp = REGtmp | SMOOTH_FILTER_MODE_RMS;
+                        } else if (hardwareLogic.settings.smoothFilterMode === hardwareLogic.constants.smoothFilterMode_Shift) {
+                            REGtmp = REGtmp | SMOOTH_FILTER_MODE_SHIFT;
+                        }
+
                     } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
                         // original custom frequency register
                         REGtmp = api.settings.frequencyCustom;
