@@ -238,7 +238,7 @@ angular.module('flexvolt.dsp', [])
             // Get Data (real or simulated)
             if (!api.controls.live) {
                 // only serve this data once, then undefined
-                dataBundle = [selectedRecordLocal[0].slice(0), selectedRecordLocal[1].slice(0)]; // [timestamps, dataIn]
+                dataBundle = [selectedRecordLocal[0].slice(0), JSON.parse(JSON.stringify(selectedRecordLocal[1]))]; // [timestamps, dataIn]
             } else {
               if ($stateParams.demo){
                   // simulate data
@@ -249,9 +249,9 @@ angular.module('flexvolt.dsp', [])
             }
 
             // if we are paused, getDataParsed clears the flexvolt service buffer, then do not waste time running filters or saving data
-            if (api.controls.paused) {
-                return undefined;
-            }
+            // if (api.controls.paused) {
+            //     return undefined;
+            // }
 
             if (dataBundle === null || dataBundle === angular.undefined || dataBundle[0] === angular.undefined || dataBundle[0].length <= 0){
                 parsedData = [];
@@ -293,6 +293,11 @@ angular.module('flexvolt.dsp', [])
                 if (recordedDataProcessed[0].length > 1000) {
                   saveRecordedData();
                 }
+            }
+
+            // if we are paused, do not return data.  data still gets processed and saved though
+            if (api.controls.paused) {
+                return undefined;
             }
 
             // Calculate metrics if set (using DFT-filtered data array (NOT structurally changed RMS-filtered structure)
