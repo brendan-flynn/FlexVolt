@@ -452,7 +452,7 @@ angular.module('flexvolt.d3plots', [])
         }
     }
 
-    api.init = function(element, nChannels, vMax, isDemo){
+    api.init = function(element, nChannels, vMax){
         htmlElement = element;
         plotElement = '#'+element;
         var html = document.getElementById(htmlElement);
@@ -515,12 +515,12 @@ angular.module('flexvolt.d3plots', [])
 })
 .factory('rmsTimePlot', function() {
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
-    var leftPadding = 10;
-    var rightPadding = 10;
+    var leftPadding = 0;
+    var rightPadding = 0;
 
     var margin, width, height, plotElement, htmlElement;
-    var mar = 4;
-    margin = {left: 60, right: mar, top: mar, bottom: 50};
+    var mar = 0;
+    margin = {left: 50, right: mar, top: mar, bottom: 35};
     var PADDINGOFFSET = 8;
 
     var svg, x, y, autoY, xAxis, make_x_axis, yAxis, line;
@@ -703,7 +703,7 @@ angular.module('flexvolt.d3plots', [])
             .scale(x)
             .tickSubdivide(true)
             .orient('bottom')
-            .tickFormat(d3.time.format("%I:%M:%S"))
+            .tickFormat(d3.time.format("%M:%S"))
             .ticks(nTicks);
 
         make_x_axis = function() {
@@ -748,17 +748,17 @@ angular.module('flexvolt.d3plots', [])
             .append('text')
             .attr('class', 'axis-label')
             .attr('transform', 'rotate(-90)')
-            .attr('y', (-margin.left) + 15)
+            .attr('y', (-margin.left) + 10)
             .attr('x', -height/2-50)
-            .text('RMS Muscle Signal, uV');
+            .text('Muscle Signal, uV');
 
         svg.append('g')
             .attr('class', 'x label')
             .append('text')
             .attr('class', 'axis-label')
-            .attr('y', height+45)
+            .attr('y', height+35)
             .attr('x', width/2)
-            .text('Time, hh:mm:ss');
+            .text('Time, minutes:seconds');
 
         // keeps the zoom frame inside the plot window!
         svg.append('clipPath')

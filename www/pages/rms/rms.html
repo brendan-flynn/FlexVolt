@@ -12,7 +12,7 @@
       <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
       <div class="row row-full-height">
           <!-- <save-panel ng-if="mobile"></save-panel> -->
-          <div ng-if="!mobile" class="col col-150px">
+          <div ng-if="!mobile" class="col col-150px" style="padding:0px;">
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
                    style="font-size:14px; line-height:14px; padding:0px;">
                   <div class="row" style="padding:5px 0px;" ng-click="showLabelPopup($index)" >
