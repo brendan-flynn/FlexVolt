@@ -770,7 +770,7 @@ angular.module('flexvolt.d3plots', [])
     };
 
     function calculateDownSample() {
-      var maxDataPoints = api.settings.windowSizeInSeconds * api.settings.userFrequency; // max number of datapoints
+      var maxDataPoints = api.settings.windowSizeInSeconds * api.settings.userFrequency / hardwareLogic.settings.downSampleCount; // max number of datapoints
       downSampleN = Math.max(1,Math.round(maxDataPoints / width / downSampleMultiplier)); // downsample since can't show them all anyway
     }
 
