@@ -88,6 +88,7 @@ angular.module('flexvolt.flexvolt', [])
     var HP_FILTER_ON = 0b10000000;
     var SMOOTH_FILTER_MODE_RMS =   0b01000000;
     var SMOOTH_FILTER_MODE_SHIFT = 0b00000000;
+    var ENABLE_BATTERY_TEST = 0b00000001;
 
 
     var dots = '';
@@ -101,6 +102,7 @@ angular.module('flexvolt.flexvolt', [])
     // Time Stamps
     var timestamp;
     var timestampInterval;
+    var timingCheckInterval;
 
     var GAIN = 1845; // Primary gain = 405.  Secondary gain =
     var SupplyVoltageBattery = 4.2;
@@ -144,13 +146,6 @@ angular.module('flexvolt.flexvolt', [])
             dataOnRequested: undefined,
             flexvoltName: undefined,
             batteryVoltage: undefined
-        },
-        settings: {
-            frequencyCustom : 0,
-            timer0PartialCount : 10,
-            timer0AdjustVal : 8, // empirical
-            prescalerPic : 2,
-            plugTestDelay : 0
         },
         breakingChanges: {
             onboardRMS: BREAKING_CHANGE_ONBOARD_RMS_VERSION
@@ -198,13 +193,6 @@ angular.module('flexvolt.flexvolt', [])
             api.connection.dataOnRequested = false;
             api.connection.initialWait = DEFAULT_WAIT_MS;
             api.connection.connectedWait = DEFAULT_CONNECTED_WAIT_MS;
-
-            // TODO grab settings from local file
-            api.settings.frequencyCustom = 0;
-            api.settings.timer0PartialCount = 0;
-            api.settings.timer0AdjustVal = 2;
-            api.settings.prescalerPic = 2;
-            api.settings.plugTestDelay = 0;
 
             // set to default battery mode...
             hardwareLogic.settings.vMax = VMaxBattery;
@@ -694,6 +682,19 @@ angular.module('flexvolt.flexvolt', [])
         };
 
         api.validateSettings = function() {
+            // General Validations
+
+            // timing adjustment
+            var tmp = hardwareLogic.timerAdjustments.frequencyDefaults[hardwareLogic.settings.frequency];
+            if (tmp) {
+                hardwareLogic.settings.timer0AdjustVal = tmp.timer0AdjustVal;
+                hardwareLogic.settings.timer0PartialCount = tmp.timer0PartialCount;
+            } else {
+                hardwareLogic.settings.timer0AdjustVal = hardwareLogic.timerAdjustments.defaultTimer0AdjustVal;
+                hardwareLogic.settings.timer0PartialCount = hardwareLogic.timerAdjustments.defaultTimer0PartialCount;
+            }
+
+            // Version specific Validations
             if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION){
                 // new settings
             } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
@@ -748,7 +749,8 @@ angular.module('flexvolt.flexvolt', [])
            * REG2 = HP Filter + RESERVED
            * REG2<7> = High Pass Filter (1 = filter on, 0 = filter off)
            * REG2<6> = Smooth Filter Mode (1 = RMS Filter, 0 = Smooth Shift Filter)
-           * REG2<5:0> = RESERVED
+           * REG2<5:1> = RESERVED
+           * REG2<0> = Battery Test (1 = on, 0 = off)
            *
            * REG3 - RESERVED
            *
@@ -808,7 +810,7 @@ angular.module('flexvolt.flexvolt', [])
 
                     // Register 1
                     REGtmp = 0;
-                    REGtmp += api.settings.prescalerPic << 5;
+                    REGtmp += hardwareLogic.settings.prescalerPic << 5;
                     if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
                         if (hardwareLogic.settings.smoothFilterMode === hardwareLogic.constants.smoothFilterMode_RMS) {
                             var rmsWindowIndex = hardwareLogic.settings.rmsWindowSizePower;
@@ -839,11 +841,15 @@ angular.module('flexvolt.flexvolt', [])
                             REGtmp = REGtmp | SMOOTH_FILTER_MODE_SHIFT;
                         }
 
+                        if (hardwareLogic.settings.enableBatteryTest) {
+                            REGtmp = REGtmp | ENABLE_BATTERY_TEST;
+                        }
+
                     } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
                         // original custom frequency register
-                        REGtmp = api.settings.frequencyCustom;
+                        REGtmp = hardwareLogic.settings.frequencyCustom;
                         REGtmp = (Math.round(REGtmp >> 8)<<8);
-                        REGtmp = api.settings.frequencyCustom-REGtmp;
+                        REGtmp = hardwareLogic.settings.frequencyCustom-REGtmp;
                     }
                     REG.push(REGtmp); // 00000000
 
@@ -853,22 +859,20 @@ angular.module('flexvolt.flexvolt', [])
                         REGtmp = 0;
                     } else {
                         // original custom frequency register
-                        REGtmp = api.settings.frequencyCustom>>8;
+                        REGtmp = hardwareLogic.settings.frequencyCustom>>8;
                     }
                     REG.push(REGtmp); // 00000000
 
                     // Register 4
-                    REGtmp = api.settings.timer0AdjustVal+6;
+                    REGtmp = hardwareLogic.settings.timer0AdjustVal+6;
                     REG.push(REGtmp); // 00001000 8
 
                     // Register 5
-                    REGtmp = api.settings.timer0PartialCount;
-                    REGtmp = (Math.round(REGtmp >> 8)<<8);
-                    REGtmp = api.settings.timer0PartialCount-REGtmp;
+                    REGtmp = hardwareLogic.settings.timer0PartialCount & 0xFF;
                     REG.push(REGtmp); // 00000000
 
                     // Register 6
-                    REGtmp = api.settings.timer0PartialCount>>8;
+                    REGtmp = (hardwareLogic.settings.timer0PartialCount>>8) & 0xFF;
                     REG.push(REGtmp); // 00000000
 
                     // Register 7
@@ -876,7 +880,7 @@ angular.module('flexvolt.flexvolt', [])
                     REG.push(REGtmp); // 00000001 1
 
                     // Register 8
-                    REGtmp = api.settings.plugTestDelay;
+                    REGtmp = hardwareLogic.settings.plugTestDelay;
                     REG.push(REGtmp);
 
                     var msg = '';
@@ -1051,16 +1055,19 @@ angular.module('flexvolt.flexvolt', [])
 
         function updateBatteryVoltage(valFromPic) {
             var adcFullScale = 255;
-            var adcVRef = 2.048;
-            var vddMultiplier = 4;
+            var adcVRef = 1.024;
+            var vddMultiplier = 8;
             // console.log('DEBUG: valFromPic: ' + JSON.stringify(valFromPic));
             // valFromPic is measured using ADC ref of 1.024V.
             // [0, 255] => [0, 1.024]V
             valFromPic += 1;  // empirical - seems to always read a little low.
+            // PIC V+ is routed to ADC via ADC_IN = V+ * 4 / 32
             var adcVoltage = (valFromPic / adcFullScale) * adcVRef;
             // console.log('DEBUG: adcVoltage: ' + adcVoltage);
 
             // adc input comes from DAC output.  DAC output = Vdd / 8.  ie 4.2V => .525
+            // 4.2 => .525/1.024 => @1023 524, @255 131
+            // 3.0 => .375/1.024 => @1023 374, @255 93
             var vdd = adcVoltage * vddMultiplier;
             console.log('DEBUG: Battery Voltage: ' + JSON.stringify(vdd));
             api.connection.batteryVoltage = vdd;
@@ -1077,14 +1084,24 @@ angular.module('flexvolt.flexvolt', [])
 
         api.turnDataOn = function(){
             api.connection.dataOnRequested = true;
+            api.resetTiming();
+            turnDataOn();
+        };
+        api.resetTiming = function(){
+            $interval.cancel(timingCheckInterval);
             timestampInterval = 1000/hardwareLogic.settings.frequency; // millis
             timestamp = Date.now(); // start the timer (millis) NOTE it will lag real time by however long it takes to turn data on
-            // $interval(function(){timestamp=Date.now();},100);
-            console.log('INFO: TimestampInterval: ' + timestampInterval);
-            turnDataOn();
+            // check on the timing, correct every 5s
+            timingCheckInterval = $interval(function(){
+                // var delta = Date.now() - timestamp;
+                // console.log('Timeing Detla: ' + delta);
+                timestamp=Date.now();
+            },5000);
+            console.log('INFO: TimestampInterval: ' + timestampInterval + '.  Timestamp: ' + timestamp);
         };
         api.turnDataOff = function(){
             api.connection.dataOnRequested = false;
+            $interval.cancel(timingCheckInterval);
             turnDataOff();
         };
 

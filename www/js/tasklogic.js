@@ -544,9 +544,47 @@ angular.module('flexvolt.taskLogic', [])
         smoothFilterVal: 8,
         downSampleCount: 1,
         rmsWindowSizePower: 5,
+        enableBatteryTest: true,
         exportMode: 'raw',
-        vMax: undefined //1.355mV, usb, default
+        vMax: undefined, //1.355mV, usb, default,
+        frequencyCustom : 0,
+        timer0PartialCount : 6, // empirical
+        timer0AdjustVal : 10, // empirical
+        prescalerPic : 2,
+        plugTestDelay : 0
     };
+
+    var timerAdjustments = {
+        frequencyDefaults: {
+            500: {
+                timer0AdjustVal : 20,
+                timer0PartialCount : 6
+            },
+            1000: {
+                timer0AdjustVal : 10,
+                timer0PartialCount : 6
+            },
+            2000: {
+                timer0AdjustVal : 9,
+                timer0PartialCount : 6
+            }
+        },
+        defaultTimer0AdjustVal: 10,
+        defaultTimer0PartialCount: 6
+    };
+
+    /* Timing Settings
+     * 1kHz
+     * timer0PartialCount: 8
+     * timer0AdjustVal: 9
+     * interval slightly too small
+
+     * timer0PartialCount: 7
+     * timer0AdjustVal: 9
+     * interval slightly too small
+     *
+     * 500Hz
+     */
 
     var constants = {
         smoothFilterMode_Shift: 0,
@@ -588,7 +626,8 @@ angular.module('flexvolt.taskLogic', [])
         rmsWindowList: rmsWindowList,
         settings: settings,
         updateSettings: updateSettings,
-        constants: constants
+        constants: constants,
+        timerAdjustments: timerAdjustments
     };
 }])
 
