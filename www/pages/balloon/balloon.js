@@ -58,13 +58,14 @@
             //console.log('updating, demo:'+$stateParams.demo);
             //console.log('updating, threshmode:'+settings.plot.mode);
             var speed = 4;
+            var dataIn;
             if (demo) {
-                var dataIn = dataHandler.getData();
+                dataIn = dataHandler.getData();
             } else {
                 //if (!flexvolt.api.isConnected){return;}  BROKEN?!
                 var dataBundle = flexvolt.api.getDataParsed(); // [timestamps, dataIn]
                 if (dataBundle === null || dataBundle === angular.undefined || dataBundle[0] === angular.undefined){return;}
-                var dataIn = dataBundle[1];
+                dataIn = dataBundle[1];
                 if (dataIn === null || dataIn === angular.undefined || dataIn[0] === angular.undefined){return;}
 
                 var n = dataIn[0].length;
@@ -107,8 +108,8 @@
                   }, balloonLogic.settings.time.threshold*1000);
                 } else if (flexState === STATE_ABOVE_FLEX_THRESHOLD) {
                   if (flexThresholdTimeout) {$timeout.cancel(flexThresholdTimeout);}
-                  var t = Math.round(performance.now());
-                  if (angular.isDefined(bulgeStart) && (t-bulgeStart > balloonLogic.settings.time.threshold*1000)) {
+                  var t1 = Math.round(performance.now());
+                  if (angular.isDefined(bulgeStart) && (t1-bulgeStart > balloonLogic.settings.time.threshold*1000)) {
                     // console.log('bulge went to flex and back - bulge');
                     flexState = STATE_BULGED;
                     $scope.bulge();
@@ -118,8 +119,8 @@
                 if (flexThresholdTimeout) {$timeout.cancel(flexThresholdTimeout);}
                 if (bulgeThresholdTimeout) {$timeout.cancel(bulgeThresholdTimeout);}
                 if (flexState === STATE_ABOVE_BULGE_THRESHOLD || flexState === STATE_ABOVE_FLEX_THRESHOLD) {
-                  var t = Math.round(performance.now());
-                  if (angular.isDefined(flexStart) && t-flexStart > balloonLogic.settings.time.threshold*1000/2) {
+                  var t2 = Math.round(performance.now());
+                  if (angular.isDefined(flexStart) && t2-flexStart > balloonLogic.settings.time.threshold*1000/2) {
                     // console.log('flex or bulge only made it halfway - bulge');
                     flexState = STATE_BULGED;
                     $scope.bulge();
@@ -206,7 +207,7 @@
           driftYInterval = $interval(updateDriftY, driftDelayY*1000);
 
           // Establish the transition times for each style for balloon size, start interval
-          var transition = "width "+transitionLength+"s, height "+transitionLength+"s, transform "+transitionLength+"s"
+          var transition = "width "+transitionLength+"s, height "+transitionLength+"s, transform "+transitionLength+"s";
           balloonBodyEl.style.transition = transition;
           balloonKnotEl.style.transition = transition;
           balloonStringEl.style.transition = transition;
@@ -285,7 +286,7 @@
           } else if (intensity > balloonLogic.settings.intensity.threshold/2) {
             $scope.bulge();
           }
-        }
+        };
 
         // make it bigger, then redraw (use percentage growth?)
         $scope.inflate = function() {
@@ -333,6 +334,6 @@
           init();
           paintStep();
         },100);
-    }])
+    }]);
 
 }());

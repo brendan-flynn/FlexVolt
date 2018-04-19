@@ -377,7 +377,7 @@ angular.module('flexvolt.taskLogic', [])
         baselineModeList: [{text: 'Absolute',value: 'absolute'},{text: 'Relative Max',value: 'relative'}],
         baselines: [],
         targets: {
-          absolute: [.8,.8,.8,.8,.8,.8,.8,.8],
+          absolute: [0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8],
           relative:  [50,50,50,50,50,50,50,50]
         },
         labels: []
@@ -526,7 +526,7 @@ angular.module('flexvolt.taskLogic', [])
         {text: '256', value: 8},
         {text: '512', value: 9},
         {text: '1024', value: 10}
-    ]
+    ];
 
     var exportModeList = [
         {text: 'Raw Data', value: 'raw'},

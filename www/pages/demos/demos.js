@@ -1,5 +1,5 @@
 (function() {
-    'use strict'
+    'use strict';
 
     angular.module('flexvolt.demos', [])
 
@@ -63,6 +63,6 @@
                     }
                 }
             };
-    }])
+    }]);
 
 }());

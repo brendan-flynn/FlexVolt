@@ -89,7 +89,7 @@
         };
         $scope.selectedStyle = function($index) {
           if ($index === $scope.selectedRecordIndex) {
-            return "active"
+            return "active";
           }
         };
         $scope.selectRecordDisabled = function() {
@@ -98,9 +98,9 @@
                $scope.selectedRecordIndex < records.getAll().length) {
                  return false;
           } else {
-            return true
+            return true;
           }
-        }
+      };
         $scope.viewRecord = function() {
           console.log('viewing record' + $scope.selectedRecordIndex);
           var record = records.getAll()[$scope.selectedRecordIndex];
@@ -116,7 +116,7 @@
             $scope.recordModal.hide();
             dataHandler.controls.serveRecord();
           }
-        }
+      };
         $scope.$on('$destroy', function() {
           $scope.recordModal.remove();
         });
@@ -168,7 +168,7 @@
             if (dataHandler.controls.recording) {
                 // recording, stop button is displayed
                 // disabled if not recording
-                if (!dataHandler.controls.recording) {disabled = true;};
+                if (!dataHandler.controls.recording) {disabled = true;}
             } else if (!dataHandler.controls.recording){
                 // record button shown, disabled when:
                 disabled = $scope.isDesktopRecordDisabled();

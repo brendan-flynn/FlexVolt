@@ -23,13 +23,13 @@ angular.module('flexvolt.d3plots', [])
     margin = {top: mar, right: mar, bottom: mar, left: 70};
     var headerPadding = 45;
     var footerPadding = 160;
-    width = window.innerWidth - margin.left - margin.right,
+    width = window.innerWidth - margin.left - margin.right;
     height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
 
     var yMax;
 
     var svg, xScale, xAxis, yScale, yAxis, data = [], bar, yLabel;
-    var textLabel = undefined;
+    var textLabel;
     var updateTargets;
     var yTicks = [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5];
 
@@ -89,7 +89,7 @@ angular.module('flexvolt.d3plots', [])
           .attr('stroke', 'rgb(0,0,0)')
           .attr('fill', 'rgb(150, 150, 150)')
           .attr("cursor", "move")
-          .call(drag);;
+          .call(drag);
 
     }
 
@@ -122,10 +122,10 @@ angular.module('flexvolt.d3plots', [])
         .domain(data.map(function(d) { return d.x; }));
 
       yScale = d3.scale.linear()
-        .range([height, 0])
+        .range([height, 0]);
 
       if (api.settings.baselineMode === 'absolute'){
-        yScale.domain([0, yMax])
+        yScale.domain([0, yMax]);
         yLabel = 'Signal Strength, mV';
       } else if (api.settings.baselineMode === 'relative'){
         yScale.domain([0, 100]);
@@ -156,7 +156,7 @@ angular.module('flexvolt.d3plots', [])
           .attr('fill', 'rgb(0,0,0)')
           .attr('format', 'd')
           .attr('transform', 'translate(0,' + height + ')')
-          .call(xAxis)
+          .call(xAxis);
 
       // y-axis
       svg.append('g')
@@ -178,7 +178,7 @@ angular.module('flexvolt.d3plots', [])
     };
 
     api.init = function(element, settings, vMax, limitsCB){
-        width = window.innerWidth - margin.left - margin.right,
+        width = window.innerWidth - margin.left - margin.right;
         height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
         plotElement = element;
         api.settings = settings;
@@ -233,11 +233,11 @@ angular.module('flexvolt.d3plots', [])
           .attr('text-anchor', 'middle')
           .style('font', '16px Helvetica');
       }
-    }
+  };
 
     api.resize = function(){
         console.log('DEBUG: plot resized');
-        width = window.innerWidth - margin.left - margin.right,
+        width = window.innerWidth - margin.left - margin.right;
         height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
 
         api.reset();
@@ -280,15 +280,15 @@ angular.module('flexvolt.d3plots', [])
             .attr('height', height + margin.top + margin.bottom)
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-        xValue = function(d) { return d.x;},
+        xValue = function(d) { return d.x;};
         xScale = d3.scale.linear()
             .range([api.dotRadius, width-api.dotRadius])
-            .domain([0, 255]),
+            .domain([0, 255]);
         xMap = function(d) {return xScale(xValue(d));};
-        yValue = function(d) { return d.y;},
+        yValue = function(d) { return d.y;};
         yScale = d3.scale.linear()
             .range([height-2*api.dotRadius, api.dotRadius])
-            .domain([0, 255]),
+            .domain([0, 255]);
         yMap = function(d) {return yScale(yValue(d));};
 
         if (!!tail){
@@ -310,15 +310,15 @@ angular.module('flexvolt.d3plots', [])
             o:1.0
           };
         }
-    }
+    };
 
     api.init = function(element){
         plotElement = element;
-        width = window.innerWidth - margin.left - margin.right,
+        width = window.innerWidth - margin.left - margin.right;
         height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
 
         api.reset();
-    }
+    };
 
     api.update = function(xIn, yIn){
         if(!!tail){
@@ -343,10 +343,10 @@ angular.module('flexvolt.d3plots', [])
             .attr('r', function(d){return d.r;})
             .attr('cx', xMap)
             .attr('cy', yMap);
-    }
+    };
 
     api.resize = function(){
-        width = window.innerWidth - margin.left - margin.right,
+        width = window.innerWidth - margin.left - margin.right;
         height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
 
         api.reset();
@@ -450,13 +450,13 @@ angular.module('flexvolt.d3plots', [])
                 .x(function(d,i) { return (startPos + i);})
                 .y(function(d) { return yA[7](d); });
         }
-    }
+    };
 
     api.init = function(element, nChannels, vMax){
         htmlElement = element;
         plotElement = '#'+element;
         var html = document.getElementById(htmlElement);
-        width = html.clientWidth - margin.left - margin.right,
+        width = html.clientWidth - margin.left - margin.right;
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
         yA = [];
@@ -466,9 +466,10 @@ angular.module('flexvolt.d3plots', [])
         yMax = vMax;
 
         api.reset();
-    }
+    };
 
     api.update = function(dataBundle, isLive){
+        var iChan;
         var timestamps = dataBundle[0];
         var dataIn = dataBundle[1];
         startPos = xPos > 0?xPos-1:0;
@@ -481,8 +482,8 @@ angular.module('flexvolt.d3plots', [])
                     dataIn[ind].splice(0,dataIn[ind].length-xPos); // over ran width, splice out data up to width
                 }
                 tmpData = [];
-                for (var i = 0; i < api.settings.nChannels;i++){
-                    tmpData[i] = undefined;
+                for (iChan = 0; iChan < api.settings.nChannels;iChan++){
+                    tmpData[iChan] = undefined;
                 }
                 svg.selectAll('path.line').remove();
             }
@@ -491,19 +492,19 @@ angular.module('flexvolt.d3plots', [])
           startPos = 0;
         }
 
-        for (var i = 0; i < api.settings.nChannels; i++){
-            if (tmpData[i]) {dataIn[i].splice(0,0,tmpData[i]);}
+        for (iChan = 0; iChan < api.settings.nChannels; iChan++){
+            if (tmpData[iChan]) {dataIn[iChan].splice(0,0,tmpData[iChan]);}
             svg.append('svg:path')
                 .attr('class','line')
-                .attr('stroke', colorList[i])
-                .attr('d', lineA[i](dataIn[i]));
-            tmpData[i] = dataIn[i].slice(-1)[0];
+                .attr('stroke', colorList[iChan])
+                .attr('d', lineA[iChan](dataIn[iChan]));
+            tmpData[iChan] = dataIn[iChan].slice(-1)[0];
         }
     };
 
     api.resize = function(){
         var html = document.getElementById(htmlElement);
-        width = html.clientWidth - margin.left - margin.right,
+        width = html.clientWidth - margin.left - margin.right;
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
         api.reset();
@@ -710,8 +711,8 @@ angular.module('flexvolt.d3plots', [])
             return d3.svg.axis()
                 .scale(x)
                 .orient("bottom")
-                .ticks(nTicks)
-        }
+                .ticks(nTicks);
+        };
 
         yAxis = d3.svg.axis()
             .scale(y)
@@ -737,7 +738,7 @@ angular.module('flexvolt.d3plots', [])
             .call(make_x_axis()
                 .tickSize(-height, 0, 0)
                 .tickFormat("")
-            )
+            );
 
         svg.append('g')
             .attr('class', 'y axis')
@@ -780,7 +781,7 @@ angular.module('flexvolt.d3plots', [])
         var html = document.getElementById(htmlElement);
         var calculatedWidth = window.innerWidth - 10 - 150;
         if (window.cordova) {calculatedWidth += 80;}
-        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding,
+        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding;
         // width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
@@ -809,7 +810,7 @@ angular.module('flexvolt.d3plots', [])
         var html = document.getElementById(htmlElement);
         var calculatedWidth = window.innerWidth - 10 - 150;
         if (window.cordova) {calculatedWidth += 80;}
-        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding,
+        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding;
 
         // width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
@@ -848,10 +849,10 @@ angular.module('flexvolt.d3plots', [])
             svg.selectAll('g.grid').remove();
 
             // throw away any data points that would be on the previous plot
-            var ind = timestamps.findIndex(function(el){return el >= stopPos});
+            var ind = timestamps.findIndex(function(el){return el >= stopPos;});
             timestamps.slice(0,ind);
             for (var iC=0; iC < api.settings.nChannels; iC++){
-              dataIn[iC].slice(0,ind)
+              dataIn[iC].slice(0,ind);
             }
 
             // update time window for x axis
@@ -910,15 +911,18 @@ angular.module('flexvolt.d3plots', [])
 
             tmpData[i] = data[i].slice(-1)[0]; // grab last element to connect next path
             data[i] = []; // already plotted data - clear it for next update
+
+            if (i === api.settings.nChannels -1){
+                downSampleCounter = tmpDownSampleCounter;
+            }
         }
-        downSampleCounter = tmpDownSampleCounter;
     };
 
     api.resize = function(){
         var html = document.getElementById(htmlElement);
         var calculatedWidth = window.innerWidth - 10 - 150;
         if (window.cordova) {calculatedWidth += 80;}
-        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding,
+        width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding;
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 
         calculateDownSample(); // number of pixels changed - might need to alter downsampling

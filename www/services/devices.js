@@ -26,7 +26,7 @@
               ) {
               preferred.push(device);
             }
-          })
+          });
 
           return preferred;
       }
@@ -35,7 +35,7 @@
       // For windows this will be everything, since they only list ports as COMs
       function getUnknown() {
           var preferred = getPreferred();
-          var unknown = deviceList.filter(function(el){return preferred.indexOf(el) < 0 });
+          var unknown = deviceList.filter(function(el){return preferred.indexOf(el) < 0; });
 
           return unknown;
       }
@@ -69,5 +69,5 @@
       };
 
       return devices;
-    }])
+    }]);
 }());

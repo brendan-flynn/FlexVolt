@@ -1,5 +1,5 @@
 (function() {
-    'use strict'
+    'use strict';
 
     angular.module('flexvolt.home', [])
     .controller('HomeCtrl', ['$scope', function($scope){
@@ -65,7 +65,7 @@
                         }
                     }
                 }
-            }
+            };
     //                row3:{
     //                    b1:{
     //                        icon:"icon ion-nuclear",
@@ -100,6 +100,6 @@
                   //                        ref:"home",
                   //                        btnName:"Relax"
                   //                    }
-    }])
+    }]);
 
-}())
+}());

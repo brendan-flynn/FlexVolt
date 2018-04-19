@@ -27,10 +27,10 @@ angular.module('flexvolt.dsp', [])
         var recordedDataTime = [];
         var recordedDataRaw = [];
         var recordedDataProcessed = [];
-        var recordedDataFile = undefined;
-        var currentRecordMetaData = undefined;
-        var selectedRecordLocal = undefined;
-        var backupPageSettings = undefined;
+        var recordedDataFile;
+        var currentRecordMetaData;
+        var selectedRecordLocal;
+        var backupPageSettings;
         var nChannels = 1; // default
         var CHANNELS_MAX = 8;
         var metricsArr, metricsFlag = false, metricsNPoints, metricsNPointsDefault = 500;
@@ -41,7 +41,7 @@ angular.module('flexvolt.dsp', [])
             time: 0,
             startTime: undefined,
             randAmplitude: 10,
-            amplitudes: [.50, .50, .50, .50, .50, .50, .50, .50],
+            amplitudes: [0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50, 0.50],
             frequencies: [0, 0.10, 0.5, 1, 5, 10, 50, 100]
         };
         for (var i=0; i<demoVals.amplitudes.length; i++){
@@ -227,7 +227,7 @@ angular.module('flexvolt.dsp', [])
                 metricsMean[ch] = metricsMean[ch].concat(data[ch]);
                 // metricsMean[ch].splice(0,metricsMean[ch].length-metricsNPoints); // keep it the correct length
             }
-        };
+        }
 
         function addToMetrics(data){
             // var tic = performance.now();
@@ -255,7 +255,7 @@ angular.module('flexvolt.dsp', [])
         }
 
         api.getData = function(){
-            var dataBundle;
+            var dataBundle, iChan;
             var parsedData, timestamps;
             // Get Data (real or simulated)
             if (!api.controls.live) {
@@ -291,9 +291,9 @@ angular.module('flexvolt.dsp', [])
             // save raw data if specified
             if (api.controls.recording){
                 recordedDataTime = recordedDataTime.concat(timestamps);
-                for (var i = 0; i < nChannels; i++){
-                    recordedDataRaw[i] = recordedDataRaw[i].concat(parsedData[i]);
-                    localRecordedData[i] = localRecordedData[i].concat(parsedData[i]);
+                for (iChan = 0; iChan < nChannels; iChan++){
+                    recordedDataRaw[iChan] = recordedDataRaw[iChan].concat(parsedData[iChan]);
+                    localRecordedData[iChan] = localRecordedData[iChan].concat(parsedData[iChan]);
                 }
             }
 
@@ -301,16 +301,16 @@ angular.module('flexvolt.dsp', [])
             parsedData.splice(nChannels);
 
             // run any filters
-            for (var i = 0; i < nChannels; i++){
-                for (var ind in filterList[i]){
-                    parsedData[i] = filterList[i][ind].apply(parsedData[i], hardwareLogic.settings.frequency );
+            for (iChan = 0; iChan < nChannels; iChan++){
+                for (var ind in filterList[iChan]){
+                    parsedData[iChan] = filterList[iChan][ind].apply(parsedData[iChan], hardwareLogic.settings.frequency );
                 }
             }
 
             // save processed data if specified
             if (api.controls.recording) {
-                for (var i = 0; i < nChannels; i++){
-                    recordedDataProcessed[i] = recordedDataProcessed[i].concat(parsedData[i]);
+                for (iChan = 0; iChan < nChannels; iChan++){
+                    recordedDataProcessed[iChan] = recordedDataProcessed[iChan].concat(parsedData[iChan]);
                 }
                 if (recordedDataProcessed[0].length > 1000) {
                   saveRecordedData();
@@ -359,35 +359,36 @@ angular.module('flexvolt.dsp', [])
         }
 
         function saveRecordedData(){
+            var iChan;
             var t1 = performance.now();
             var tmp = [recordedDataTime];
-            for (var i = 0; i < nChannels; i ++){
-              tmp.push(recordedDataRaw[i].map(function(val){return typeof(val)==='number'?(val).toFixed(3):val}));
+            for (iChan = 0; iChan < nChannels; iChan ++){
+              tmp.push(recordedDataRaw[iChan].map(function(val){return typeof(val)==='number'?(val).toFixed(3):val;}));
             }
-            for (var i = 0; i < nChannels; i ++){
-              tmp.push(recordedDataProcessed[i].map(function(val){return typeof(val)==='number'?(val).toFixed(3):val}));
+            for (iChan = 0; iChan < nChannels; iChan ++){
+              tmp.push(recordedDataProcessed[iChan].map(function(val){return typeof(val)==='number'?(val).toFixed(3):val;}));
             }
             clearRecordedData();
             // add data to the running txt file
             file.writeFile(recordedDataFile, tmp);
             var t2 = performance.now();
             console.log('data save took ' + (t2-t1) + 'ms');
-        };
+        }
 
         api.controls.pause = function() {
             api.controls.paused = true;
-        }
+        };
 
         api.controls.resume = function() {
             api.controls.unpause();
             if (!api.controls.live) {
               api.controls.toggleLive();
             }
-        }
+        };
 
         api.controls.unpause = function() {
             api.controls.paused = false;
-        }
+        };
 
         api.controls.togglePause = function() {
             if (!api.controls.live || api.controls.paused) {
@@ -405,14 +406,14 @@ angular.module('flexvolt.dsp', [])
             selectedRecordLocal = undefined;
             flexvolt.api.turnDataOn();
             api.controls.live = !api.controls.live;
-            if (api.resetPage) {api.resetPage()} // back to normal
+            if (api.resetPage) {api.resetPage();} // back to normal
           } else {
             flexvolt.api.turnDataOff();
             api.controls.live = !api.controls.live;
           }
 
           console.log('toggled live: ' + api.controls.live);
-        }
+        };
 
         api.controls.closeOut = function() {
             if (api.controls.recording) {
@@ -422,16 +423,16 @@ angular.module('flexvolt.dsp', [])
         };
 
         function initRecord() {
-          currentRecordMetaData = {
-            taskName: $state.current.name,
-            startTime: (new Date()).toLocaleString(),
-            hardwareSettings: hardwareLogic.settings,
-            softwareSettings: {
-              rms: rmsTimeLogic.settings,
-              trace: traceLogic.settings
-            },
-            fileName: recordedDataFile,
-          }
+            currentRecordMetaData = {
+                taskName: $state.current.name,
+                startTime: (new Date()).toLocaleString(),
+                hardwareSettings: hardwareLogic.settings,
+                softwareSettings: {
+                  rms: rmsTimeLogic.settings,
+                  trace: traceLogic.settings
+                },
+                fileName: recordedDataFile,
+            };
         }
 
         api.controls.toggleRecording = function() {
@@ -450,16 +451,16 @@ angular.module('flexvolt.dsp', [])
                   api.controls.recordTimer += 1;
               },1000);
               var d = new Date();
-              recordedDataFile = 'flexvolt-recorded-data--'+d.getFullYear()+'-'
-                  +(d.getMonth()+1)+'-'+d.getDate()+'--'
-                  +d.getHours()+'-'+d.getMinutes()+'-'
-                  +d.getSeconds();
+              recordedDataFile = 'flexvolt-recorded-data--'+d.getFullYear()+'-'+
+                  (d.getMonth()+1)+'-'+d.getDate()+'--'+
+                  d.getHours()+'-'+d.getMinutes()+'-'+
+                  d.getSeconds();
               initRecord();
               initRecordedData();
               file.openFile(recordedDataFile)
                 .then(function(){
                   file.writeFile(recordedDataFile, JSON.stringify(currentRecordMetaData));
-                })
+                });
             } else {
               var directoryPopup = $ionicPopup.confirm({
                 title: 'Cannot Save Data.  No Folder Selected',
@@ -492,7 +493,7 @@ angular.module('flexvolt.dsp', [])
 
 
             // add fields to record metadata
-            currentRecordMetaData.dataLength = localRecordedData[0].length,
+            currentRecordMetaData.dataLength = localRecordedData[0].length;
             currentRecordMetaData.stopTime = new Date();
             var start = new Date(currentRecordMetaData.startTime);
             var stop = new Date(currentRecordMetaData.stopTime);
@@ -503,19 +504,19 @@ angular.module('flexvolt.dsp', [])
             var day = 24 * hour;
 
             var hours = Math.floor(delta / hour);
-            if (hours === 0) {hours = '00'}
-            else if (hours < 9) {hours = '0' + hours}
-            else {hours = '' + hours}
+            if (hours === 0) {hours = '00';}
+            else if (hours < 9) {hours = '0' + hours;}
+            else {hours = '' + hours;}
             delta -= hours * hour;
             var minutes = Math.floor(delta / minute);
-            if (minutes === 0) {minutes = '00'}
-            else if (minutes < 9) {minutes = '0' + minutes}
-            else {minutes = '' + minutes}
+            if (minutes === 0) {minutes = '00';}
+            else if (minutes < 9) {minutes = '0' + minutes;}
+            else {minutes = '' + minutes;}
             delta -= minutes * minute;
             var seconds = Math.floor(delta / second);
-            if (seconds === 0) {seconds = '00'}
-            else if (seconds < 9) {seconds = '0' + seconds}
-            else {seconds = '' + seconds}
+            if (seconds === 0) {seconds = '00';}
+            else if (seconds < 9) {seconds = '0' + seconds;}
+            else {seconds = '' + seconds;}
 
             currentRecordMetaData.timeLength = hours + ':' + minutes + ':' + seconds;
 
@@ -556,8 +557,8 @@ angular.module('flexvolt.dsp', [])
                     selectedRecordLocal = [timestamps, dataIn]; // [timestamps, dataIn]
                     var t2 = performance.now();
                     console.log('loading took ' + (t2-t1) + 'ms');
-                    if (api.resetPage) {api.resetPage()}
-                })
+                    if (api.resetPage) {api.resetPage();}
+                });
 
         };
 
@@ -776,8 +777,9 @@ angular.module('flexvolt.dsp', [])
         // window function values
         var I0alpha = 1/bessel(kaiserV);
         var m = params.order>>1;
+        var n;
         var win = new Array(m+1);
-        for (var n=1; n <= m; n++) {
+        for (n=1; n <= m; n++) {
             win[n] = bessel(kaiserV*Math.sqrt(1.0 - Math.pow((n/m),2))) * I0alpha;
         }
 
@@ -804,12 +806,12 @@ angular.module('flexvolt.dsp', [])
         // filter coefficients (NB not normalised to unit maximum gain)
         var a = new Array(params.order+1);
         a[0] = w1 / Math.PI;
-        for (var n=1; n <= m; n++) {
+        for (n=1; n <= m; n++) {
             a[n] = Math.sin(n*w1)*Math.cos(n*w0)*win[n]/(n*Math.PI);
         }
         // shift impulse response to make filter causal:
-        for (var n=m+1; n<=params.order; n++) {a[n] = a[n - m];}
-        for (var n=0; n<=m-1; n++) {a[n] = a[params.order - n];}
+        for (n=m+1; n<=params.order; n++) {a[n] = a[n - m];}
+        for (n=0; n<=m-1; n++) {a[n] = a[params.order - n];}
         a[m] = w1 / Math.PI;
         params.a = a; // this coefficient array is the goal!
     }
@@ -862,7 +864,7 @@ angular.module('flexvolt.dsp', [])
         }
 
         return dataOut;
-    };
+    }
 
     return Filter;
 

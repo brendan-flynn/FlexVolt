@@ -13,7 +13,7 @@
         // customPopover.add($ionicPopover, $scope, 'helpover','pages/rms/rms-help.html');
         customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/rms/rms-help.html');
 
-        var afID = undefined;
+        var afID;
         var metricCounts = 0;
         var metricUpdatePeriod = 1; // update metrics every n seconds
 
@@ -177,7 +177,7 @@
                 }
                 afID = undefined;
                 $scope.updating  = true;
-                // console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
+                console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
                 rmsTimePlot.resize();
                 $scope.updating  = false;
                 if (dataHandler.controls.live) {
@@ -190,5 +190,5 @@
 
         dataHandler.resetPage = init;
         init();
-    }])
+    }]);
 }());

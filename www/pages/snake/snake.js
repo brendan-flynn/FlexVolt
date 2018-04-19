@@ -1,5 +1,5 @@
 (function() {
-    'use strict'
+    'use strict';
 
     angular.module('flexvolt.snake', [])
     .controller('SnakeCtrl', ['$stateParams', '$scope', '$state', 'xyDot', '$ionicPopover', '$ionicModal', 'customPopover',
@@ -36,6 +36,6 @@
 //        }
 //
 //        paintStep();
-    }])
+}]);
 
-}())
+}());

@@ -57,8 +57,8 @@
 
       records.getAll = function() {
         return recordData.slice(0); // cheap copy function
-      }
+      };
 
       return records;
-    }])
+    }]);
 }());

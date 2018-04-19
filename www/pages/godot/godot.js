@@ -38,6 +38,7 @@
             //console.log('updating, demo:'+$stateParams.demo);
             //console.log('updating, threshmode:'+settings.plot.mode);
             var speed = 4;
+            var dataIn;
             if (demo) {
                 if (xyLogic.settings.fakeData.useRandom) {
                     x = Math.min(Math.max(x+speed*(Math.random()-0.5),0),255);
@@ -45,7 +46,7 @@
                     xyDot.update(x,y);
                     return;
                 } else {
-                    var dataIn = [];
+                    dataIn = [];
                     // have to trick the rms calculator into returning the numbers selected!
                     dataIn[0] = [xyLogic.settings.fakeData.x];
                     dataIn[1] = [xyLogic.settings.fakeData.y];
@@ -54,7 +55,7 @@
                 //if (!flexvolt.api.isConnected){return;}  BROKEN?!
                 var dataBundle = flexvolt.api.getDataParsed(); // [timestamps, dataIn]
                 if (dataBundle === null || dataBundle === angular.undefined || dataBundle[0] === angular.undefined){return;}
-                var dataIn = dataBundle[1];
+                dataIn = dataBundle[1];
                 if (dataIn === null || dataIn === angular.undefined || dataIn[0] === angular.undefined){return;}
 
                 var n = dataIn[0].length;
@@ -132,6 +133,6 @@
         xyDot.init('#xyWindow');
         paintStep();
 
-    }])
+    }]);
 
 }());

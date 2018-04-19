@@ -91,6 +91,5 @@ angular.module('flexvolt.directives', [])
         templateUrl: 'templates/not-connected.html'
     };
 });
-;
 
 }());

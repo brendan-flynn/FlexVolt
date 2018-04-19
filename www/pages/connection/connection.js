@@ -30,9 +30,9 @@
 
                         // change batter color based on charge level (red, orange, green);
                         var newBackground;
-                        if (newLevel > .40) {newBackground = "#0f0";}
-                        else if (newLevel > .15) {newBackground = "orange";}
-                        else {newBackground = "red"}
+                        if (newLevel > 0.40) {newBackground = "#0f0";}
+                        else if (newLevel > 0.15) {newBackground = "orange";}
+                        else {newBackground = "red";}
                         var adjustedLevel = Math.round(newLevel * batteryFullWidth);
 
                         $scope.batteryLevelStyle = {
@@ -108,7 +108,7 @@
             console.log('INFO: sending bugreport');
             var d = new Date();
             var month = d.getMonth()+1;
-            if (month < 10) {month = '0'+month;};
+            if (month < 10) {month = '0'+month;}
             var date = d.getFullYear() + '-' + month + '-' + d.getDate();
 
             var cleanName = $scope.bugReportFields.name.replace(/[^a-z0-9.!]/gi, '');
@@ -149,8 +149,8 @@
                 console.log('DEBUG: bugreport response: '+angular.toJson(response));
                 if (response !== angular.undefined && response.Error){
                     msg += 'Error in bug report generator.  Try again or contact software@flexvoltbiosensor.com for help.';
-                } else if (response !== angular.undefined && response.Date !== angular.undefined
-                        && response.Date === data.date && response.Time !== angular.undefined && response.Time === data.time) {
+                } else if (response !== angular.undefined && response.Date !== angular.undefined &&
+                           response.Date === data.date && response.Time !== angular.undefined && response.Time === data.time) {
                     msg += 'Successfully Submited a Bug Report.  Thank you for taking the time to help make the app better!';
                 } else {
                     msg += 'Unknown error encountered during bug report upload.  Try again or contact software@flexvoltbiosensor.com for help.';

@@ -29,7 +29,7 @@ angular.module('flexvolt.services', [])
         unsubscribe: undefined
     };
 
-    var onReceiveListener, onReceiveErrorListener
+    var onReceiveListener, onReceiveErrorListener;
 
     var BLE_SERVICES_LIST = ['ffe0']; // currently just the temperature service hijacked by Bolutek BLE module
 
@@ -76,8 +76,8 @@ angular.module('flexvolt.services', [])
               function(listOfDevices) {
                 listOfDevices.forEach(function(device){
                   device.bluetoothLE = false;
-                  singleDeviceCallback(device)
-                })
+                  singleDeviceCallback(device);
+                });
               },
               error
             ); // get bluetooth classic (2.0) devices - returns a list
@@ -117,7 +117,7 @@ angular.module('flexvolt.services', [])
             } else {
               bluetoothSerial.write(newData.buffer, success, error);
             }
-          }
+          };
           bluetoothPlugin.writeArray = function(device, dataArray, success, error) {
             // TODO - Note cannot use the array[int] or arrayBuffer all at once as
             // suggested in the readme for bluetoothSerial/bluetoothLEcentra.
@@ -143,7 +143,7 @@ angular.module('flexvolt.services', [])
                 }
             }
             sendTimer = $interval(sendFunc, 1, nBytes);
-          }
+          };
           bluetoothPlugin.isConnected = function(device, connectedCB, notConnectedCB, errFunc){
             if (device && device.bluetoothLE) {
               ble.isConnected(device.id, connectedCB, notConnectedCB);
@@ -268,7 +268,7 @@ angular.module('flexvolt.services', [])
                         listOfDevices.forEach(function(device){
                           device.name = device.path;
                           singleDeviceCallback(device);
-                        })
+                        });
                       });
                 } catch (err) {errFunc(err);}
             };
@@ -352,7 +352,7 @@ angular.module('flexvolt.services', [])
                     }
                 }
                 sendTimer = $interval(sendFunc, 20, nBytes);
-            }
+            };
         } else {
             // Web serve
             window.flexvoltPlatform = 'broswer';
@@ -407,7 +407,7 @@ angular.module('flexvolt.services', [])
                 try {
                     success();
                 } catch (err) {errFunc(err);}
-            }
+            };
         }
 
     });
@@ -442,7 +442,7 @@ angular.module('flexvolt.services', [])
     var insomnia = {
         keepAwake: undefined,
         allowSleepAgain: undefined
-    }
+    };
 
     ionic.Platform.ready(function() {
         window.device = ionic.Platform.device();
@@ -485,7 +485,7 @@ angular.module('flexvolt.services', [])
       var deferred = $q.defer();
       if (angular.isDefined(entry)) {
         file.currentEntry = entry;
-        file.id = chrome.fileSystem.retainEntry(file.currentEntry)
+        file.id = chrome.fileSystem.retainEntry(file.currentEntry);
         chrome.fileSystem.getDisplayPath(file.currentEntry, function(displayPath){
           if (!file.currentEntry || !file.currentEntry.isDirectory){
               file.currentEntry = undefined;
@@ -512,7 +512,7 @@ angular.module('flexvolt.services', [])
 
     function errorHandler(e){
         console.log('ERROR: in fileSystem: '+angular.toJson(e));
-    };
+    }
 
     function convertToCSV(dataObj) {
         var str = '';
@@ -530,8 +530,8 @@ angular.module('flexvolt.services', [])
         for (var jPts = 0; jPts < nPts; jPts++) {
             var line = '';
 
-            for (var i = 0; i < dataObj.length; i++) {
-                line += dataObj[i].data[jPts]+',';
+            for (var iChan = 0; iChan < dataObj.length; iChan++) {
+                line += dataObj[iChan].data[jPts]+',';
             }
 
             str += line + '\r\n';
@@ -543,13 +543,13 @@ angular.module('flexvolt.services', [])
     function convertArrToCSV(dataArr) {
         var str = '';
 
-        var nPts = dataArr[0].length // length of time array
+        var nPts = dataArr[0].length; // length of time array
 
         for (var jPts = 0; jPts < nPts; jPts++) {
             var line = '';
 
             for (var i = 0; i < dataArr.length; i++) { // for each time or channel array
-                line += dataArr[i][jPts]
+                line += dataArr[i][jPts];
                 if (i < dataArr.length-1){
                   line += ',';
                 }
@@ -581,6 +581,7 @@ angular.module('flexvolt.services', [])
       file.writer = undefined;
     };
 
+    var readFile; // placeholder for chrome/mobile function
 
     if (window.cordova) {
         file.getDirectory = function(){
@@ -617,9 +618,9 @@ angular.module('flexvolt.services', [])
           });
 
           return deferred.promise;
-        }
+        };
 
-        function readFile(filename) {
+        readFile = function(filename) {
           var deferred = $q.defer();
           file.currentEntry.getFile(filename, {create: false}, function(fileEntry) {
             fileEntry.file(function(theFile) {
@@ -638,7 +639,7 @@ angular.module('flexvolt.services', [])
             });
           });
           return deferred.promise;
-        };
+      };
 
         file.readFile = function(filename){
           console.log('cordova file readFile');
@@ -673,13 +674,13 @@ angular.module('flexvolt.services', [])
         storage.get('saveDirectory')
           .then(function(tmp){
               if (tmp){
-                  file.currentEntry = tmp['entry'];
-                  file.path = tmp['path'];
-                  file.id = tmp['id'];
+                  file.currentEntry = tmp.entry;
+                  file.path = tmp.path;
+                  file.id = tmp.id;
                   chrome.fileSystem.isRestorable(file.id, function(isRestorable){
                     if (isRestorable){
                       //console.log('isrestorable');
-                      chrome.fileSystem.restoreEntry(file.id, gotEntry)
+                      chrome.fileSystem.restoreEntry(file.id, gotEntry);
                     } else {
                       file.currentEntry = undefined;
                       file.path = undefined;
@@ -762,7 +763,7 @@ angular.module('flexvolt.services', [])
           }
         };
 
-        function readFile(filename) {
+        readFile = function(filename) {
           var deferred = $q.defer();
           chrome.fileSystem.getWritableEntry(file.currentEntry, function(entry) {
             entry.getFile(filename, {create: false}, function(fileEntry) {

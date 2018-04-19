@@ -32,6 +32,6 @@
           version: appLogic.dm.version
         };
 
-    }])
+    }]);
 
 }());

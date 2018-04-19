@@ -8,7 +8,7 @@
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
         $scope.demo = $stateParams.demo;
-        var afID = undefined;
+        var afID;
 
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/trace/trace-settings.html',traceLogic.updateSettings);
         customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',traceLogic.updateSettings);
@@ -108,5 +108,5 @@
 
         dataHandler.resetPage = init;
         init();
-    }])
+    }]);
 }());

@@ -60,11 +60,11 @@
         //console.log('DEBUG: updating target '+chan+' to '+val);
         $scope.pageLogic.settings.targets[$scope.pageLogic.settings.baselineMode][chan-1] = val;
         myometerLogic.updateSettings();
-      };
+      }
 
       $scope.updateLabels = function(){
         //console.log('DEBUG: updated labels: '+angular.toJson(myometerLogic.settings.labels));
-      }
+      };
 
       $scope.$on('$destroy', function(e){
         console.log('DEBUG: $destroy: '+angular.toJson(e));
@@ -131,7 +131,7 @@
         $scope.baseline.msg = $scope.baseline.state.msg.replace('XT',''+$scope.baseline.counter);
         myometerPlot.addText($scope.baseline.msg);
 //        setPopup();
-      };
+      }
 
       // start state machine - fire processor function every second
       $scope.setBaseline = function(chan){
@@ -290,6 +290,6 @@
       };
 
       init();
-    }])
+    }]);
 
-}())
+}());

@@ -1,5 +1,5 @@
 (function() {
-    'use strict'
+    'use strict';
 
     angular.module('flexvolt.hrv', [])
     .controller('HRVCtrl', ['$stateParams', '$scope', '$state', '$ionicPopover', '$ionicModal', 'flexvolt', 'customPopover',
@@ -29,6 +29,6 @@
         }
 
         paintStep();
-    }])
+    }]);
 
-}())
+}());

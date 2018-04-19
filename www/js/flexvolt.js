@@ -85,10 +85,10 @@ angular.module('flexvolt.flexvolt', [])
     var RMS_WINDOW_SIZE_LIST = [10, 15, 20, 25, 30, 40, 50, 75, 100, 150, 200, 250];
 
     // Settings Masks
-    var HP_FILTER_ON = 0b10000000;
-    var SMOOTH_FILTER_MODE_RMS =   0b01000000;
-    var SMOOTH_FILTER_MODE_SHIFT = 0b00000000;
-    var ENABLE_BATTERY_TEST = 0b00000001;
+    var HP_FILTER_ON = 128; //              0b10000000;
+    var SMOOTH_FILTER_MODE_RMS = 64; //     0b01000000;
+    var SMOOTH_FILTER_MODE_SHIFT = 0; //    0b00000000;
+    var ENABLE_BATTERY_TEST = 1; //         0b00000001;
 
 
     var dots = '';
@@ -204,18 +204,18 @@ angular.module('flexvolt.flexvolt', [])
             if (newWaitMS && typeof(newWaitMS) === 'number') {
                 api.connection.initialWait = newWaitMS;
             }
-        }
+        };
         api.resetInitialWait = function(){
             api.connection.initialWait = DEFAULT_WAIT_MS;
-        }
+        };
         api.setConnectedWait = function(newWaitMS) {
             if (newWaitMS && typeof(newWaitMS) === 'number') {
                 api.connection.connectedWait = newWaitMS;
             }
-        }
+        };
         api.resetConnectedWait = function(){
             api.connection.connectedWait = DEFAULT_CONNECTED_WAIT_MS;
-        }
+        };
 
         function cancelTimeout() {
             if ( pollingTimeout ) {
@@ -447,10 +447,10 @@ angular.module('flexvolt.flexvolt', [])
 
                           }
                       },
-                      function (err) { console.log('EERROR: during connectionResetHandler disconnect: ' + JSON.stringify(err))}
-                  )
+                      function (err) { console.log('EERROR: during connectionResetHandler disconnect: ' + JSON.stringify(err));}
+                  );
               },
-              function(err){console.log('ERROR: during connectionResetHandler unsubscribe: ' + JSON.stringify(err))}
+              function(err){console.log('ERROR: during connectionResetHandler unsubscribe: ' + JSON.stringify(err));}
             );
         }
         api.resetConnection = function(){
@@ -707,7 +707,7 @@ angular.module('flexvolt.flexvolt', [])
                     hardwareLogic.settings.bitDepth10 = false;
                 }
             }
-        }
+        };
 
         api.updateSettings = function(){
 
@@ -998,7 +998,7 @@ angular.module('flexvolt.flexvolt', [])
             }  else {console.log('DEBUG: dataOff failed - data not on');}
         }
         api.getDataParsed = function(){
-            var tmpLow, tmpLow2;
+            var tmpLow, tmpLow2, iChan;
             var dataParsed = [];
             var dataTimes = [];
             if (!checkingForData && api.connection.state === 'connected' && api.connection.data === 'on'){
@@ -1007,7 +1007,7 @@ angular.module('flexvolt.flexvolt', [])
                 if (dataIn.length >= api.readParams.expectedBytes){
                     // initialize parsed data vector
                     dataParsed = new Array(hardwareLogic.settings.nChannels);
-                    for (var i = 0; i < hardwareLogic.settings.nChannels; i++){ dataParsed[i]=[]; }
+                    for (iChan = 0; iChan < hardwareLogic.settings.nChannels; iChan++){ dataParsed[iChan]=[]; }
                     dataTimes = [];
                     // Parse channels
                     var readInd = 0, dataInd = 0;
@@ -1016,8 +1016,8 @@ angular.module('flexvolt.flexvolt', [])
                         if (tmp === api.readParams.expectedChar){
                             dataTimes.push(timestamp); timestamp+=timestampInterval*hardwareLogic.settings.downSampleCount;
                             if (!hardwareLogic.settings.bitDepth10) {
-                                for (var i = 0; i < hardwareLogic.settings.nChannels; i++){
-                                    dataParsed[i][dataInd] = factor8Bit*(dataIn[readInd++] - api.readParams.offset); // centering on 0!
+                                for (iChan = 0; iChan < hardwareLogic.settings.nChannels; iChan++){
+                                    dataParsed[iChan][dataInd] = factor8Bit*(dataIn[readInd++] - api.readParams.offset); // centering on 0!
                                 }
                                 dataInd++;
                             } else if (hardwareLogic.settings.bitDepth10) {
@@ -1025,11 +1025,11 @@ angular.module('flexvolt.flexvolt', [])
                                 if (hardwareLogic.settings.nChannels > 4) {
                                   tmpLow2 = dataIn[readInd+hardwareLogic.settings.nChannels+1];
                                 }
-                                for (var i = 0; i < Math.min(4, hardwareLogic.settings.nChannels); i++){
-                                    dataParsed[i][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + ((tmpLow>>(2*(3-i))) & 3) - api.readParams.offset); // centering on 0!
+                                for (iChan = 0; iChan < Math.min(4, hardwareLogic.settings.nChannels); iChan++){
+                                    dataParsed[iChan][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + ((tmpLow>>(2*(3-iChan))) & 3) - api.readParams.offset); // centering on 0!
                                 }
-                                for (var i = 4; i < hardwareLogic.settings.nChannels; i++){
-                                    dataParsed[i][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + ((tmpLow2>>(2*(3-i))) & 3) - api.readParams.offset); // centering on 0!
+                                for (iChan = 4; iChan < hardwareLogic.settings.nChannels; iChan++){
+                                    dataParsed[iChan][dataInd] = factor10Bit*((dataIn[readInd++]<<2) + ((tmpLow2>>(2*(3-iChan))) & 3) - api.readParams.offset); // centering on 0!
                                 }
                                 readInd++; // for the tmpLow read
                                 if (hardwareLogic.settings.nChannels > 4) {
@@ -1115,7 +1115,7 @@ angular.module('flexvolt.flexvolt', [])
              .catch(function(msg){
                console.log('DEBUG: startConnect disconnected with msg: '+msg);
              });
-        }
+        };
 
         init();
         // This starts it all!
@@ -1172,7 +1172,7 @@ angular.module('flexvolt.flexvolt', [])
             return devices.getAll();
         },
         getPrefPortList: function(){
-            return devices.getPreferred();;
+            return devices.getPreferred();
         }
     };
   }]);
