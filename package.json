@@ -29,11 +29,13 @@
   "devDependencies": {
     "bower": "^1.7.9",
     "gulp-util": "^3.0.7",
+    "jshint": "^2.9.5",
     "shelljs": "^0.7.0"
   },
   "scripts": {
     "postinstall": "cordova prepare",
-    "web": "rm -R docs/ && cp -R www/ docs/"
+    "web": "rm -R docs/ && cp -R www/ docs/",
+    "lint": "jshint www/"
   },
   "cordova": {
     "platforms": [
