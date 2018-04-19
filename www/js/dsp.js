@@ -403,9 +403,11 @@ angular.module('flexvolt.dsp', [])
             console.log(rmsTimeLogic.settings);
             backupPageSettings = undefined;
             selectedRecordLocal = undefined;
+            flexvolt.api.turnDataOn();
             api.controls.live = !api.controls.live;
             if (api.resetPage) {api.resetPage()} // back to normal
           } else {
+            flexvolt.api.turnDataOff();
             api.controls.live = !api.controls.live;
           }
 
@@ -459,9 +461,18 @@ angular.module('flexvolt.dsp', [])
                   file.writeFile(recordedDataFile, JSON.stringify(currentRecordMetaData));
                 })
             } else {
-              $ionicPopup.alert({
-                title: 'Data Export - Folder Not Set',
-                template: 'Please set an export folder on the settings page.'
+              var directoryPopup = $ionicPopup.confirm({
+                title: 'Cannot Save Data.  No Folder Selected',
+                template: 'Please choose "Select Directory" and then select a location to store saved records.',
+                buttons: [
+                    { text: 'Cancel'},
+                    {
+                        text: '<b>Select Directory</b>',
+                        onTap: function(e){
+                            file.getDirectory();
+                        }
+                    }
+                ]
               });
             }
         };
