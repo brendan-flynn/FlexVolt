@@ -541,7 +541,7 @@ angular.module('flexvolt.taskLogic', [])
         smoothFilterFlag: false,
         smoothFilterMode: 0, // 0 is shift filter, 1 is RMS
         hpFilterFlag: false,
-        smoothFilterVal: 8,
+        smoothFilterVal: 5,
         downSampleCount: 1,
         rmsWindowSizePower: 5,
         enableBatteryTest: true,
