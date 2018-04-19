@@ -336,7 +336,7 @@ angular.module('flexvolt.flexvolt', [])
                   pollingInterval = $interval(function() {
                     console.log('OUTPUT: '+outMsg);
                     write(outMsg);
-                },repeatN,400);
+                },400,repeatN);
                 }
             }
 
