@@ -323,8 +323,11 @@ angular.module('flexvolt.flexvolt', [])
             }
         }
 
+        var connectionRepeat = 10;
+        var connectedRepeat = 5;
+
         // Send a command, wait for nBytes, check received bytes against inMsg, call nextFunc!
-        function waitForInput(outMsg, repeat, waitTime, inMsg, nextFunc){
+        function waitForInput(outMsg, repeat, repeatN, waitTime, inMsg, nextFunc){
             console.log('DEBUG: writing ' + outMsg + ', waiting ' + waitTime + ' for ' + inMsg);
             if (outMsg !== null){
                 console.log('OUTPUT: '+outMsg);
@@ -333,7 +336,7 @@ angular.module('flexvolt.flexvolt', [])
                   pollingInterval = $interval(function() {
                     console.log('OUTPUT: '+outMsg);
                     write(outMsg);
-                  },400);
+                },repeatN,400);
                 }
             }
 
@@ -533,7 +536,7 @@ angular.module('flexvolt.flexvolt', [])
         function handshake1() {
             if (api.connection.state === 'connecting'){
             // pollingTimeout = $timeout(function(){
-                waitForInput('A',true,api.connection.initialWait,97,handshake2);
+                waitForInput('A',true,connectionRepeat,api.connection.initialWait,97,handshake2);
             // },2000);
             } else {
                 console.log('DEBUG: Handshake1, but wrong state, probably cancelled');
@@ -542,7 +545,7 @@ angular.module('flexvolt.flexvolt', [])
         function handshake2(){
             if (api.connection.state === 'connecting'){
                 console.log('DEBUG: Received "a", writing "1".  (FlexVolt found!)');
-                waitForInput('1',true,api.connection.initialWait,98,handshake3);
+                waitForInput('1',true,connectionRepeat,api.connection.initialWait,98,handshake3);
             } else {
                 console.log('DEBUG: Handshake2, but wrong state, probably cancelled');
             }
@@ -565,7 +568,7 @@ angular.module('flexvolt.flexvolt', [])
              }
         }
         function testHandshake(cb){
-            waitForInput('Q',true,api.connection.connectedWait,113,cb);
+            waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,cb);
         }
         api.pollVersion = function(){
             deferred.polling = $q.defer();
@@ -574,7 +577,7 @@ angular.module('flexvolt.flexvolt', [])
                 bluetoothPlugin.clear(
                     api.currentDevice,
                     function () {
-                        waitForInput('V',false,api.connection.connectedWait,118,parseVersion);
+                        waitForInput('V',false,connectedRepeat,api.connection.connectedWait,118,parseVersion);
                     },
                     function(){console.log('ERROR: Error clearing bluetoothPlugin in pollVersion');}
                 );
@@ -644,7 +647,7 @@ angular.module('flexvolt.flexvolt', [])
                     bluetoothPlugin.clear(
                         api.currentDevice,
                         function () {
-                            waitForInput('T',false,api.connection.connectedWait,116,parseBatteryInfo);
+                            waitForInput('T',false,connectedRepeat,api.connection.connectedWait,116,parseBatteryInfo);
                         },
                         function(){console.log('ERROR: Error clearing bluetoothPlugin in pollBattery');}
                     );
@@ -771,7 +774,7 @@ angular.module('flexvolt.flexvolt', [])
             if (api.connection.state === 'connected'){
                 console.log('INFO: Updating Settings');
                 api.connection.state = 'updating settings';
-                waitForInput('S',false,api.connection.connectedWait,115,updateSettings2);
+                waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
             } else {
                 var msg = 'Cannot Update Settings - not connected';
                 console.log('WARNING' + msg);
@@ -891,13 +894,13 @@ angular.module('flexvolt.flexvolt', [])
 
                     writeArray(REG);
                       // .then(updateSettings3);
-                    waitForInput(null,false,api.connection.connectedWait,121,updateSettings3);
+                    waitForInput(null,false,connectedRepeat,api.connection.connectedWait,121,updateSettings3);
                 }
             }
             function updateSettings3(){
                 if (deferred.updateSettings) {
                     console.log('DEBUG: Update Settings 3');
-                    waitForInput('Y',false,api.connection.connectedWait,122,updateDataSettings);
+                    waitForInput('Y',false,connectedRepeat,api.connection.connectedWait,122,updateDataSettings);
                 }
             }
             function updateDataSettings(){
@@ -965,7 +968,7 @@ angular.module('flexvolt.flexvolt', [])
                     api.currentDevice,
                     function () {
                         console.log('DEBUG: Cleared in turnDataOn.');
-                        waitForInput('G',true,api.connection.connectedWait,103,function(){
+                        waitForInput('G',true,connectedRepeat,api.connection.connectedWait,103,function(){
                             console.log('INFO: Turned data on');
                             api.connection.data = 'on';
                         });
@@ -988,7 +991,7 @@ angular.module('flexvolt.flexvolt', [])
             if (api.connection.data === 'on'){
                 api.connection.data = 'turningOff';
                 dIn = [];
-                waitForInput('Q',true,api.connection.connectedWait,113,function(){
+                waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,function(){
                     console.log('DEBUG: data off.');
                     api.connection.data = 'off';
                 });
