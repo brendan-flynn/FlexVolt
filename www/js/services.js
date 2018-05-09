@@ -475,11 +475,40 @@ angular.module('flexvolt.services', [])
     var file = {
         getDirectory: undefined,
         currentEntry: undefined,
+        // dirReader: undefined,
+        // readEntries: undefined,
+        // entries: [],
         path: undefined,
         id: undefined,
         readFile: undefined,
         writeFile: undefined
     };
+
+    // function toArray(list) {
+    //     return Array.prototype.slice.call(list || [], 0);
+    // }
+    //
+    // file.readEntries = function() {
+    //     var errorHandler = function(error) {
+    //         console.log('DEBUG: Error received while reading entries in selected directory: ' + JSON.stringify(error));
+    //     };
+    //     console.log('here1');
+    //     if (file.dirReader) {
+    //         file.dirReader.readEntries(function(results){
+    //             console.log('here2');
+    //             if (!results.length) {
+    //                 console.log('here3');
+    //                 file.entries.sort(function(a,b) {
+    //                     return (a.name > b.name)? 1 : ((b.name > a.name)? -1 : 0);
+    //                 });
+    //             } else {
+    //                 console.log('here4');
+    //                 file.entries = file.entries.concat(toArray(results));
+    //                 file.readEntries();
+    //             }
+    //         }, errorHandler);
+    //     }
+    // };
 
     function gotEntry(entry){
       var deferred = $q.defer();
@@ -498,6 +527,9 @@ angular.module('flexvolt.services', [])
                 console.log('INFO: Loaded displayPath: '+angular.toJson(displayPath));
                 file.path = displayPath;
                 storage.set({saveDirectory:{path: file.path, entry: file.currentEntry, id: file.id }});
+                // file.dirReader = file.currentEntry.createReader();
+                // file.entries = [];
+                // file.readEntries();
                 deferred.resolve();
               });
           }
