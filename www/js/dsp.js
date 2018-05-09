@@ -452,9 +452,11 @@ angular.module('flexvolt.dsp', [])
               },1000);
               var d = new Date();
               recordedDataFile = 'flexvolt-recorded-data--'+d.getFullYear()+'-'+
-                  (d.getMonth()+1)+'-'+d.getDate()+'--'+
-                  d.getHours()+'-'+d.getMinutes()+'-'+
-                  d.getSeconds();
+                  ('00'+(d.getMonth()+1)).slice(-2)+'-'+
+                  ('00'+d.getDate()).slice(-2)+'--'+
+                  ('00'+d.getHours()).slice(-2)+'-'+
+                  ('00'+d.getMinutes()).slice(-2)+'-'+
+                  ('00'+d.getSeconds()).slice(-2);
               initRecord();
               initRecordedData();
               file.openFile(recordedDataFile)
@@ -504,19 +506,13 @@ angular.module('flexvolt.dsp', [])
             var day = 24 * hour;
 
             var hours = Math.floor(delta / hour);
-            if (hours === 0) {hours = '00';}
-            else if (hours < 9) {hours = '0' + hours;}
-            else {hours = '' + hours;}
             delta -= hours * hour;
             var minutes = Math.floor(delta / minute);
-            if (minutes === 0) {minutes = '00';}
-            else if (minutes < 9) {minutes = '0' + minutes;}
-            else {minutes = '' + minutes;}
             delta -= minutes * minute;
             var seconds = Math.floor(delta / second);
-            if (seconds === 0) {seconds = '00';}
-            else if (seconds < 9) {seconds = '0' + seconds;}
-            else {seconds = '' + seconds;}
+            hours = ('00'+hours).slice(-2);
+            minutes = ('00'+minutes).slice(-2);
+            seconds = ('00'+seconds).slice(-2);
 
             currentRecordMetaData.timeLength = hours + ':' + minutes + ':' + seconds;
 
