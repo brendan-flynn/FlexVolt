@@ -432,6 +432,7 @@ angular.module('flexvolt.dsp', [])
                   trace: traceLogic.settings
                 },
                 fileName: recordedDataFile,
+                filePath: file.path
             };
         }
 
@@ -464,7 +465,7 @@ angular.module('flexvolt.dsp', [])
                   file.writeFile(recordedDataFile, JSON.stringify(currentRecordMetaData));
                 });
             } else {
-              var directoryPopup = $ionicPopup.confirm({
+              $ionicPopup.confirm({
                 title: 'Cannot Save Data.  No Folder Selected',
                 template: 'Please choose "Select Directory" and then select a location to store saved records.',
                 buttons: [
@@ -523,39 +524,44 @@ angular.module('flexvolt.dsp', [])
             currentRecordMetaData= undefined;
         };
 
+        function parseFile(result){
+            var recordArr = result.split('\r\n');
+            var recordSettings = JSON.parse(recordArr[0]);
+            backupPageSettings = rmsTimeLogic.settings;
+            var taskName = recordSettings.taskName;
+            rmsTimeLogic.settings = recordSettings.softwareSettings[taskName];
+            recordArr.splice(0,2);
+            var nChannels = recordSettings.softwareSettings[recordSettings.taskName].nChannels;
+            console.log('nChannels: ' + nChannels);
+            var timestamps = [];
+            var dataIn = [];
+            for (var iN = 0; iN < nChannels; iN++) {
+              dataIn[iN] = [];
+            }
+            for (var iD = 0; iD < recordArr.length; iD++){
+              if (recordArr[iD].length > 0) {
+                var tmp = recordArr[iD].split(',');
+                timestamps[iD] = parseInt(tmp[0]);
+                for (var iC=0; iC < nChannels; iC++) {
+                  dataIn[iC][iD] = parseFloat(tmp[iC+1]);
+                }
+              }
+            }
+            selectedRecordLocal = [timestamps, dataIn]; // [timestamps, dataIn]
+            if (api.resetPage) {api.resetPage();}
+        }
+
+        // Load and view a recently saved file.  Based on stored metadata
         api.controls.serveRecord = function() {
             console.log('loading ' + JSON.stringify(api.controls.selectedRecord));
-            var t1 = performance.now();
             file.readFile(api.controls.selectedRecord.fileName)
-                .then(function(result){
-                    var recordArr = result.split('\r\n');
-                    var recordSettings = JSON.parse(recordArr[0]);
-                    backupPageSettings = rmsTimeLogic.settings;
-                    var taskName = recordSettings.taskName;
-                    rmsTimeLogic.settings = recordSettings.softwareSettings[taskName];
-                    recordArr.splice(0,2);
-                    var nChannels = recordSettings.softwareSettings[recordSettings.taskName].nChannels;
-                    console.log('nChannels: ' + nChannels);
-                    var timestamps = [];
-                    var dataIn = [];
-                    for (var iN = 0; iN < nChannels; iN++) {
-                      dataIn[iN] = [];
-                    }
-                    for (var iD = 0; iD < recordArr.length; iD++){
-                      if (recordArr[iD].length > 0) {
-                        var tmp = recordArr[iD].split(',');
-                        timestamps[iD] = parseInt(tmp[0]);
-                        for (var iC=0; iC < nChannels; iC++) {
-                          dataIn[iC][iD] = parseFloat(tmp[iC+1]);
-                        }
-                      }
-                    }
-                    selectedRecordLocal = [timestamps, dataIn]; // [timestamps, dataIn]
-                    var t2 = performance.now();
-                    console.log('loading took ' + (t2-t1) + 'ms');
-                    if (api.resetPage) {api.resetPage();}
-                });
+                .then(parseFile);
+        };
 
+        // Load and view any file - based on a file browse
+        api.controls.loadFile = function(result) {
+            console.log('loading file');
+            parseFile(result);
         };
 
         return api;

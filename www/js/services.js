@@ -637,7 +637,7 @@ angular.module('flexvolt.services', [])
 
               reader.readAsText(theFile);
             });
-          });
+        }, function(e){console.log('DEBUG: Could not get file ' + filename + '.  Returned error: ' + JSON.stringify(e));});
           return deferred.promise;
       };
 
@@ -707,6 +707,41 @@ angular.module('flexvolt.services', [])
           });
 
           return deferred.promise;
+        };
+
+        file.getFile = function() {
+            var deferred = $q.defer();
+
+            chrome.fileSystem.chooseEntry(
+                {type:'openFile', accepts: [{description:'*.txt',extensions:['txt']}], acceptsAllTypes: false, acceptsMultiple: false},
+                function(fileEntry){
+                    if (chrome.runtime.lastError) {
+                        console.log('ERROR: Chrome runtime error during fileSystem.getFile: '+chrome.runtime.lastError.message);
+                        // user cancelled
+                        deferred.reject();
+                    } else if (fileEntry) {
+                        fileEntry.file(function(theFile) {
+                          var reader = new FileReader();
+
+                          reader.onerror = function(e){
+                            console.log('error loading file ' + fileEntry.name + ' code: ' + JSON.stringify(e));
+                            deferred.reject();
+                          };
+                          reader.onloadend = function(e) {
+                            var result = e.target.result;
+                            deferred.resolve(result);
+                          };
+
+                          reader.readAsText(theFile);
+                        });
+                    } else {
+                        // user cancelled
+                        deferred.reject();
+                    }
+                }
+            );
+
+            return deferred.promise;
         };
 
         var openFile = function(filename){

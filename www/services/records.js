@@ -20,10 +20,14 @@
       var recordData = [];
 
       storage.get('records')
-          .then(function(tmp){
-              if (tmp){
-                  console.log('found records: ' + JSON.stringify(tmp));
-                  recordData = tmp;
+          .then(function(result){
+              if (result){
+                  console.log('found ' + result.length + ' records: ' + JSON.stringify(result));
+                  // for (var i = 0; i < result.length; i++) {
+                  //     var recordArr = result.split('\r\n');
+                  //     var recordSettings = JSON.parse(recordArr[0]);
+                  // }
+                  recordData = result;
               }
           });
 
@@ -38,6 +42,8 @@
       records.put = function(record) {
         console.log('added new record');
         recordData.push(record);
+        // keep this list a manageable length
+        if (recordData.length > 10) {recordData.splice(11);}
         storage.set({records:recordData});
       };
 

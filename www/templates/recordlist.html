@@ -4,6 +4,9 @@
   </ion-header-bar>
   <ion-content>
     <div class="row">
+      <div class="col">Recent Records</div>
+    </div>
+    <div class="row">
       <div class="col">Date/Time</div>
       <div class="col">Record Length</div>
     </div>
@@ -11,6 +14,12 @@
       <div class="item row" ng-repeat="record in records.getAll() track by $index" ng-class="selectedStyle($index)" ng-click="selectRecord($index)">
         <div class="col">{{record.startTime}}</div>
         <div class="col">{{record.timeLength}}s</div>
+      </div>
+      <div class="item row" ng-click="browse()">
+          <div class="col">
+              <div class="button button-icon icon ion-folder record-icon"></div>
+          </div>
+          <div class="col">Browse</div>
       </div>
     </div>
     <div>

@@ -56,8 +56,8 @@
 
         $scope.dataHandlerControls = dataHandler.controls;
     }])
-    .controller('RecordCtrl', ['$scope', '$state', '$stateParams', '$ionicPopover', '$ionicModal', 'dataHandler', 'hardwareLogic', 'records',
-        function($scope, $state, $stateParams, $ionicPopover, $ionicModal, dataHandler, hardwareLogic, records){
+    .controller('RecordCtrl', ['$scope', '$state', '$stateParams', '$ionicPopover', '$ionicModal', '$ionicPopup', 'dataHandler', 'hardwareLogic', 'records', 'file',
+        function($scope, $state, $stateParams, $ionicPopover, $ionicModal, $ionicPopup, dataHandler, hardwareLogic, records, file){
 
         console.log('Record Ctrl loaded');
         /***********Record Control****************/
@@ -100,23 +100,73 @@
           } else {
             return true;
           }
-      };
+        };
         $scope.viewRecord = function() {
           console.log('viewing record' + $scope.selectedRecordIndex);
           var record = records.getAll()[$scope.selectedRecordIndex];
           console.log(record);
           if (angular.isDefined(record) && angular.isDefined(record.fileName)) {
-            dataHandler.controls.selectedRecord = record;
-            if (dataHandler.controls.live){
-                dataHandler.controls.toggleLive();
-            }
-            if (dataHandler.controls.paused){
-                dataHandler.controls.unpause();
-            }
-            $scope.recordModal.hide();
-            dataHandler.controls.serveRecord();
+              if (record.filePath && record.filePath !== file.path){
+                  // wrong folder
+                  console.log('WARNING: Cannot open this file, the directory is not the current fileEntry');
+                  $scope.recordModal.hide()
+                      .then(function(){
+                          $ionicPopup.confirm({
+                            title: 'Cannot Load File - Switch Directory',
+                            template: 'Chrome requires you to manually select the directory containing this file for security reasons.  Please tap "Select Directory" and then select the following location to access this record: "'+record.filePath+'".',
+                            buttons: [
+                                { text: 'Cancel'},
+                                {
+                                    text: '<b>Select Directory</b>',
+                                    onTap: function(e){
+                                        file.getDirectory();
+                                    }
+                                }
+                            ]
+                          }).then(function(res){console.log('popup done');});
+                      });
+              } else {
+                dataHandler.controls.selectedRecord = record;
+                if (dataHandler.controls.live){
+                    dataHandler.controls.toggleLive();
+                }
+                if (dataHandler.controls.paused){
+                    dataHandler.controls.unpause();
+                }
+                $scope.recordModal.hide()
+                    .then(dataHandler.controls.serveRecord);
+              }
           }
-      };
+        };
+        $scope.browse = function() {
+            $scope.recordModal.hide()
+                .then(file.getFile)
+                .then(function(result) {
+                    // validate selected file
+                    var recordArr = result.split('\r\n');
+                    var recordSettings = JSON.parse(recordArr[0]);
+                    var nChannels = recordSettings.softwareSettings[recordSettings.taskName].nChannels;
+                    var recordHeader = recordArr[1];
+                    console.log('loaded.  nChannels: ' + nChannels + '. Record Header: ' + recordHeader);
+                    if (recordHeader.indexOf('Time (ms)') === 0) {
+                        return result;
+                    } else {
+                        console.log('WARNING: Couldn\'t load file.');
+                    }
+                })
+                .then(function(result){
+                    if (dataHandler.controls.live){
+                        dataHandler.controls.toggleLive();
+                    }
+                    if (dataHandler.controls.paused){
+                        dataHandler.controls.unpause();
+                    }
+                    dataHandler.controls.loadFile(result);
+                })
+                .catch(function(e){
+                    // user cancelled file load
+                });
+        };
         $scope.$on('$destroy', function() {
           $scope.recordModal.remove();
         });
