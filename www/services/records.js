@@ -16,7 +16,7 @@
       //   stopTime: new Date();
       // }
 
-
+      var MaxRecordNumber = 50;
       var recordData = [];
 
       storage.get('records')
@@ -43,7 +43,7 @@
         console.log('added new record');
         recordData.push(record);
         // keep this list a manageable length
-        if (recordData.length > 10) {recordData.splice(11);}
+        if (recordData.length > MaxRecordNumber) {recordData.splice(0,recordData.length-MaxRecordNumber);}
         storage.set({records:recordData});
       };
 
