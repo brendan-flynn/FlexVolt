@@ -473,6 +473,7 @@ angular.module('flexvolt.services', [])
 }])
 .factory('file', ['$ionicPlatform', '$q', 'storage', function($ionicPlatform, $q, storage){
     var file = {
+        getFile: undefined,
         getDirectory: undefined,
         currentEntry: undefined,
         // dirReader: undefined,
@@ -622,6 +623,9 @@ angular.module('flexvolt.services', [])
             file.currentEntry = dir;
             file.path = dir.fullPath;
           });
+        };
+        file.getFile = function(){
+          console.log('WARN: cordova does not have or use a getFile api point for file service.');    
         };
         $ionicPlatform.ready(file.getDirectory); // there's no user choice, so don't show it to them!
 

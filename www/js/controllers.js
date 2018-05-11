@@ -233,7 +233,7 @@
                 if (dataHandler.controls.live && !dataHandler.controls.paused) {disabled = true;}
             } else if (dataHandler.controls.live && !dataHandler.controls.paused) {
                 // pause button is displayed
-                $scope.isDesktopPauseDisabled();
+                disabled = $scope.isDesktopPauseDisabled();
             }
             return disabled;
         };

@@ -497,7 +497,7 @@ angular.module('flexvolt.dsp', [])
 
             // add fields to record metadata
             currentRecordMetaData.dataLength = localRecordedData[0].length;
-            currentRecordMetaData.stopTime = new Date();
+            currentRecordMetaData.stopTime = (new Date()).toLocaleString();
             var start = new Date(currentRecordMetaData.startTime);
             var stop = new Date(currentRecordMetaData.stopTime);
             var delta = stop - start;
