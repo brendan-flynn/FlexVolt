@@ -290,6 +290,18 @@
         } else {
             console.log('INFO: App Running in Chrome');
         }
+        var platform = ionic.Platform.platform();
+        $scope.platform = 'unknown';
+        if (platform.toLowerCase().indexOf('ios') > -1) {
+            $scope.platform = 'ios';
+        } else if (platform.toLowerCase().indexOf('android') > -1) {
+            $scope.platform = 'android';
+        } else if (platform.toLowerCase().indexOf('mac') > -1) {
+            $scope.platform = 'mac';
+        } else if (platform.toLowerCase().indexOf('win') > -1) {
+            $scope.platform = 'windows';
+        }
+        console.log('platform: ' + $scope.platform);
 
         window.flexvolt = flexvolt;
         window.dataHandler = dataHandler;

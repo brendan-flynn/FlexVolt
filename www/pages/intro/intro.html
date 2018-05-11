@@ -1,4 +1,4 @@
-<ion-view title="Get Started">
+<ion-view title="Getting Started">
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
     </ion-nav-buttons>
@@ -7,40 +7,42 @@
             <div style="padding: 5px 15px">
                 <h4>Initial Setup</h4>
                 <ul>
-                    <li ng-if="mobile">1.  Turn phone Bluetooth ON</li>
-                    <li ng-if="!mobile">1.  Turn computer Bluetooth ON</li>
-                    <li>2.  Turn FlexVolt ON</li>
-                    <li>3.  In your device's bluetooth settings, find FlexVolt in the list of available devices</li>
-                    <li>4.  Pair/connect.  code = '0000'</li>
+                    <li>1.  Turn FlexVolt on</li>
+                    <li ng-if="mobile">2.  Turn on phone/tablet Bluetooth</li>
+                    <li ng-if="!mobile">2.  Turn on computer Bluetooth</li>
+                    <li ng-if="mobile">3.  Find FlexVolt in the list of Bluetooth devices</li>
+                    <li ng-if="!mobile && platform === 'windows'">3.  Add FlexVolt in Bluetooth settings</li>
+                    <li ng-if="!mobile && platform === 'mac'">3.  Select FlexVolt in Bluetooth settings device list</li>
+                    <li ng-if="!mobile && platform !== 'mac' && platform !== 'windows'">3.  Find FlexVolt in the list of Bluetooth devices</li>
+                    <li>4.  Connect using pairing code = '0000'</li>
+                    <li>5.  Tap connection icon, select 'Try to Connect'
                 </ul>
                 <h4>Connecting
                     <button ui-sref="connection" class="button button-icon icon ion-radio-waves assertive"></button>
                     <i class="button-icon icon ion-arrow-right-a"></i>
                     <button ui-sref="connection" class="button button-icon icon ion-radio-waves positive"></button>
                 </h4>
-                <p>
-                    After setup, this app should automatically find your FlexVolt device and connect.
-                    For connection info, manual connection options, and troubleshooting, tap the connection icon.
-                </p>
+                <ul>
+                    <li>After initial setup, this app should automatically find your FlexVolt device and connect</li>
+                    <li>Tap the connection icon in the top right for connection info and advanced options</li>
                 <h4>Hardware Settings
                     <i ui-sref="settings" class="button-icon icon ion-settings"></i>
                 </h4>
                 <p>
                     Once connected, you can change hardware settings, such as sampling frequency, at the configuration page.
                 </p>
-                <h4>Tasks</h4>
+                <h4>Attaching to Muscles</h4>
+                <ul>
+                    <li>1. Prepare skin - wash with alcohol or soap and water to remove oils, remove hair to ease sticker removal</li>
+                    <li>2. Attach sticker electrodes - 2 for each muscle, 1 for each body reference</li>
+                    <li>3. Attach cable clips - Red and Black for muscle signals, White for body reference</li>
+                    <li> <b>Note</b> - at least one body reference must be used.</li>
+                    <li> Body reference can be placed anywhere convenient.</li>
+                </ul>
+                <h4>Feedback</h4>
                 <p>
-                    Home page icons open tasks with different functions.
-                </p>
-                <p>
-                    In a task, press <i class="button-icon icon ion-gear-b"></i> for settings,
-                    and <i class="button-icon icon ion-help"></i> for help.
-                </p>
-                <p>
-                    Some tasks are not yet developed.  Do you have input on existing tasks or a request for new tasks or features?
-                    Send all thoughts to:<br />
-
-                <h4> software@flexvoltbiosensor.com</h4>
+                    Do you have input on existing tasks or a request for new tasks or features?
+                    Send all comments to software@flexvoltbiosensor.com
                 </p>
             </div>
         </div>
