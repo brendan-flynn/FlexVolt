@@ -53,16 +53,16 @@
                         //     ref:"help",
                         //     btnName:"Help"
                         // },
-                        b3: {
-                            icon:"icon ion-settings",
-                            ref:"settings",
-                            btnName:"Settings"
-                        },
-                        b4: {
-                            icon:"icon ion-radio-waves",
-                            ref:"connection",
-                            btnName:"Connection"
-                        }
+                        // b3: {
+                        //     icon:"icon ion-settings",
+                        //     ref:"settings",
+                        //     btnName:"Settings"
+                        // },
+                        // b4: {
+                        //     icon:"icon ion-radio-waves",
+                        //     ref:"connection",
+                        //     btnName:"Connection"
+                        // }
                     }
                 }
             };

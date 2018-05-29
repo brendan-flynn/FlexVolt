@@ -117,7 +117,7 @@
                   updateAnimate();
                 }
 
-            } else if ($state.current.url === '/connection'){
+            } else if ($state.current.url === '/connection' || $state.current.url === '/settings'){
                 afID = window.requestAnimationFrame(paintStep);
             }
         }

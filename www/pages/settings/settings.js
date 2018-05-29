@@ -2,7 +2,12 @@
     'use strict';
 
     angular.module('flexvolt.settings', [])
-
+    .directive('settingsIcon', function(){
+        return {
+            restrict: 'E',
+            templateUrl: 'pages/settings/settings-icon.html'
+        };
+    })
     .controller('SettingsCtrl',
     ['$scope','$state','flexvolt','hardwareLogic','file','appLogic',
     function($scope, $state, flexvolt, hardwareLogic, file, appLogic) {
