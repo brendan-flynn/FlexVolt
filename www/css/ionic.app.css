@@ -16,7 +16,8 @@ $royal:                           #8a6de9 !default;
 $dark:                            #444 !default;
 */
 .fv-theme {
-  background-color: #ffd383; }
+    background-color: #ffffff; }
+  /* background-color: #ffd383; } */
 
 /* FlexVolt CSS */
 .fv-hr {
@@ -33,12 +34,15 @@ $dark:                            #444 !default;
   text-align: center !important; }
 
 .my-icon-row {
-  padding-bottom: 30px !important; }
+  padding-bottom: 30px !important;
+}
 
 .home-page-icons:before,
 .home-page-icons {
   font-size: 60px !important;
-  display: block !important; }
+  display: block !important;
+  color: black !important;
+}
 
 i.record-icon {
   font-size: 40px !important; }
