@@ -1258,7 +1258,7 @@ angular.module('flexvolt.flexvolt', [])
             } else if (api.connection.state === 'searching'){
                 return 'Scanning available ports for FlexVolts.' + dots;
             } else if (api.connection.state === 'connecting'){
-                return 'Atempting to establish a connection with device: ' + api.currentDevice.name + '. ' + dots;
+                return 'Attempting to establish a connection with device: ' + api.currentDevice.name + '. ' + dots;
             } else if (api.connection.state === 'reconnecting'){
                 return 'Attempting to re-establish a connection with device: ' + api.connection.flexvoltName + '. ' + dots;
             } else if (api.connection.state === 'connected'){
