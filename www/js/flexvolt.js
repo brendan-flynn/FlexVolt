@@ -281,7 +281,12 @@ angular.module('flexvolt.flexvolt', [])
 
         // Async event listener function to pass to subscribe/addListener
         function onDataReceived(d){
-            // console.log('received: type: ' + typeof(d) + ', content: ' + JSON.stringify(d));
+            if (api.connection.state === 'connecting' || api.connection.state === 'reconnecting' ||
+                api.connection.state === 'updating settings' || api.connection.state === 'polling' ||
+                api.connection.state === 'resettingBluetoothModule'){
+                console.log('State: ' + api.connection.state +
+                            '. Received: ' + JSON.stringify(d));
+            }
             // rCount += d.length;
             receivedData = true;
             var runSpecial = false;
@@ -303,6 +308,40 @@ angular.module('flexvolt.flexvolt', [])
                     }
                     if (b[0] === waitingForMessage){
                       console.log('DEBUG: found the expected message in realtime: ' + waitingForMessage);
+                      if (waitingForMessage === 97) {
+                          // initial handshake - get status bits from JYMCU programming
+                          if (tmp.length >= 6) {
+                              var returnedFlagJYMCU = tmp[0];
+                              var testFlagU = tmp[2];
+                              var tmpTriedToProgramJYMCU = tmp[3];
+                              var triedToProgramJYMCU;
+                              if (tmpTriedToProgramJYMCU === 1){
+                                  triedToProgramJYMCU = true;
+                              } else if (tmpTriedToProgramJYMCU === 2) {
+                                  triedToProgramJYMCU = false;
+                              }
+                              var testFlagW = tmp[4];
+                              var tmpProgrammedJYMCU = tmp[5];
+                              var programmedJYMCU;
+                              if (tmpProgrammedJYMCU === 3) {
+                                  programmedJYMCU = true;
+                              } else if (tmpProgrammedJYMCU === 4) {
+                                  programmedJYMCU = false;
+                              }
+                              console.log('DEBUG: JYMCU flag: ' + returnedFlagJYMCU +
+                                          ', testFlagU: ' + testFlagU +
+                                          ', triedToProgram value: ' + tmpTriedToProgramJYMCU +
+                                          ', triedToProgram: ' + triedToProgramJYMCU +
+                                          ', testFlagW: ' + testFlagW +
+                                          ', programmedJYMCU value: ' + tmpProgrammedJYMCU +
+                                          ', programmedJYMCU: ' + programmedJYMCU);
+                          } else {
+                              console.log('DEBUG: JYMCU status may not available.  '+
+                              'The characters may have been sent after flexvolt.js moved on in the connection handshake process.  ' +
+                              'This could also be because the sensor firmware is a version before JYMCU status was sent.');
+                          }
+
+                      }
                       waitingForResponse = false;
                       runSpecial = true;
                       dIn = []; // reset this - don't need any of the past values
@@ -570,6 +609,48 @@ angular.module('flexvolt.flexvolt', [])
         function testHandshake(cb){
             waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,cb);
         }
+        api.resetBluetoothModule = function() {
+            deferred.polling = $q.defer();
+            if (api.connection.state === 'connected') {
+                api.connection.state = 'resettingBluetoothModule';
+                bluetoothPlugin.clear(
+                    api.currentDevice,
+                    function () {
+                        waitForInput('R',false,connectedRepeat,api.connection.connectedWait,114,confirmResetBluetoothModule);
+                    },
+                    function(){console.log('ERROR: Error clearing bluetoothPlugin in resetBluetoothModule');}
+                );
+            } else {
+              var msg = 'Cannot Reset Bluetooth Module - Not Connected';
+              console.log('WARNING' + msg);
+              deferred.polling.reject(msg);
+            }
+            return deferred.polling.promise;
+
+            function confirmResetBluetoothModule() {
+                if (api.connection.state === 'resettingBluetoothModule') {
+                    bluetoothPlugin.clear(
+                        api.currentDevice,
+                        function () {
+                            waitForInput('!',false,connectedRepeat,api.connection.connectedWait,35,finalizeResetBluetoothModule);
+                        },
+                        function(){console.log('ERROR: Error clearing bluetoothPlugin in confirmResetBluetoothModule');}
+                    );
+                } else {
+                  var msg = 'Cannot Confirm Reset Bluetooth Module - Not resettingBluetoothModule.';
+                  console.log('WARNING' + msg);
+                  deferred.polling.reject(msg);
+                }
+            }
+
+            function finalizeResetBluetoothModule() {
+                // do stuff
+                api.connection.state = 'connected';
+                api.disconnect();
+                console.log('DEBUG: Finished reseting bluetooth module.');
+                console.log('Ask user to restart sensor and wait several minutes before connecting.');
+            }
+        };
         api.pollVersion = function(){
             deferred.polling = $q.defer();
             if (api.connection.state === 'connected') {
