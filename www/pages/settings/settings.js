@@ -10,7 +10,7 @@
         console.log('currentUrl = '+currentUrl);
 
         $scope.version = flexvolt.api.connection.version;
-        $scope.breakingChangeOnboardRMSVersion = flexvolt.api.breakingChanges.onboardRMS;
+        $scope.versionMinimumOnboardRMS = flexvolt.api.versionMinimums.onboardRMS;
         $scope.channelList = hardwareLogic.channelList;
         $scope.frequencyList = hardwareLogic.frequencyList;
         $scope.rmsWindowList = hardwareLogic.rmsWindowList;

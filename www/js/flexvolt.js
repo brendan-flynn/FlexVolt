@@ -38,6 +38,13 @@ angular.module('flexvolt.flexvolt', [])
     // The HP filter uses control bits in the former custom frequency command bytes
     var BREAKING_CHANGE_ONBOARD_RMS_VERSION = 5;
 
+    // Firmware version 5 introduces ability to trigger bluetooth module reprogram
+    // by clearing flash bit the FlexVolt sensor checks on startup.
+    var BREAKING_CHANGE_RESET_BLUETOOTH_MODULE = 5;
+
+    // Firmware version 4 introduces ability to poll battery of the sensor
+    var BREAKING_CHANGE_POLL_BATTERY = 4;
+
     var connectionTestInterval;
     var receivedData;
     var waitingForResponse = false;
@@ -147,7 +154,9 @@ angular.module('flexvolt.flexvolt', [])
             flexvoltName: undefined,
             batteryVoltage: undefined
         },
-        breakingChanges: {
+        versionMinimums: {
+            resetBluetoothModule: BREAKING_CHANGE_RESET_BLUETOOTH_MODULE,
+            pollBattery: BREAKING_CHANGE_POLL_BATTERY,
             onboardRMS: BREAKING_CHANGE_ONBOARD_RMS_VERSION
         },
         readParams : {
@@ -609,23 +618,30 @@ angular.module('flexvolt.flexvolt', [])
         function testHandshake(cb){
             waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,cb);
         }
+
         api.resetBluetoothModule = function() {
-            deferred.polling = $q.defer();
-            if (api.connection.state === 'connected') {
-                api.connection.state = 'resettingBluetoothModule';
-                bluetoothPlugin.clear(
-                    api.currentDevice,
-                    function () {
-                        waitForInput('R',false,connectedRepeat,api.connection.connectedWait,114,confirmResetBluetoothModule);
-                    },
-                    function(){console.log('ERROR: Error clearing bluetoothPlugin in resetBluetoothModule');}
-                );
+            deferred.resetBluetoothModule = $q.defer();
+            if (api.connection.version > api.versionMinimums.resetBluetoothModule) {
+                if (api.connection.state === 'connected') {
+                    api.connection.state = 'resettingBluetoothModule';
+                    bluetoothPlugin.clear(
+                        api.currentDevice,
+                        function () {
+                            waitForInput('R',false,connectedRepeat,api.connection.connectedWait,114,confirmResetBluetoothModule);
+                        },
+                        function(){console.log('ERROR: Error clearing bluetoothPlugin in resetBluetoothModule');}
+                    );
+                } else {
+                  var msg = 'Cannot Reset Bluetooth Module - Not Connected';
+                  console.log('WARNING' + msg);
+                  deferred.resetBluetoothModule.reject(msg);
+                }
             } else {
-              var msg = 'Cannot Reset Bluetooth Module - Not Connected';
-              console.log('WARNING' + msg);
-              deferred.polling.reject(msg);
+                var msg2 = 'Cannot reset bluetooth module - older version sensor';
+                console.log('DEBUG: ' + msg2);
+                deferred.resetBluetoothModule.reject(msg2);
             }
-            return deferred.polling.promise;
+            return deferred.resetBluetoothModule.promise;
 
             function confirmResetBluetoothModule() {
                 if (api.connection.state === 'resettingBluetoothModule') {
@@ -634,12 +650,16 @@ angular.module('flexvolt.flexvolt', [])
                         function () {
                             waitForInput('!',false,connectedRepeat,api.connection.connectedWait,35,finalizeResetBluetoothModule);
                         },
-                        function(){console.log('ERROR: Error clearing bluetoothPlugin in confirmResetBluetoothModule');}
+                        function(){
+                            var msg2 = 'Error clearing bluetoothPlugin in confirmResetBluetoothModule';
+                            console.log('ERROR: ' + msg2);
+                            deferred.resetBluetoothModule.reject(msg2);
+                        }
                     );
                 } else {
-                  var msg = 'Cannot Confirm Reset Bluetooth Module - Not resettingBluetoothModule.';
+                  var msg = 'Cannot Confirm Reset Bluetooth Module - not in proper connection state: ' + api.connection.state;
                   console.log('WARNING' + msg);
-                  deferred.polling.reject(msg);
+                  deferred.resetBluetoothModule.reject(msg);
                 }
             }
 
@@ -647,10 +667,12 @@ angular.module('flexvolt.flexvolt', [])
                 // do stuff
                 api.connection.state = 'connected';
                 api.disconnect();
+                deferred.resetBluetoothModule.resolve();
                 console.log('DEBUG: Finished reseting bluetooth module.');
                 console.log('Ask user to restart sensor and wait several minutes before connecting.');
             }
         };
+
         api.pollVersion = function(){
             deferred.polling = $q.defer();
             if (api.connection.state === 'connected') {

@@ -104,6 +104,32 @@
 
         };
 
+        $scope.resetBluetoothModule = function() {
+            var resetConfirmPopup = $ionicPopup.confirm({
+                title: 'Confirm Bluetooth Module Reset',
+                template: 'Are you sure?  Once reset, the FlexVolt sensor will disconnect.  '+
+                          'You will need to switch the sensor off, count to 5, switch the sensor back on, then wait two minutes for the module to properly reset!'
+            });
+
+            resetConfirmPopup.then(function(res) {
+                if(res) {
+                    console.log('DEBUG: User confirmed bluetooth reset.');
+                    // Show alert to make sure user understands what to do next
+                    flexvolt.api.resetBluetoothModule();
+                    var alertPopup = $ionicPopup.alert({
+                        title: 'Reset Bluetooth Module',
+                        template: 'Instructions:  Switch your FlexVolt sensor off, wait 5 seconds, then turn it back on.  Wait 2 minutes before attempting to reconnect!'
+                    });
+
+                    alertPopup.then(function(res) {
+                        console.log('DEBUG: User selected OK in reset info alert.');
+                    });
+                } else {
+                    console.log('DEBUG: user cancelled bluetooth reset.');
+                }
+            });
+        };
+
         $scope.submitBugReport = function(){
             console.log('INFO: sending bugreport');
             var d = new Date();

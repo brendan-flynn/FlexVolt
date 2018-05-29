@@ -4,7 +4,7 @@
     </ion-nav-buttons>
 
     <ion-content class="has-header padding fv-theme">
-        <h4 align="center">Connection Status: {{flexvolt.api.connection.state}}</h4>
+        <h4 align="center">Connection Status: {{con.state}}</h4>
         <!--<span ng-bind="flexvolt|json"></span>-->
         <p>{{flexvolt.getDetailedConnectionStatus()}}</p>
         <div ng-if="flexvolt.getConnectionStatus()">
@@ -41,8 +41,8 @@
         <h3 align="center">TroubleShooting</h3>
         <div>
             <h4>Timeouts (ms)</h4>
-            Initial Connection Timeout: <select class="button button-balanced" ng-model="flexvolt.api.connection.initialWait" ng-options="wait for wait in flexvolt.api.connection.initialWaitList"></select>
-            Settings and Commands Timeout: <select class="button button-balanced" ng-model="flexvolt.api.connection.connectedWait" ng-options="wait for wait in flexvolt.api.connection.connectedWaitList"></select>
+            Initial Connection Timeout: <select class="button button-balanced" ng-model="con.initialWait" ng-options="wait for wait in con.initialWaitList"></select>
+            Settings and Commands Timeout: <select class="button button-balanced" ng-model="con.connectedWait" ng-options="wait for wait in con.connectedWaitList"></select>
         </div>
         <br>
         <div>
@@ -58,6 +58,9 @@
                         <!--<button>Send Bug Report</button>-->
                     <!--</a>-->
                 </div>
+            </div>
+            <div ng-if="flexvolt.getConnectionStatus() && con.version >= flexvolt.api.versionMinimums.resetBluetoothModule">
+                <button class="button button-small button-balanced" ng-click="resetBluetoothModule()">Reset Bluetooth Module</button>
             </div>
         </div>
 <!--        <h3 align="center">Files</h3>
