@@ -365,6 +365,49 @@ angular.module('flexvolt.taskLogic', [])
         ready: function(){return deferred.promise;}
     };
 }])
+.factory('generalData', ['$q', 'storage', 'logicOptions', function($q, storage, logicOptions){
+    var deferred = $q.defer();
+    var settings = {
+        baselineModeList: [{text: 'Absolute',value: 'absolute'},{text: 'Relative Max',value: 'relative'}],
+        baselineMode: undefined,
+        baselines: [],
+        mvcs: [],
+        targets: {
+          absolute: [500,500,500,500,500,500,500,500],
+          relative:  [50,50,50,50,50,50,50,50]
+        },
+        labels: []
+    };
+
+    storage.get('generalData')
+        .then(function(tmp){
+            if (tmp){
+                for (var field in tmp){
+                    settings[field] = tmp[field];
+                }
+            } else {
+              // Defaults
+              settings.baselineMode = settings.baselineModeList[0].value;
+
+              for (var j = 0; j < 8; j++){
+                settings.labels.push('CH '+(j+1));
+                settings.baselines.push(0);
+                settings.mvcs.push(0);
+              }
+            }
+            deferred.resolve();
+        });
+
+    function updateSettings(){
+        storage.set({generalData:settings});
+    }
+
+    return {
+        settings: settings,
+        updateSettings: updateSettings,
+        ready: function(){return deferred.promise;}
+    };
+}])
 .factory('myometerLogic', ['$q', 'storage', 'logicOptions', function($q, storage, logicOptions) {
 
     var deferred = $q.defer();

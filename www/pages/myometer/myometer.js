@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.myometer', [])
 
-    .controller('MyometerCtrl', ['$scope', '$state', '$stateParams', '$ionicPopup','$ionicPopover', '$ionicModal', '$interval', 'myometerPlot', 'myometerLogic', 'dataHandler', 'hardwareLogic', 'customPopover',
-    function($scope, $state, $stateParams, $ionicPopup, $ionicPopover, $ionicModal, $interval, myometerPlot, myometerLogic, dataHandler, hardwareLogic, customPopover) {
+    .controller('MyometerCtrl', ['$scope', '$state', '$stateParams', '$ionicPopup','$ionicPopover', '$ionicModal', '$interval', 'myometerPlot', 'myometerLogic', 'dataHandler', 'hardwareLogic', 'customPopover','generalData',
+    function($scope, $state, $stateParams, $ionicPopup, $ionicPopover, $ionicModal, $interval, myometerPlot, myometerLogic, dataHandler, hardwareLogic, customPopover, generalData) {
       var currentUrl = $state.current.url;
       $scope.demo = $stateParams.demo;
       console.log('currentUrl = '+currentUrl);
@@ -52,13 +52,15 @@
       };
 
       $scope.pageLogic = myometerLogic;
+      window.myometerLogic = myometerLogic;
       $scope.hardwareLogic = hardwareLogic;
+      $scope.generalData = generalData.settings;
       $scope.updating = false;
       $scope.baselining = false;
 
       function updateTargets(chan,val){
         //console.log('DEBUG: updating target '+chan+' to '+val);
-        $scope.pageLogic.settings.targets[$scope.pageLogic.settings.baselineMode][chan-1] = val;
+        $scope.pageLogic.settings.targets[$scope.pageLogic.settings.baselineMode][chan] = val;
         myometerLogic.updateSettings();
       }
 
@@ -148,7 +150,7 @@
 
       $scope.showLabelPopup = function(ind) {
         $scope.data = {
-          input: $scope.pageLogic.settings.labels[ind]
+          input: generalData.settings.labels[ind]
         };
 
         // An elaborate, custom popup
@@ -176,7 +178,8 @@
           // if cancel, will be undefined
           if (angular.isDefined(res)){
             console.log('label popup changed to: '+res);
-            $scope.pageLogic.settings.labels[ind] = res;
+            generalData.settings.labels[ind] = res;
+            generalData.updateSettings();
           }
         });
        };
@@ -271,7 +274,7 @@
                     dataHandler.addFilter(myometerLogic.settings.filters[i]);
                 }
     //            dataHandler.setMetrics(60);
-                myometerPlot.init('#myometerWindow', myometerLogic.settings, hardwareLogic.settings.vMax, updateTargets);
+                myometerPlot.init('#myometerWindow', myometerLogic.settings, hardwareLogic.settings.vMax, generalData.settings.targets, updateTargets);
                 paintStep();
             });
         }

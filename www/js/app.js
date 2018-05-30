@@ -32,6 +32,7 @@
         'flexvolt.hrv',
         'flexvolt.intro',
         'flexvolt.myometer',
+        'flexvolt.myometerPlot',
         'flexvolt.rms',
         'flexvolt.settings',
         'flexvolt.snake',

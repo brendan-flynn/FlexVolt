@@ -19,7 +19,7 @@
         <div class="row">
             <div class="col col-70px"></div>
             <div style="text-align:center" class="col"
-                 ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index "
+                 ng-repeat="label in generalData.labels | limitTo : pageLogic.settings.nChannels track by $index "
                  ng-click="showLabelPopup($index)">
                 {{label}}
             </div>
