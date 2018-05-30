@@ -11,9 +11,13 @@ angular.module('flexvolt.myometerPlot', [])
     mar = 0;
     margin = {top: mar, right: mar, bottom: 15, left: 70};
     var headerPadding = 10;
-    var footerPadding = 90;
+    var footerPadding = 150;
     width = window.innerWidth - margin.left - margin.right;
     height = window.innerHeight - margin.top - headerPadding - margin.bottom - footerPadding;
+
+    // target properties
+    var targetRectHeight = 4;
+    var targetCircleRadius = 26;
 
     var yMax;
 
@@ -45,22 +49,27 @@ angular.module('flexvolt.myometerPlot', [])
         var newVal = d3.event.y;
         var limitedVal = Math.min(Math.max(d3.event.y,0),height);
         // dragger.attr('y', function(){return newVal;});
-        var scaledVal;
+        var scaledVal, maxLevel;
         if (api.settings.baselineMode === 'absolute'){
           scaledVal = yMax*(height-limitedVal)/height;
+          maxLevel = yMax/2;
         } else if (api.settings.baselineMode === 'relative'){
           scaledVal = 100*(height-limitedVal)/height;
+          maxLevel = 100/2;
         }
         scaledVal = Math.round(scaledVal);
         console.log('scaled val1: ' + scaledVal);
+        var translateY = targetCircleRadius * (scaledVal/maxLevel-1);
 
         d3.select(this).select('text')
-            .attr('y', d.y = limitedVal)
-            .text(scaledVal);
+            .attr('y', d.y = limitedVal+(targetRectHeight/2))
+            .text(scaledVal)
+            .attr('transform', 'translate(' + 0 + ',' + translateY + ')');
         d3.select(this).select('rect')
             .attr('y', d.y = limitedVal);
         d3.select(this).select('circle')
-            .attr('cy', d.y = limitedVal);
+            .attr('cy', d.y = limitedVal+(targetRectHeight/2))
+            .attr('transform', 'translate(' + 0 + ',' + translateY + ')');
     }
     function dragEnd(){
         console.log('dragend arguments: ' + JSON.stringify(arguments));
@@ -95,25 +104,36 @@ angular.module('flexvolt.myometerPlot', [])
           .enter().append('g')
           .call(drag);
 
-      limitGroup.append('circle')
-        .attr('cx', function(d) {return xScale(d.x) + xScale.rangeBand(); })
-        .attr('cy', function(d) {return yScale(d.target)+5; })
-        .attr('r', 30)
-        .attr('fill', 'rgb(150, 150, 150)');
+      var maxLevel;
+      if (api.settings.baselineMode === 'absolute'){
+        maxLevel = yMax/2;
+      } else if (api.settings.baselineMode === 'relative'){
+        maxLevel = 100/2;
+      }
+
+      // y = radius*(halfMaxLevel - target)/halfMaxLevel
+      // y = radius*(50 - 100)/50 = -radius
 
       limitGroup.append('rect')
         .attr('rx', 6)
         .attr('ry', 6)
         .attr('x', function(d) {return xScale(d.x)-3;})
         .attr('y', function(d) {return yScale(d.target);})
-        .attr('width', xScale.rangeBand()+6)
-        .attr('height', 10)
-        .attr('fill', 'rgb(150, 150, 150)');
+        .attr('width', xScale.rangeBand() - 3)
+        .attr('height', targetRectHeight)
+        .attr('fill', 'black');
         //.attr('cursor', 'move')
 
+     limitGroup.append('circle')
+      .attr('cx', function(d) {return xScale(d.x) + xScale.rangeBand() - 6; })
+      .attr('cy', function(d) {return yScale(d.target) + (targetRectHeight/2) + (targetCircleRadius * (d.target/maxLevel-1)); })
+      .attr('r', targetCircleRadius)
+      .attr('stroke','black')
+      .attr('fill', 'rgb(150, 150, 150)');
+
       limitGroup.append('text')
-        .attr('x', function(d) { return xScale(d.x) + xScale.rangeBand(); })
-        .attr('y', function(d) { return yScale(d.target)+5; })
+        .attr('x', function(d) { return xScale(d.x) + xScale.rangeBand() - 6; })
+        .attr('y', function(d) { return yScale(d.target) + (targetRectHeight/2) + (targetCircleRadius * (d.target/maxLevel-1)); })
         .attr('text-anchor', 'middle')
         .attr('alignment-baseline', 'central')
         .attr('font-size', 20)
@@ -160,7 +180,7 @@ angular.module('flexvolt.myometerPlot', [])
 
       if (api.settings.baselineMode === 'absolute'){
         yScale.domain([0, yMax]);
-        yLabel = 'Muscle Signal, mV';
+        yLabel = 'Muscle Signal, uV';
       } else if (api.settings.baselineMode === 'relative'){
         yScale.domain([0, 100]);
         yLabel = '% Maximum Contraction';
