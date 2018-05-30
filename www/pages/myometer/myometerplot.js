@@ -119,20 +119,20 @@ angular.module('flexvolt.myometerPlot', [])
         .attr('ry', 6)
         .attr('x', function(d) {return xScale(d.x)-3;})
         .attr('y', function(d) {return yScale(d.target);})
-        .attr('width', xScale.rangeBand() - 3)
+        .attr('width', xScale.rangeBand() - targetCircleRadius)
         .attr('height', targetRectHeight)
         .attr('fill', 'black');
         //.attr('cursor', 'move')
 
      limitGroup.append('circle')
-      .attr('cx', function(d) {return xScale(d.x) + xScale.rangeBand() - 6; })
+      .attr('cx', function(d) {return xScale(d.x) + xScale.rangeBand() - targetCircleRadius; })
       .attr('cy', function(d) {return yScale(d.target) + (targetRectHeight/2) + (targetCircleRadius * (d.target/maxLevel-1)); })
       .attr('r', targetCircleRadius)
       .attr('stroke','black')
       .attr('fill', 'rgb(150, 150, 150)');
 
       limitGroup.append('text')
-        .attr('x', function(d) { return xScale(d.x) + xScale.rangeBand() - 6; })
+        .attr('x', function(d) { return xScale(d.x) + xScale.rangeBand() - targetCircleRadius; })
         .attr('y', function(d) { return yScale(d.target) + (targetRectHeight/2) + (targetCircleRadius * (d.target/maxLevel-1)); })
         .attr('text-anchor', 'middle')
         .attr('alignment-baseline', 'central')
