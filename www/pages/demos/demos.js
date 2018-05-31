@@ -7,39 +7,39 @@
         $scope.apps =
             {
                 active: {
-                    row1:{
-                        b1:{
-                            icon:"icon ion-navigate",
-                            ref:"godot({demo: true})",
-                            btnName:"Go Dot Demo"
-                        },
-                        b2:{
-                            icon:"icon ion-ios-pulse",
-                            ref:"trace({demo: true})",
-                            btnName:"Trace Demo"
-                        },
-                        b3:{
+                    row1: {
+                        b1: {
                             icon:"icon ion-ios-pulse",
                             ref:"rms({demo: true})",
-                            btnName:"RMS Plot Demo"
+                            btnName:"RMS Plot"
                         },
-                        b4:{
+                        b2: {
                             icon:"icon ion-speedometer",
                             ref:"myometer({demo: true})",
                             btnName:"Myometer"
+                        },
+                        b3: {
+                            icon:"icon ion-android-pin",
+                            ref:"balloon({demo: true})",
+                            btnName:"Balloon"
+                        },
+                        b4: {
+                            icon:"icon ion-ios-navigate",
+                            ref:"godot({demo: true})",
+                            btnName:"Go Dot"
                         }
         //                    b4: {
         //                        icon:"icon ion-ios-game-controller-b",
         //                        ref:"snake",
         //                        btnName:"Snake Demo"
         //                    }
-                    },
-                    row2:{
-                        b1:{
-                            icon:"icon ion-android-pin",
-                            ref:"balloon({demo: true})",
-                            btnName:"Balloon Demo"
-                        }
+                    // },
+                    // row2:{
+                    //     b1:{
+                    //         icon:"icon ion-android-pin",
+                    //         ref:"balloon({demo: true})",
+                    //         btnName:"Balloon Demo"
+                    //     }
                     }
                 },
                 development: {

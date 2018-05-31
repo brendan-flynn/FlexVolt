@@ -8,37 +8,37 @@
                 active: {
                     row1: {
                         b1: {
-                            icon:"icon ion-information-circled",
-                            ref:"intro",
-                            btnName:"Get Started"
-                        },
-                        b2: {
-                            icon:"icon ion-ios-pulse-strong",
-                            ref:"trace",
-                            btnName:"Trace"
-                        },
-                        b3: {
-                            icon:"icon ion-ios-navigate",
-                            ref:"godot",
-                            btnName:"Go Dot"
-                        },
-                        b4:{
                             icon:"icon ion-ios-pulse",
                             ref:"rms",
                             btnName:"RMS Plot"
-                        }
-                    },
-                    row2: {
-                        b1: {
+                        },
+                        b2: {
                             icon:"icon ion-speedometer",
                             ref:"myometer",
                             btnName:"Myometer"
                         },
-                        b2: {
+                        b3: {
                             icon:"icon ion-android-pin",
                             ref:"balloon",
                             btnName:"Balloon"
+                        },
+                        b4:{
+                            icon:"icon ion-ios-navigate",
+                            ref:"godot",
+                            btnName:"Go Dot"
                         }
+                    // },
+                    // row2: {
+                    //     b1: {
+                    //         icon:"icon ion-android-pin",
+                    //         ref:"balloon",
+                    //         btnName:"Balloon"
+                    //     },
+                    //     b2: {
+                    //         icon:"icon ion-ios-navigate",
+                    //         ref:"godot",
+                    //         btnName:"Go Dot"
+                    //     }
                     }
                 },
                 controls: {
@@ -48,11 +48,11 @@
                             ref:"demos",
                             btnName:"Demos"
                         },
-                        // b2: {
-                        //     icon:"icon ion-help",
-                        //     ref:"help",
-                        //     btnName:"Help"
-                        // },
+                        b2: {
+                            icon:"icon ion-information-circled",
+                            ref:"intro",
+                            btnName:"Get Started"
+                        },
                         // b3: {
                         //     icon:"icon ion-settings",
                         //     ref:"settings",
