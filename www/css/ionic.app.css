@@ -99,6 +99,24 @@ i.record-icon {
   flex: 0 0 10px;
   max-width: 10px; }
 
+.col-30px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 30px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 30px;
+  -ms-flex: 0 0 30px;
+  flex: 0 0 30px;
+  max-width: 30px; }
+
+.col-40px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 40px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 40px;
+  -ms-flex: 0 0 40px;
+  flex: 0 0 40px;
+  max-width: 40px; }
+
 .col-50px {
   -webkit-box-flex: 0;
   -webkit-flex: 0 0 50px;
@@ -142,7 +160,28 @@ i.record-icon {
   -moz-flex: 0 0 100px;
   -ms-flex: 0 0 100px;
   flex: 0 0 100px;
-  max-width: 100px; }
+  max-width: 100px;
+  width: 100px; }
+
+.col-110px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 110px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 110px;
+  -ms-flex: 0 0 110px;
+  flex: 0 0 110px;
+  max-width: 110px;
+  width: 110px; }
+  
+.col-120px {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 120px;
+  -moz-box-flex: 0;
+  -moz-flex: 0 0 120px;
+  -ms-flex: 0 0 120px;
+  flex: 0 0 120px;
+  max-width: 120px;
+  width: 120px; }
 
 .col-150px {
   -webkit-box-flex: 0;
@@ -151,7 +190,8 @@ i.record-icon {
   -moz-flex: 0 0 150px;
   -ms-flex: 0 0 150px;
   flex: 0 0 150px;
-  max-width: 150px; }
+  max-width: 150px;
+  width: 150px; }
 
 /* Control Panels */
 .control-panel-container {
