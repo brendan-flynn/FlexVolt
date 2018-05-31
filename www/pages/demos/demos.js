@@ -44,6 +44,11 @@
                 },
                 development: {
                     row1: {
+                        b1:{
+                            icon:"icon ion-leaf",
+                            ref:"relax",
+                            btnName:"Relax"
+                        },
                         b2:{
                             icon:"icon ion-ios-heart",
                             ref:"ekg",
