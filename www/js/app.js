@@ -11,6 +11,7 @@
     angular.module('flexvolt', [
         'ionic',
         'ngSanitize',
+        'flexvolt.build',
         'flexvolt.controllers',
         'flexvolt.services',
         'flexvolt.customPopover',
@@ -39,7 +40,7 @@
         'flexvolt.trace'
     ])
 
-    .run(function($ionicPlatform, appLogic) {
+    .run(function($ionicPlatform, appLogic, BUILD) {
       //editableOptions.theme = 'default'; // bootstrap3 theme. Can be also 'bs2', 'bs3', 'default'
 
       $ionicPlatform.ready(function() {
@@ -102,7 +103,12 @@
         // get version
         if (window.cordova) {
           // get cordova version
-          appLogic.dm.version = 'unavailable'; // TODO - fix this!
+          if (BUILD && BUILD.VERSION && BUILD.VERSION !== '%%VERSION%%') {
+            appLogic.dm.version = BUILD.VERSION; //
+          } else {
+            appLogic.dm.version = 'unavailable'; //
+          }
+
         } else if (window.chrome && window.chrome.runtime && window.chrome.runtime.getManifest) {
           appLogic.dm.version = chrome.runtime.getManifest().version;
         }
