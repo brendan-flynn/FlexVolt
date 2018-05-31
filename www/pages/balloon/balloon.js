@@ -281,6 +281,10 @@
         }
 
         function clearBalloon() {
+          var transition = "width "+0+"s, height "+0+"s, transform "+0+"s";
+          balloonBodyEl.style.transition = transition;
+          balloonKnotEl.style.transition = transition;
+          balloonStringEl.style.transition = transition;
           balloonSize = 0;
           knotSize = 0;
           balloonKnotEl.style.width = knotSize + 'px';
@@ -347,6 +351,18 @@
           balloonStringEl.style.transform = "translate("+(knotX+knotSize/2)+"px," + knotY + "px)";
 
           drawString();
+          var transition = "width "+transitionLength+"s, height "+transitionLength+"s, transform "+transitionLength+"s";
+          balloonBodyEl.style.transition = transition;
+          balloonKnotEl.style.transition = transition;
+          balloonStringEl.style.transition = transition;
+          // Initial intro is smooth without overshoot.
+          // Change to elastic with overshoot for balloon inflation.
+          setTimeout(function(){
+            var transitionTiming = "cubic-bezier(0, 1.04, 0.46, 3)";
+            balloonBodyEl.style.transitionTimingFunction = transitionTiming;
+            balloonKnotEl.style.transitionTimingFunction = transitionTiming;
+            balloonStringEl.style.transitionTimingFunction = transitionTiming;
+          }, transitionLength*1000);
         };
 
         var balloonPopPoints = [], balloonPopNumPoints = 5000, balloonPopNAddPoints = 500;
@@ -422,6 +438,7 @@
             // if already popping, stop it
             $scope.resetBalloon();
           }
+          var balloonCenterY = knotY - balloonSize/2;
           clearBalloon();
           balloonIsPopped = true;
 
@@ -429,7 +446,7 @@
           balloonPopContext.clearRect(0, 0, width, height);
           balloonPopCanvas.width = width;
           balloonPopCanvas.height = height;
-          balloonPopEmitter = {x:width / 2, y:height/2};
+          balloonPopEmitter = {x:width / 2, y:balloonCenterY};
           balloonPopNewPointFlag = true;
           balloonPopExplodeInterval = setInterval(function() {
             if (balloonPopNewPointFlag){
