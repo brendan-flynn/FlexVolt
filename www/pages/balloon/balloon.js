@@ -365,7 +365,7 @@
           }, transitionLength*1000);
         };
 
-        var balloonPopPoints = [], balloonPopNumPoints = 5000, balloonPopNAddPoints = 500;
+        var balloonPopPoints = [], balloonPopNumPoints = 2000, balloonPopNAddPoints = 400;
         var i, balloonPopCanvas, balloonPopContext;
         var balloonPopGravity = 0.2, balloonPopVelocity = 12;
         var balloonPopEmitter;
