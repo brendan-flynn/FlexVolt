@@ -287,6 +287,7 @@ angular.module('flexvolt.d3plots', [])
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
     var leftPadding = 0;
     var rightPadding = 0;
+    var WidthOffset = 110 + 10; // 110 for col with labels and min/max/mean, 10 for padding
 
     var margin, width, height, plotElement, htmlElement;
     var mar = 0;
@@ -548,8 +549,7 @@ angular.module('flexvolt.d3plots', [])
         htmlElement = element;
         plotElement = '#'+element;
         var html = document.getElementById(htmlElement);
-        var calculatedWidth = window.innerWidth - 10 - 150;
-        if (window.cordova) {calculatedWidth += 80;}
+        var calculatedWidth = window.innerWidth - WidthOffset;
         width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding;
         // width = html.clientWidth - margin.left - margin.right - leftPadding - rightPadding,
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
@@ -689,8 +689,7 @@ angular.module('flexvolt.d3plots', [])
 
     api.resize = function(){
         var html = document.getElementById(htmlElement);
-        var calculatedWidth = window.innerWidth - 10 - 150;
-        if (window.cordova) {calculatedWidth += 80;}
+        var calculatedWidth = window.innerWidth - WidthOffset;
         width = calculatedWidth - margin.left - margin.right - leftPadding - rightPadding;
         height = html.clientHeight - margin.top - margin.bottom - PADDINGOFFSET;
 

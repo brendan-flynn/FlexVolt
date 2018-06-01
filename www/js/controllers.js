@@ -282,26 +282,29 @@
     .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters', 'records', 'hardwareLogic', 'devices',
     function($scope, flexvolt, appLogic, storage, dataHandler, filters, records, hardwareLogic, devices) {
         // high level container for app-wide functions/variables
-        $scope.mobile = false;
         $scope.flexvolt=flexvolt;
         if (window.cordova) {
-            $scope.mobile = true;
+            appLogic.isMobile = true;
             console.log('INFO: App Running in a Mobile Device');
         } else {
+            appLogic.isMobile = false;
             console.log('INFO: App Running in Chrome');
         }
+        $scope.mobile = appLogic.isMobile;
+
         var platform = ionic.Platform.platform();
-        $scope.platform = 'unknown';
+        appLogic.platform = 'unknown';
         if (platform.toLowerCase().indexOf('ios') > -1) {
-            $scope.platform = 'ios';
+            appLogic.platform = 'ios';
         } else if (platform.toLowerCase().indexOf('android') > -1) {
-            $scope.platform = 'android';
+            appLogic.platform = 'android';
         } else if (platform.toLowerCase().indexOf('mac') > -1) {
-            $scope.platform = 'mac';
+            appLogic.platform = 'mac';
         } else if (platform.toLowerCase().indexOf('win') > -1) {
-            $scope.platform = 'windows';
+            appLogic.platform = 'windows';
         }
-        console.log('platform: ' + $scope.platform);
+        $scope.platform = appLogic.platform;
+        console.log('platform: ' + appLogic.platform);
 
         window.flexvolt = flexvolt;
         window.dataHandler = dataHandler;

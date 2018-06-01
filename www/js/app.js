@@ -34,6 +34,7 @@
         'flexvolt.intro',
         'flexvolt.myometer',
         'flexvolt.myometerPlot',
+        'flexvolt.relax',
         'flexvolt.rms',
         'flexvolt.settings',
         'flexvolt.snake',
@@ -167,6 +168,15 @@
             onEnter: dataOn,
             onExit: exitFunction
         })
+
+        .state('relax', {
+            url: '/relax/:demo',
+            templateUrl: 'pages/relax/relax.html',
+            controller: 'RelaxCtrl',
+            //onEnter: dataOn,
+            //onExit: exitFunction
+        })
+
 
         .state('rms', {
             url: '/rms/:demo',

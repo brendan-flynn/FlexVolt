@@ -10,43 +10,33 @@
         <settings-popover></settings-popover>
     </ion-nav-buttons>
   <ion-content scroll="false" class="has-header fv-theme">
-      <!--This div, #traceWindow in this case, gets grabbed by d3 plotting features-->
       <div class="row row-full-height">
-          <!-- <save-panel ng-if="mobile"></save-panel> -->
-          <div ng-if="!mobile" class="col col-150px" style="padding:0px;">
+        
+          <div class="col col-110px" style="padding:0px;">
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
                    style="font-size:14px; line-height:14px; padding:0px;">
                   <div class="row" style="padding:5px 0px;" ng-click="showLabelPopup($index)" >
                       {{label.name}}
                   </div>
                   <div class="row" style="padding:0px;">
-                      <div class="col col-50px">
-                          <div class="row" style="padding-top:0px;">
+                      <div class="col col-30px" style="padding:5px 0px 0px 0px;">
+                          <div class="row" style="padding:0px;">
                             <span ng-style="{'background-color': label.color}"
-                              style="width: 35px; height: 10px; border-width:1px; border-color:black"></span>
+                              style="width: 30px; height: 10px; border-width:1px; border-color:black"></span>
                           </div>
-                          <div class="row" style="margin:0px; padding-top:0px;">
+                          <div class="row" style="margin:0px; padding:5px;">
                               <i class="icon ion-refresh rms-page-icon" ng-click="resetMetrics($index)"></i>
                           </div>
                       </div>
-                      <div ng-if="!mobile" style="padding:0px;" class="col col-100px">
-                          <div class="row">Max:  {{metrics[$index].maxAmplitude | number:0}}</div>
-                          <div class="row">Mean: {{metrics[$index].meanAmplitude | number:0}}</div>
-                          <div class="row" style="padding-bottom:0px;">Min:  {{metrics[$index].minAmplitude | number:0}}</div>
+                      <div style="padding:0px 0px 0px 5px; width: 80px; font-size:12px;" class="col col-80px">
+                          <div class="row" style="padding:3px 0px;">Max:  {{metrics[$index].maxAmplitude | number:0}}</div>
+                          <div class="row" style="padding:3px 0px;">Mean: {{metrics[$index].meanAmplitude | number:0}}</div>
+                          <div class="row" style="padding:3px 0px 0px 0px;">Min:  {{metrics[$index].minAmplitude | number:0}}</div>
                       </div>
                   </div>
               </div>
           </div>
-          <div ng-if="mobile" class="col col-70px">
-              <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
-                   style="font-size: 14px; line-height:14px;">
-                  <div ng-click="showLabelPopup($index)">
-                      <span ng-style="{'background-color': label.color}"
-                        style="display: inline-block; width: 14px; height: 14px;"></span>
-                      {{label.name}}
-                  </div>
-              </div>
-          </div>
+
           <div class="col" style="padding:0px; position:relative;" id="rmsTimeWindow">
               <not-connected></not-connected>
           </div>

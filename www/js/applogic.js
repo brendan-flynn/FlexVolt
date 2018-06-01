@@ -16,7 +16,9 @@ angular.module('flexvolt.appLogic',[])
         appHeight: undefined,
         demo: undefined,
         storedData: undefined,
-        version: undefined
+        version: undefined,
+        isMobile: undefined,
+        platform: undefined
     };
 
     var oldLog = console.log;

@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.balloon', [])
 
-    .controller('BalloonCtrl', ['$stateParams', '$scope', '$state', '$timeout', '$interval','$ionicPopover', '$ionicModal', 'flexvolt', 'balloonLogic', 'hardwareLogic', 'customPopover','dataHandler',
-    function($stateParams, $scope, $state, $timeout, $interval, $ionicPopover, $ionicModal, flexvolt, balloonLogic, hardwareLogic, customPopover, dataHandler) {
+    .controller('BalloonCtrl', ['$stateParams', '$scope', '$state', '$ionicPopover', '$ionicModal', 'flexvolt', 'balloonLogic', 'customPopover','dataHandler',
+    function($stateParams, $scope, $state, $ionicPopover, $ionicModal, flexvolt, balloonLogic, customPopover, dataHandler) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
         $scope.demo = $stateParams.demo;
@@ -23,9 +23,9 @@
         var marginTop = 100;
 
         var transitionLength = 0.5; // seconds
-        var balloonSize, knotSize;
+        var balloonSize, balloonPopSize, knotSize;
         var width, height, centerX, centerY, balloonX, balloonY, knotX, knotY;
-
+        var balloonIsPopped = false;
         var bulgeStep = 6;
         var inflateStep = 10;
         var deflateStep = 10;
@@ -77,11 +77,11 @@
             // console.log(tmp);
             if (tmp > balloonLogic.settings.intensity.threshold/100){
                 if (flexState === STATE_BELOW_THRESHOLD || flexState === STATE_ABOVE_BULGE_THRESHOLD) {
-                  if (flexThresholdTimeout) {$timeout.cancel(flexThresholdTimeout);}
+                  if (flexThresholdTimeout) {clearTimeout(flexThresholdTimeout);}
                   // console.log('transition to flexed');
                   flexState = STATE_ABOVE_FLEX_THRESHOLD;
                   flexStart = Math.round(performance.now());
-                  flexThresholdTimeout = $timeout(function(){
+                  flexThresholdTimeout = setTimeout(function(){
                     if (flexState === STATE_ABOVE_FLEX_THRESHOLD) {
                       // console.log('flex still flexed - inflate');
                       flexState = STATE_FLEXED;
@@ -95,11 +95,11 @@
                 }
             } else if (tmp > balloonLogic.settings.intensity.threshold/2/100) {
                 if (flexState === STATE_BELOW_THRESHOLD) {
-                  if (bulgeThresholdTimeout) {$timeout.cancel(bulgeThresholdTimeout);}
+                  if (bulgeThresholdTimeout) {clearTimeout(bulgeThresholdTimeout);}
                   // console.log('transition to bulged');
                   flexState = STATE_ABOVE_BULGE_THRESHOLD;
                   bulgeStart = Math.round(performance.now());
-                  bulgeThresholdTimeout = $timeout(function(){
+                  bulgeThresholdTimeout = setTimeout(function(){
                     if (flexState === STATE_ABOVE_BULGE_THRESHOLD) {
                       // console.log('bulge still bulged - bulge');
                       flexState = STATE_BULGED;
@@ -107,7 +107,7 @@
                     }
                   }, balloonLogic.settings.time.threshold*1000);
                 } else if (flexState === STATE_ABOVE_FLEX_THRESHOLD) {
-                  if (flexThresholdTimeout) {$timeout.cancel(flexThresholdTimeout);}
+                  if (flexThresholdTimeout) {clearTimeout(flexThresholdTimeout);}
                   var t1 = Math.round(performance.now());
                   if (angular.isDefined(bulgeStart) && (t1-bulgeStart > balloonLogic.settings.time.threshold*1000)) {
                     // console.log('bulge went to flex and back - bulge');
@@ -116,8 +116,8 @@
                   }
                 }
             } else {
-                if (flexThresholdTimeout) {$timeout.cancel(flexThresholdTimeout);}
-                if (bulgeThresholdTimeout) {$timeout.cancel(bulgeThresholdTimeout);}
+                if (flexThresholdTimeout) {clearTimeout(flexThresholdTimeout);}
+                if (bulgeThresholdTimeout) {clearTimeout(bulgeThresholdTimeout);}
                 if (flexState === STATE_ABOVE_BULGE_THRESHOLD || flexState === STATE_ABOVE_FLEX_THRESHOLD) {
                   var t2 = Math.round(performance.now());
                   if (angular.isDefined(flexStart) && t2-flexStart > balloonLogic.settings.time.threshold*1000/2) {
@@ -154,10 +154,10 @@
 
         $scope.$on("$ionicView.leave", function() {
             if (driftXInterval) {
-                $interval.cancel(driftXInterval);
+                clearInterval(driftXInterval);
             }
             if (driftYInterval) {
-                $interval.cancel(driftYInterval);
+                clearInterval(driftYInterval);
             }
         });
 
@@ -169,19 +169,20 @@
           balloonKnotEl = document.getElementById("balloonKnot");
           balloonStringEl = document.getElementById("balloonString");
           balloonStringSVGEl = document.getElementById("balloonStringSVG");
-          console.log(balloonContainer);
-          console.log(balloonDriftXContainer);
-          console.log(balloonDriftYContainer);
-          console.log(balloonBody);
-          console.log(balloonKnot);
-          console.log(balloonString);
-          console.log(balloonStringSVG);
+          // console.log(balloonContainer);
+          // console.log(balloonDriftXContainer);
+          // console.log(balloonDriftYContainer);
+          // console.log(balloonBody);
+          // console.log(balloonKnot);
+          // console.log(balloonString);
+          // console.log(balloonStringSVG);
 
           width = window.innerWidth;
           height = window.innerHeight - marginTop;
           // set the size once, so it doesn't reset every device rotation
           var tmp = Math.min(width,height);
           balloonSize = tmp/4;
+          balloonPopSize = tmp/2;
           console.log('size: ' + balloonSize);
 
           resize(); // gets size and initializes all size-dependent items
@@ -203,8 +204,8 @@
           balloonDriftXContainerEl.style.transitionTimingFunction = "ease-in-out";
           balloonDriftYContainerEl.style.transition = "transform "+ driftDelayY +"s";
           balloonDriftYContainerEl.style.transitionTimingFunction = "ease-in-out";
-          driftXInterval = $interval(updateDriftX, driftDelayX*1000);
-          driftYInterval = $interval(updateDriftY, driftDelayY*1000);
+          driftXInterval = setInterval(updateDriftX, driftDelayX*1000);
+          driftYInterval = setInterval(updateDriftY, driftDelayY*1000);
 
           // Establish the transition times for each style for balloon size, start interval
           var transition = "width "+transitionLength+"s, height "+transitionLength+"s, transform "+transitionLength+"s";
@@ -279,25 +280,47 @@
           balloonBodyEl.style.transform = "translate(" + balloonX + "px," + balloonY + "px) rotate(45deg)";
         }
 
+        function clearBalloon() {
+          var transition = "width "+0+"s, height "+0+"s, transform "+0+"s";
+          balloonBodyEl.style.transition = transition;
+          balloonKnotEl.style.transition = transition;
+          balloonStringEl.style.transition = transition;
+          balloonSize = 0;
+          knotSize = 0;
+          balloonKnotEl.style.width = knotSize + 'px';
+          balloonKnotEl.style.height = knotSize + 'px';
+          balloonStringEl.setAttribute("d","");
+          update();
+        }
+
         $scope.flex = function(intensity) {
-          // console.log('flexing: ' + intensity);
-          if (intensity > balloonLogic.settings.intensity.threshold) {
-            $scope.inflate();
-          } else if (intensity > balloonLogic.settings.intensity.threshold/2) {
-            $scope.bulge();
+          if (balloonIsPopped) {
+            // do nothing - no balloon to change
+          } else if (!balloonIsPopped) {
+            // console.log('flexing: ' + intensity);
+            if (intensity > balloonLogic.settings.intensity.threshold) {
+              $scope.inflate();
+            } else if (intensity > balloonLogic.settings.intensity.threshold/2) {
+              $scope.bulge();
+            }
           }
         };
 
         // make it bigger, then redraw (use percentage growth?)
         $scope.inflate = function() {
           balloonSize += inflateStep;
-          update();
+          if (balloonSize > balloonPopSize) {
+            $scope.popBalloon();
+          } else{
+            update();
+          }
+
         };
 
         $scope.bulge = function() {
           balloonSize += bulgeStep;
           update();
-          $timeout(function(){
+          setTimeout(function(){
             balloonSize -= bulgeStep;
             update();
           }, transitionLength*1000);
@@ -310,10 +333,136 @@
         };
 
         // make it smaller, then redraw
+        // make it smaller, then redraw
         $scope.resetBalloon = function() {
+          stopBalloonPopAndReset();
           var tmp = Math.min(width,height);
           balloonSize = tmp/4;
           update();
+
+          var r = balloonSize/2;
+          knotSize = balloonSize*0.1;
+          knotX = centerX - knotSize/2;
+          knotY = 2*height/3;
+
+          balloonKnotEl.style.width = knotSize + 'px';
+          balloonKnotEl.style.height = knotSize + 'px';
+          balloonKnotEl.style.transform = "translate(" + knotX + "px," + knotY + "px)";
+          balloonStringEl.style.transform = "translate("+(knotX+knotSize/2)+"px," + knotY + "px)";
+
+          drawString();
+          var transition = "width "+transitionLength+"s, height "+transitionLength+"s, transform "+transitionLength+"s";
+          balloonBodyEl.style.transition = transition;
+          balloonKnotEl.style.transition = transition;
+          balloonStringEl.style.transition = transition;
+          // Initial intro is smooth without overshoot.
+          // Change to elastic with overshoot for balloon inflation.
+          setTimeout(function(){
+            var transitionTiming = "cubic-bezier(0, 1.04, 0.46, 3)";
+            balloonBodyEl.style.transitionTimingFunction = transitionTiming;
+            balloonKnotEl.style.transitionTimingFunction = transitionTiming;
+            balloonStringEl.style.transitionTimingFunction = transitionTiming;
+          }, transitionLength*1000);
+        };
+
+        var balloonPopPoints = [], balloonPopNumPoints = 2000, balloonPopNAddPoints = 400;
+        var i, balloonPopCanvas, balloonPopContext;
+        var balloonPopGravity = 0.2, balloonPopVelocity = 12;
+        var balloonPopEmitter;
+        var balloonPopRange = 75, balloonPopRangeFactor = balloonPopRange/balloonPopVelocity;
+        var balloonPopDelayOff = 100, balloonPopNewPointFlag = true;
+        var balloonPopExplodeInterval, balloonPopStopTimeout, balloonPopDelayTimeout;
+        var balloonPopColors = ['red','blue','yellow','orange','green','black','white','purple','pink'];
+
+        balloonPopCanvas = document.getElementById('balloonPopCanvas');
+        balloonPopContext = balloonPopCanvas.getContext("2d");
+
+        function initPoint(p) {
+          var r = Math.random()*balloonPopRange - balloonPopRange/2;
+          var theta = Math.random()*2*Math.PI;
+          var rx = r*Math.cos(theta);
+          var ry = r*Math.sin(theta);
+          p.x = balloonPopEmitter.x + rx;
+          p.y = balloonPopEmitter.y + ry;
+          p.vx = rx/balloonPopRangeFactor;
+          p.vy = ry/balloonPopRangeFactor-25*balloonPopGravity;
+          p.radius = Math.random() * 4 + 1;
+          p.fill = balloonPopColors[Math.floor(Math.random()*balloonPopColors.length)];
+        }
+
+        function updateBalloonPop() {
+          var i, point, len = balloonPopPoints.length;
+          for(i = 0; i < len; i += 1) {
+            point = balloonPopPoints[i];
+            point.vy += balloonPopGravity;
+            point.x += point.vx;
+            point.y += point.vy;
+          }
+        }
+
+        function drawBalloonPop() {
+          var i, point, len = balloonPopPoints.length;
+          balloonPopContext.clearRect(0, 0, width, height);
+          for(i = 0; i < len; i += 1) {
+            point = balloonPopPoints[i];
+            balloonPopContext.beginPath();
+            balloonPopContext.arc(point.x, point.y, point.radius, 0, Math.PI * 2, false);
+            balloonPopContext.fillStyle = point.fill;
+            balloonPopContext.fill();
+          }
+        }
+
+        function addBalloonPopPoint() {
+          var point;
+          for (var i = 0; i < balloonPopNAddPoints; i++){
+            if(balloonPopPoints.length < balloonPopNumPoints) {
+              point = {};
+              initPoint(point);
+              balloonPopPoints.push(point);
+            }
+          }
+        }
+
+        function stopBalloonPopAndReset(){
+          clearTimeout(balloonPopStopTimeout);
+          clearTimeout(balloonPopDelayTimeout);
+          clearInterval(balloonPopExplodeInterval);
+          balloonPopPoints = [];
+          balloonPopContext.clearRect(0, 0, width, height);
+          balloonPopNewPointFlag = true;
+          balloonIsPopped = false;
+        }
+
+        $scope.popBalloon = function() {
+          if (balloonIsPopped) {
+            // if already popping, stop it
+            $scope.resetBalloon();
+          }
+          var balloonCenterY = knotY - balloonSize/2;
+          clearBalloon();
+          balloonIsPopped = true;
+
+          balloonPopPoints = [];
+          balloonPopContext.clearRect(0, 0, width, height);
+          balloonPopCanvas.width = width;
+          balloonPopCanvas.height = height;
+          balloonPopEmitter = {x:width / 2, y:balloonCenterY};
+          balloonPopNewPointFlag = true;
+          balloonPopExplodeInterval = setInterval(function() {
+            if (balloonPopNewPointFlag){
+              addBalloonPopPoint();
+            }
+            updateBalloonPop();
+            drawBalloonPop();
+          }, 1000/48);
+
+          balloonPopDelayTimeout = setTimeout(function(){
+            balloonPopNewPointFlag = false; // stops new points from being added
+          },balloonPopDelayOff);
+
+          balloonPopStopTimeout = setTimeout(function(){
+            $scope.resetBalloon();
+          },4000);
         };
 
         function updateDriftX() {
@@ -330,7 +479,7 @@
           balloonDriftYContainerEl.style.transform = "translate(0," + driftY + "px)";
         }
 
-        $timeout(function() {
+        setTimeout(function() {
           init();
           paintStep();
         },100);
