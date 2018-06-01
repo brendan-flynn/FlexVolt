@@ -130,6 +130,42 @@
             });
         };
 
+        $scope.createBugReportEmail = function() {
+
+          var body = '';
+          body += 'If this is not your preferred email client,\r\n';
+          body += 'please copy all the text below into your \r\n';
+          body += 'email client of choice and send to:\r\n\r\n';
+          body += '            software@flexvoltbiosensor.com \r\n\r\n\r\n\r\n';
+
+
+          body += 'Please enter information here to describe the    \r\n';
+          body += 'problem you are having with the FlexVolt software\r\n';
+          body += '                                                 \r\n';
+          body += '                                                 \r\n';
+          body += 'Your feedback helps me make the app better!      \r\n';
+          body += '  - Brendan Flynn, FlexVolt Founder              \r\n\r\n\r\n';
+
+          var d = new Date();
+          body += 'date: ' + d.toString() + '\r\n';
+          body += 'system browser: ' + window.flexvoltPlatform + '\r\n';
+          body += 'system platform: ' + window.platform + '\r\n';
+          body += 'app version: ' + appLogic.dm.version + '\r\n';
+          body += 'device model: ' + (flexvolt.api.connection.modelNumber !== undefined?flexvolt.api.connection.modelNumber:0) + '\r\n';
+          body += 'device S/N: ' + (flexvolt.api.connection.serialNumber !== undefined?flexvolt.api.connection.serialNumber:0) + '\r\n';
+          body += 'device firmware version: ' + (flexvolt.api.connection.version !== undefined?flexvolt.api.connection.version:0) + '\r\n';
+          body += 'report:\r\n\r\n';
+          body += appLogic.dm.logs;
+
+          var subject= 'Bug Report';
+          var uri = 'mailto:software@flexvoltbiosensor.com?subject=';
+          uri += encodeURIComponent(subject);
+          uri += '&body=';
+          uri += encodeURIComponent(body);
+          window.open(uri);
+          //window.location.href = uri; -- errors in Chrome
+        };
+
         $scope.submitBugReport = function(){
             console.log('INFO: sending bugreport');
             var d = new Date();
