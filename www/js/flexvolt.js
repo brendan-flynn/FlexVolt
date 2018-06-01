@@ -29,8 +29,8 @@ angular.module('flexvolt.flexvolt', [])
 /**
  * Abstracts the flexvolt, deals with bluetooth communications, etc.
  */
-.factory('flexvolt', ['$q', '$timeout', '$interval', 'bluetoothPlugin', 'hardwareLogic', 'devices',
-  function($q, $timeout, $interval, bluetoothPlugin, hardwareLogic, devices) {
+.factory('flexvolt', ['$q', '$timeout', '$interval', '$ionicPopup', 'bluetoothPlugin', 'hardwareLogic', 'devices',
+  function($q, $timeout, $interval, $ionicPopup, bluetoothPlugin, hardwareLogic, devices) {
     // Breaking Changes
 
     // Firmware version 5 introduces on-board RMS and HP filters.
@@ -409,7 +409,19 @@ angular.module('flexvolt.flexvolt', [])
                         }
                     }
                     waitingForResponse = false;
-                    connectionErr('Expected '+inMsg);
+                    if (api.connection.state === 'updating settings'){
+                      console.log('ERROR - did not get expected message 122 after updating settings.  Giving user option of continuing.');
+                      var alertPopup = $ionicPopup.alert({
+                          title: 'Error Updating Settings',
+                          template: 'Hardware settings may not have been properly updated.  Try out \'RMS\' page, and if you are not getting data, try turning your FlexVolt sensor off, then back on, then reset the connection.  (use the connection icon top right).'
+                      });
+                      console.log('WARNING: pretending the proper message was received after updating settings to try to limp along.');
+                      nextFunc();
+                      return;
+                    } else {
+                      connectionErr('Expected '+inMsg);
+                    }
+
                 }
             },waitTime);
         }
@@ -1003,7 +1015,7 @@ angular.module('flexvolt.flexvolt', [])
             function updateSettings3(){
                 if (deferred.updateSettings) {
                     console.log('DEBUG: Update Settings 3');
-                    waitForInput('Y',true,connectedRepeat,api.connection.connectedWait,122,updateDataSettings);
+                    waitForInput('Y',false,connectedRepeat,api.connection.connectedWait,126,updateDataSettings);
                 }
             }
             function updateDataSettings(){
