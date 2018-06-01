@@ -1015,7 +1015,7 @@ angular.module('flexvolt.flexvolt', [])
             function updateSettings3(){
                 if (deferred.updateSettings) {
                     console.log('DEBUG: Update Settings 3');
-                    waitForInput('Y',false,connectedRepeat,api.connection.connectedWait,126,updateDataSettings);
+                    waitForInput('Y',false,connectedRepeat,api.connection.connectedWait,122,updateDataSettings);
                 }
             }
             function updateDataSettings(){
