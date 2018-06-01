@@ -40,8 +40,7 @@ var version = rawJSON.widget.$.version;
 console.log("Version:", version);
 
 var rootdir = process.argv[2];
-
-var currentBuildPlatforms = process.env.CORDOVA_PLATFORMS.split(",");
+var currentBuildPlatforms = (process.env.CORDOVA_PLATFORMS ? process.env.CORDOVA_PLATFORMS.split(',') : []);
 console.log("Current build platforms: ", currentBuildPlatforms);
 
 if (rootdir) {
