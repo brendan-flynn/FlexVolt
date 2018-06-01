@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "cordova-android": "^7.1.0",
-    "cordova-ios": "4.4.0",
+    "cordova-ios": "^4.5.4",
     "cordova-plugin-ble-central": "^1.1.9",
     "cordova-plugin-bluetooth-serial": "~0.4.6",
     "cordova-plugin-device": "^2.0.2",
@@ -41,8 +41,7 @@
   },
   "cordova": {
     "platforms": [
-      "android",
-      "ios"
+      "android"
     ],
     "plugins": {
       "cordova-plugin-bluetooth-serial": {},
