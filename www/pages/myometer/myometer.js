@@ -274,11 +274,45 @@
                     dataHandler.addFilter(myometerLogic.settings.filters[i]);
                 }
     //            dataHandler.setMetrics(60);
-                myometerPlot.init('#myometerWindow', myometerLogic.settings, hardwareLogic.settings.vMax, generalData.settings.targets, updateTargets);
+                myometerPlot.init('#myometerWindow', myometerLogic.settings, myometerLogic.settings.scale, generalData.settings.targets, updateTargets);
                 paintStep();
             });
         }
       }
+
+      $scope.selectedScaleStyle = function(index) {
+        if (myometerLogic.settings.scaleList[index] === $scope.selectedScale) {
+          return "active";
+        }
+      };
+
+      $scope.cancelChangeScale = function() {
+          // do nothing
+          $scope.scaleModal.hide();
+      };
+
+      $scope.confirmChangeScale = function() {
+          myometerLogic.settings.scale = $scope.selectedScale;
+          if (myometerLogic.settings.scale < 10) { myometerLogic.settings.scale = 10;}
+          if (myometerLogic.settings.scale > 1500) {myometerLogic.settings.scale = 1500;}
+          myometerPlot.changeScale(myometerLogic.settings.scale);
+          $scope.scaleModal.hide();
+      };
+
+      $scope.selectScale = function(index) {
+          console.log('selected scale: ' + myometerLogic.settings.scaleList[index] + ', via index: ' + index);
+          $scope.selectedScale = myometerLogic.settings.scaleList[index];
+      };
+
+      $scope.changeScale = function() {
+          $scope.selectedScale = myometerLogic.settings.scale;
+          $ionicModal.fromTemplateUrl('pages/myometer/myometer-scale.html', {
+              scope: $scope
+          }).then(function(modal){
+              $scope.scaleModal = modal;
+              $scope.scaleModal.show();
+          });
+      };
 
       window.onresize = function(){
           if (afID){

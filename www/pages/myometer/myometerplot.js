@@ -3,9 +3,6 @@
 
 angular.module('flexvolt.myometerPlot', [])
 
-/**
- * Abstracts the flexvolt, deals with bluetooth communications, etc.
- */
 .factory('myometerPlot', function() {
     var mar, margin, width, height, plotElement;
     mar = 0;
@@ -290,7 +287,12 @@ angular.module('flexvolt.myometerPlot', [])
           .attr('text-anchor', 'middle')
           .style('font', '16px Helvetica');
       }
-  };
+    };
+
+    api.changeScale = function(newScale) {
+        yMax = newScale;
+        api.resize();
+    };
 
     api.resize = function(){
         console.log('DEBUG: plot resized');
