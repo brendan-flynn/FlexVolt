@@ -166,6 +166,40 @@
                 });
         }
 
+        $scope.selectedScaleStyle = function(index) {
+          if (rmsTimeLogic.settings.scaleList[index] === $scope.selectedScale) {
+            return "active";
+          }
+        };
+
+        $scope.cancelChangeScale = function() {
+            // do nothing
+            $scope.scaleModal.hide();
+        };
+
+        $scope.confirmChangeScale = function() {
+            rmsTimeLogic.settings.scale = $scope.selectedScale;
+            if (rmsTimeLogic.settings.scale < 10) { rmsTimeLogic.settings.scale = 10;}
+            if (rmsTimeLogic.settings.scale > 1500) {rmsTimeLogic.settings.scale = 1500;}
+            rmsTimePlot.changeScale(rmsTimeLogic.settings.scale);
+            $scope.scaleModal.hide();
+        };
+
+        $scope.selectScale = function(index) {
+            console.log('selected scale: ' + rmsTimeLogic.settings.scaleList[index] + ', via index: ' + index);
+            $scope.selectedScale = rmsTimeLogic.settings.scaleList[index];
+        };
+
+        $scope.changeScale = function() {
+            $scope.selectedScale = rmsTimeLogic.settings.scale;
+            $ionicModal.fromTemplateUrl('pages/rms/rms-scale.html', {
+                scope: $scope
+            }).then(function(modal){
+                $scope.scaleModal = modal;
+                $scope.scaleModal.show();
+            });
+        };
+
         window.onresize = function(){
             if (window.innerWidth === appLogic.appWidth && window.innerHeight === appLogic.appHeight) {
                 // size didn't actually change - do nothing

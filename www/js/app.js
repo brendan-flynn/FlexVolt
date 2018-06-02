@@ -36,6 +36,7 @@
         'flexvolt.myometerPlot',
         'flexvolt.relax',
         'flexvolt.rms',
+        'flexvolt.rmsPlot',
         'flexvolt.settings',
         'flexvolt.snake',
         'flexvolt.trace'

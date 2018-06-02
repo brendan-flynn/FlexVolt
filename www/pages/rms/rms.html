@@ -11,7 +11,7 @@
     </ion-nav-buttons>
   <ion-content scroll="false" class="has-header fv-theme">
       <div class="row row-full-height">
-        
+
           <div class="col col-110px" style="padding:0px;">
               <div ng-repeat="label in pageLogic.settings.labels | limitTo : pageLogic.settings.nChannels track by $index"
                    style="font-size:14px; line-height:14px; padding:0px;">
@@ -34,6 +34,9 @@
                           <div class="row" style="padding:3px 0px 0px 0px;">Min:  {{metrics[$index].minAmplitude | number:0}}</div>
                       </div>
                   </div>
+              </div>
+              <div>
+                  <button class="button button-small button-balanced" title="Set Scale" ng-click="changeScale()">Scale</button>
               </div>
           </div>
 

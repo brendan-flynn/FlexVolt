@@ -322,7 +322,9 @@ angular.module('flexvolt.taskLogic', [])
         xMax: 20,
         windowMin: 10,
         windowMax: 500,
-        labels:[]
+        labels:[],
+        scale: 100,
+        scaleList: [10, 20, 50, 100, 500, 1000, 1500]
     };
 
     for (var j = 0; j < 8; j++){
