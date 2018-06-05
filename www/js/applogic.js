@@ -37,7 +37,7 @@ angular.module('flexvolt.appLogic',[])
         oldLog.apply(console, [msg]);
         var d = new Date();
         dm.logs += '\n'+d.toTimeString().slice(0,8)+': '+m;
-        if (dm.logs.length > 100000){
+        if (dm.logs.length > 200000){
             dm.logs = dm.logs.slice(20000);
             console.log('Sliced Logs');
         }

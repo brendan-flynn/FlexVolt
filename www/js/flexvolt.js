@@ -290,11 +290,10 @@ angular.module('flexvolt.flexvolt', [])
 
         // Async event listener function to pass to subscribe/addListener
         function onDataReceived(d){
-            if (api.connection.state === 'connecting' || api.connection.state === 'reconnecting' ||
-                api.connection.state === 'updating settings' || api.connection.state === 'polling' ||
-                api.connection.state === 'resettingBluetoothModule'){
-                console.log('State: ' + api.connection.state +
-                            '. Received: ' + JSON.stringify(d));
+            // basically everything but actual data.
+            if (api.connection.data === 'off' || api.connection.data === 'turningOn') {
+              console.log('State: ' + api.connection.state +
+                          '. Received: ' + JSON.stringify(d));
             }
             // rCount += d.length;
             receivedData = true;
