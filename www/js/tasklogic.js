@@ -382,9 +382,10 @@ angular.module('flexvolt.taskLogic', [])
         tone: {
             enable: false,
             modeList: ['Proportional', 'Threshold'],
-            mode: undefined,
+            mode: 'Proportional',
+            volume: 50,
             thresholdTypeList : ['Below', 'Above'],
-            thresholdType: undefined,
+            thresholdType: 'Below',
             proportionalMinFreq: 440,
             proportionalMaxFreq: 1760,
             aboveThresholdFreq: 880,
@@ -409,8 +410,6 @@ angular.module('flexvolt.taskLogic', [])
                 settings.baselines.push(0);
                 settings.mvcs.push(0);
               }
-              settings.tone.mode = settings.tone.modeList[0];
-              settings.tone.thresholdType = settings.tone.thresholdTypeList[0];
             }
             deferred.resolve();
         });

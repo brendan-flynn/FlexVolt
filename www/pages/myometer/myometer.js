@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.myometer', [])
 
-    .controller('MyometerCtrl', ['$scope', '$state', '$stateParams', '$ionicPopup','$ionicPopover', '$ionicModal', '$interval', 'myometerPlot', 'myometerLogic', 'dataHandler', 'hardwareLogic', 'customPopover','generalData',
-    function($scope, $state, $stateParams, $ionicPopup, $ionicPopover, $ionicModal, $interval, myometerPlot, myometerLogic, dataHandler, hardwareLogic, customPopover, generalData) {
+    .controller('MyometerCtrl',['$scope','$state','$stateParams','$ionicPopup','$ionicPopover','$ionicModal','$interval','myometerPlot','myometerLogic','dataHandler','hardwareLogic','customPopover','generalData','soundPlugin',
+    function($scope, $state, $stateParams, $ionicPopup, $ionicPopover, $ionicModal, $interval, myometerPlot, myometerLogic, dataHandler, hardwareLogic, customPopover, generalData, soundPlugin) {
       var currentUrl = $state.current.url;
       $scope.demo = $stateParams.demo;
       console.log('currentUrl = '+currentUrl);
@@ -59,7 +59,6 @@
       $scope.pageLogic = myometerLogic;
       window.myometerLogic = myometerLogic;
       $scope.hardwareLogic = hardwareLogic;
-      $scope.generalData = generalData.settings;
       $scope.updating = false;
       $scope.baselining = false;
 
@@ -223,6 +222,19 @@
         if (dataIn === null || dataIn === angular.undefined ||
             dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
 
+        if (generalData.settings.tone.isEnabled) {
+          if (generalData.settings.tone.mode === 'Proportional') {
+            var soundSum = 0;
+            for (var i = 0; i < dataIn[0].length; i++){
+              soundSum += dataIn[0][i];
+            }
+            var avg = soundSum/dataIn[0].length;
+            var diff = generalData.settings.tone.proportionalMaxFreq - generalData.settings.tone.proportionalMinFreq;
+            var f = generalData.settings.tone.proportionalMinFreq + diff*avg/generalData.settings.scale;
+            soundPlugin.setFrequency(f);
+          }
+        }
+
         // store data if we are taking a baseline
         if ($scope.baseline.state.name === 'measuring'){
           baselineData = baselineData.concat(dataIn[$scope.baseline.channel]);
@@ -323,6 +335,7 @@
             window.cancelAnimationFrame(afID);
           }
           afID = undefined;
+          soundPlugin.stop();
           $scope.updating  = true;
           //console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
           myometerPlot.resize();

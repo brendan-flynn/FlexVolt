@@ -100,13 +100,13 @@
 
             if (generalData.settings.tone.isEnabled) {
               if (generalData.settings.tone.mode === 'Proportional') {
-                var sum = 0;
-                for (var i = 0; i < dataIn[0].length; i++){
-                  sum += dataIn[0][i];
+                var soundSum = 0;
+                for (var i = 0; i < dataIn[1].length; i++){
+                  soundSum += dataIn[1][i];
                 }
-                var avg = sum/dataIn[0].length;
+                var avg = soundSum/dataIn[1].length;
                 var diff = generalData.settings.tone.proportionalMaxFreq - generalData.settings.tone.proportionalMinFreq;
-                var f = generalData.settings.tone.proportionalMinFreq + diff*avg/rmsTimeLogic.settings.scale;
+                var f = generalData.settings.tone.proportionalMinFreq + diff*avg/generalData.settings.scale;
                 soundPlugin.setFrequency(f);
               }
             }
