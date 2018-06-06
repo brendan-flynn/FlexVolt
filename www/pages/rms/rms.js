@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.rms', [])
 
-    .controller('RMSCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopup', '$ionicPopover', '$ionicModal', 'rmsTimePlot', 'rmsTimeLogic', 'dataHandler', 'hardwareLogic', 'customPopover', 'appLogic',
-    function($stateParams, $scope, $state, flexvolt, $ionicPopup, $ionicPopover, $ionicModal, rmsTimePlot, rmsTimeLogic, dataHandler, hardwareLogic, customPopover, appLogic) {
+    .controller('RMSCtrl', ['$stateParams', '$scope', '$state', 'flexvolt', '$ionicPopup', '$ionicPopover', '$ionicModal', 'rmsTimePlot', 'rmsTimeLogic', 'dataHandler', 'hardwareLogic', 'customPopover', 'appLogic', 'soundPlugin', 'generalData',
+    function($stateParams, $scope, $state, flexvolt, $ionicPopup, $ionicPopover, $ionicModal, rmsTimePlot, rmsTimeLogic, dataHandler, hardwareLogic, customPopover, appLogic, soundPlugin, generalData) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
 
@@ -12,6 +12,11 @@
         customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',rmsTimeLogic.updateSettings);
         // customPopover.add($ionicPopover, $scope, 'helpover','pages/rms/rms-help.html');
         customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/rms/rms-help.html');
+
+        $scope.$on('$ionicView.beforeLeave', function(){
+          console.log('leaving - stop audio');
+          soundPlugin.stop();
+        });
 
         var afID;
         var metricCounts = 0;
@@ -94,6 +99,19 @@
             if (dataIn === null || dataIn === angular.undefined ||
                 dataIn[0] === angular.undefined || dataIn[0].length === 0){return;}
 
+            if (generalData.settings.tone.isEnabled) {
+              if (generalData.settings.tone.mode === 'Proportional') {
+                var sum = 0;
+                for (var i = 0; i < dataIn[0].length; i++){
+                  sum += dataIn[0][i];
+                }
+                var avg = sum/dataIn[0].length;
+                var diff = generalData.settings.tone.proportionalMaxFreq - generalData.settings.tone.proportionalMinFreq;
+                var f = generalData.settings.tone.proportionalMinFreq + diff*avg/rmsTimeLogic.settings.scale;
+                soundPlugin.setFrequency(f);
+              }
+            }
+
             // animate
             rmsTimePlot.update(dataBundle);
         }
@@ -117,7 +135,7 @@
                   updateAnimate();
                 }
 
-            } else if ($state.current.url === '/connection' || $state.current.url === '/settings'){
+            } else if ($state.current.url === '/connection' || $state.current.url === '/settings' || $state.current.url === '/sound'){
                 afID = window.requestAnimationFrame(paintStep);
             }
         }
@@ -209,6 +227,7 @@
                 if (afID){
                   window.cancelAnimationFrame(afID);
                 }
+                soundPlugin.stop();
                 afID = undefined;
                 $scope.updating  = true;
                 console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
