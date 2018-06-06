@@ -11,15 +11,15 @@
             templateUrl: 'pages/sound/sound-icon.html'
         };
     })
-    .controller('SoundCtrl', ['$scope', '$state', '$stateParams', 'generalData', '$ionicModal', 'customPopover',
-        function($scope, $state, $stateParams, generalData, $ionicModal, customPopover){
+    .controller('SoundCtrl', ['$scope', '$state', '$stateParams', 'generalData', '$ionicModal', 'customPopover','soundPlugin',
+        function($scope, $state, $stateParams, generalData, $ionicModal, customPopover, soundPlugin){
 
         console.log('SoundCtrl loaded');
 
         var task = $state.current.name;
         $scope.demo = $stateParams.demo;
 
-        customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/sound/sound-help.html');
+        customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/settings/sound/sound-help.html');
 
         $scope.tone = generalData.settings.tone;
 
@@ -27,6 +27,12 @@
 
         $scope.onChange = function(){
           generalData.updateSettings();
+        };
+
+        $scope.onChangeVolume = function(){
+          soundPlugin.play(generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
+          setTimeout(soundPlugin.stop, 250);
+          $scope.onChange();
         };
 
         $scope.selectSoundMode = function($index){

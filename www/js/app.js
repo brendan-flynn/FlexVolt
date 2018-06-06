@@ -38,9 +38,11 @@
         'flexvolt.rms',
         'flexvolt.rmsPlot',
         'flexvolt.settings',
+        'flexvolt.hardware',
         'flexvolt.sound',
         'flexvolt.snake',
         'flexvolt.trace'
+        'flexvolt.scale',
     ])
 
     .run(function($ionicPlatform, appLogic, BUILD) {
@@ -260,16 +262,26 @@
             controller: 'SettingsCtrl'
         })
 
-        .state('sound', {
-            url: '/sound',
-            templateUrl: 'pages/sound/sound.html',
-            controller: 'SoundCtrl'
-        })
-
         .state('connection', {
             url: '/connection',
-            templateUrl: 'pages/connection/connection.html',
+            templateUrl: 'pages/settings/connection/connection.html',
             controller: 'ConnectionCtrl'
+        })
+        .state('hardware', {
+            url: '/hardware',
+            templateUrl: 'pages/settings/hardware/hardware.html',
+            controller: 'HardwareCtrl'
+        })
+        .state('scale', {
+            url: '/scale',
+            templateUrl: 'pages/settings/scale/scale.html',
+            controller: 'ScaleCtrl'
+        })
+        .state('sound', {
+            url: '/sound',
+            templateUrl: 'pages/settings/sound/sound.html',
+            controller: 'SoundCtrl'
+        })
         })
 
         ;

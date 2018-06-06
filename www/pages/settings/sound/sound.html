@@ -4,8 +4,8 @@
         <!-- <save-panel ng-if="!mobile"></save-panel> -->
     </ion-nav-buttons>
     <ion-nav-buttons side="right">
-        <settings-icon></settings-icon>
         <connection-status></connection-status>
+        <settings-icon></settings-icon>
     </ion-nav-buttons>
   <ion-content class="has-header fv-theme" scroll="false">
     <ul class="list">
@@ -30,26 +30,36 @@
       </li>
       <div ng-if="tone.mode === 'Proportional'">
         <li class="item item-text-wrap">
-          <p>Proportional Feedback: Plays a feedback tone where pitch increases
-            with increased muscle signal intensity</p>
+          <p>Proportional Feedback: Plays a feedback tone where pitch changes
+            when muscle signal intensity changes.  Select a frequency range.
+            Note - if 'Small Muscle Signal' frequency is higher, then pitch decreases
+            when muscle signal increases!
+            </p>
         </li>
         <li class="item">
-          High Frequency
+          <i class="icon ion-volume-low"></i>
+          <input type="range" ng-model="tone.volume" ng-change="onChangeVolume()" name="volume" min="0" max="255">
+          <i class="icon ion-volume-high"></i>
+        </li>
+        <li class="item">
+          Large Muscle Signal
           <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
-            <input ng-model="tone.proportionalMaxFreq" type="number" ng-change="onChange()"/>
+            <input style="text-align:right; padding-right: 20px;" ng-model="tone.proportionalMaxFreq" type="number" ng-change="onChange()"/>
+            <span style="display: block; position: absolute; right:0px; top: 8px;">Hz</span>
           </div>
         </li>
         <li class="item">
-          Low Frequency
+          Small Muscle Signal
           <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
-            <input ng-model="tone.proportionalMinFreq" type="number" ng-change="onChange()"/>
+            <input style="text-align:right; padding-right: 20px;" ng-model="tone.proportionalMinFreq" type="number" ng-change="onChange()"/>
+            <span style="display: block; position: absolute; right:0px; top: 8px;">Hz</span>
           </div>
         </li>
       </div>
       <div ng-if="tone.mode === 'Threshold'">
         <li class="item item-text-wrap">
           <p>Threshold Feedback: Plays a feedback tone when muscle signal is
-            above/below a set threshold</p>
+            above/below a set threshold.  <strong>NOTE - THRESHOLD FEEDBACK IS NOT IMPLEMENTED YET</strong></p>
         </li>
         <li class="item">
           Play Sound When Signal is
@@ -66,13 +76,13 @@
           <li class="item">
             Threshold
             <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
-              <input ng-model="tone.aboveThreshold" type="number" ng-change="onChange()"/>
+              <input ng-model="tone.aboveThreshold" type="number" ng-change="onChange()"/>uV
             </div>
           </li>
           <li class="item">
             Tone Frequency
             <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
-              <input ng-model="tone.aboveThresholdFreq" type="number" ng-change="onChange()"/>
+              <input ng-model="tone.aboveThresholdFreq" type="number" ng-change="onChange()"/>Hz
             </div>
           </li>
         </div>
@@ -80,13 +90,13 @@
           <li class="item">
             Threshold
             <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
-              <input ng-model="tone.belowThreshold" type="number" ng-change="onChange()"/>
+              <input ng-model="tone.belowThreshold" type="number" ng-change="onChange()"/>uV
             </div>
           </li>
           <li class="item">
             Tone Frequency
             <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
-              <input ng-model="tone.belowThresholdFreq" type="number" ng-change="onChange()"/>
+              <input ng-model="tone.belowThresholdFreq" type="number" ng-change="onChange()"/>Hz
             </div>
           </li>
         </div>
