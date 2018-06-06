@@ -16,6 +16,8 @@
         $scope.$on('$ionicView.beforeLeave', function(){
           console.log('leaving - stop audio');
           soundPlugin.stop();
+          $scope.resetMetrics();
+          rmsTimePlot.resize();
         });
 
         var afID;
@@ -41,9 +43,6 @@
             }
 
             $scope.updating  = false;
-            if (dataHandler.controls.live) {
-                paintStep();
-            }
         };
 
         $scope.showLabelPopup = function(ind) {
@@ -134,9 +133,6 @@
                 if (dataHandler.controls.live) {
                   updateAnimate();
                 }
-
-            } else if ($state.current.url === '/connection' || $state.current.url === '/settings' || $state.current.url === '/sound'){
-                afID = window.requestAnimationFrame(paintStep);
             }
         }
 
@@ -243,5 +239,19 @@
 
         dataHandler.resetPage = init;
         init();
+
+        // need to reset page and turn data back on when navigating back to the
+        // page from other pages like settings, connection, etc.  But don't
+        // want to init twice on first load!
+        // var initialLoad = false;
+        // $scope.$on('$ionicView.enter', function(){
+        //   if (!initialLoad){
+        //     initialLoad = true;
+        //   } else {
+        //     console.log('entered rms');
+        //     $scope.onChange();
+        //   }
+        // });
+
     }]);
 }());

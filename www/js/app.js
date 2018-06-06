@@ -136,6 +136,7 @@
 //    })
     .config(function($ionicConfigProvider){
         $ionicConfigProvider.backButton.previousTitleText(false).text('');
+        $ionicConfigProvider.views.maxCache(0);
     })
     .config(function($stateProvider, $urlRouterProvider) {
 

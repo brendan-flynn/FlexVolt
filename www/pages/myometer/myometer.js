@@ -14,6 +14,11 @@
       // customPopovers.add($ionicPopover, $scope, 'helpover','pages/myometer/myometer-help.html');
       customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/myometer/myometer-help.html');
 
+      $scope.$on('$ionicView.beforeLeave', function(){
+        console.log('leaving - stop audio');
+        soundPlugin.stop();
+      });
+
       var afID;
       var frameCounts = 0;
       var stateInterval, myPopup, baselineData;
@@ -256,8 +261,6 @@
             frameCounts = 0;
             updateAnimate();
           }
-        } else if ($state.current.url === '/connection'){
-          afID = window.requestAnimationFrame(paintStep);
         }
       }
 
@@ -328,6 +331,19 @@
       };
 
       init();
+
+      // need to reset page and turn data back on when navigating back to the
+      // page from other pages like settings, connection, etc.  But don't
+      // want to init twice on first load!
+      // var initialLoad = false;
+      // $scope.$on('$ionicView.enter', function(){
+      //   if (!initialLoad){
+      //     initialLoad = true;
+      //   } else {
+      //     console.log('entered rms');
+      //     $scope.onChange();
+      //   }
+      // });
     }]);
 
 }());
