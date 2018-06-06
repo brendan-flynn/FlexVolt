@@ -3,7 +3,7 @@
 
 angular.module('flexvolt.rmsPlot', [])
 
-.factory('rmsTimePlot', function() {
+.factory('rmsTimePlot', ['generalData', function(generalData) {
     var colorList = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
     var leftPadding = 0;
     var rightPadding = 0;
@@ -280,7 +280,7 @@ angular.module('flexvolt.rmsPlot', [])
         api.settings.windowSizeInSeconds = rmsTimeLogicSettings.xMax; // It's in seconds!
 
         xMax = api.settings.windowSizeInSeconds*1000; // size of Window in milliseconds (all times are in ms)
-        yMax = rmsTimeLogicSettings.scale;
+        yMax = generalData.settings.scale;
         calculateDownSample(); // check out downSampleMultiplier
         panExtent = {x: [0,xMax], y: [-0.01*yMax,1.01*yMax] };
 
@@ -315,7 +315,7 @@ angular.module('flexvolt.rmsPlot', [])
         api.settings.windowSizeInSeconds = xMax; // It's in seconds!
 
         xMax = api.settings.windowSizeInSeconds*1000; // size of Window in milliseconds (all times are in ms)
-        yMax = rmsTimeLogicSettings.scale;
+        yMax = generalData.settings.scale;
         calculateDownSample(); // check out downSampleMultiplier
         panExtent = {x: [0,xMax], y: [-0.02*yMax,1.02*yMax] };
 

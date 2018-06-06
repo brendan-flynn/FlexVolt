@@ -5,7 +5,7 @@
   <ion-content>
       <div class="list">
         <div class="item row"
-             ng-repeat="scaleOption in pageLogic.settings.scaleList track by $index"
+             ng-repeat="scaleOption in generalData.settings.scaleList track by $index"
              ng-class="selectedScaleStyle($index)"
              ng-click="selectScale($index)">
           <div class="col"> 0 - {{scaleOption}}uV</div>

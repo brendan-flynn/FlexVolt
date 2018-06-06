@@ -185,7 +185,7 @@
         }
 
         $scope.selectedScaleStyle = function(index) {
-          if (rmsTimeLogic.settings.scaleList[index] === $scope.selectedScale) {
+          if (generalData.settings.scaleList[index] === $scope.selectedScale) {
             return "active";
           }
         };
@@ -196,20 +196,20 @@
         };
 
         $scope.confirmChangeScale = function() {
-            rmsTimeLogic.settings.scale = $scope.selectedScale;
-            if (rmsTimeLogic.settings.scale < 10) { rmsTimeLogic.settings.scale = 10;}
-            if (rmsTimeLogic.settings.scale > 1500) {rmsTimeLogic.settings.scale = 1500;}
-            rmsTimePlot.changeScale(rmsTimeLogic.settings.scale);
+            generalData.settings.scale = $scope.selectedScale;
+            if (generalData.settings.scale < 10) { generalData.settings.scale = 10;}
+            if (generalData.settings.scale > 1500) {generalData.settings.scale = 1500;}
+            generalData.updateSettings();
+            $scope.onChange();
             $scope.scaleModal.hide();
         };
 
         $scope.selectScale = function(index) {
-            console.log('selected scale: ' + rmsTimeLogic.settings.scaleList[index] + ', via index: ' + index);
-            $scope.selectedScale = rmsTimeLogic.settings.scaleList[index];
+            $scope.selectedScale = generalData.settings.scaleList[index];
         };
 
         $scope.changeScale = function() {
-            $scope.selectedScale = rmsTimeLogic.settings.scale;
+            $scope.selectedScale = generalData.settings.scale;
             $ionicModal.fromTemplateUrl('pages/rms/rms-scale.html', {
                 scope: $scope
             }).then(function(modal){

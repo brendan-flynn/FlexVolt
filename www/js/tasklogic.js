@@ -322,9 +322,7 @@ angular.module('flexvolt.taskLogic', [])
         xMax: 20,
         windowMin: 10,
         windowMax: 500,
-        labels:[],
-        scale: 100,
-        scaleList: [10, 20, 50, 100, 500, 1000, 1500]
+        labels:[]
     };
 
     for (var j = 0; j < 8; j++){
@@ -379,6 +377,8 @@ angular.module('flexvolt.taskLogic', [])
           relative:  [50,50,50,50,50,50,50,50]
         },
         labels: [],
+        scale: 100,
+        scaleList: [10, 20, 50, 100, 500, 1000, 1500],
         tone: {
             enable: false,
             modeList: ['Proportional', 'Threshold'],
@@ -440,9 +440,7 @@ angular.module('flexvolt.taskLogic', [])
           absolute: [0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8],
           relative:  [50,50,50,50,50,50,50,50]
         },
-        labels: [],
-        scale: 100,
-        scaleList: [10, 20, 50, 100, 500, 1000, 1500]
+        labels: []
     };
 
     settings.baselineMode = settings.baselineModeList[0].value;
