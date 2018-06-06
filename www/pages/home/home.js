@@ -2,26 +2,26 @@
     'use strict';
 
     angular.module('flexvolt.home', [])
-    .controller('HomeCtrl', ['$scope','$state','appIntroRecords', function($scope,$state,appIntroRecords){
-        appIntroRecords.ready()
+    .controller('HomeCtrl', ['$scope','$state','introRecords', function($scope,$state,introRecords){
+        introRecords.ready()
           .then(function(){
             function showIntro(){
               d = new Date();
-              appIntroRecords.settings.intro.hasBeenShown = true;
-              appIntroRecords.settings.intro.dateShown = d;
-              appIntroRecords.updateSettings();
+              introRecords.settings.intro.hasBeenShown = true;
+              introRecords.settings.intro.dateShown = d;
+              introRecords.updateSettings();
               $state.go('intro');
             }
 
-            if (!appIntroRecords.settings.intro.hasBeenShown){
-              console.log('User has not seen intro - going there now.');
+            if (!introRecords.settings.intro.hasBeenShown){
+              console.log('INFO: User has not seen intro - going there now.');
               showIntro();
-            } else if (appIntroRecords.settings.intro.hasBeenShown) {
+            } else if (introRecords.settings.intro.hasBeenShown) {
               var d = new Date();
-              var lastShown = appIntroRecords.settings.intro.dateShown;
+              var lastShown = introRecords.settings.intro.dateShown;
               var elapsedTimeDays = (d-lastShown)/(1000*60*60*24);
-              if (elapsedTimeDays > 30){
-                console.log('User has not seen intro in ' + elapsedTimeDays + '! going there now.');
+              if (elapsedTimeDays > 5){
+                console.log('INFO: User has not seen intro in ' + elapsedTimeDays + '! going there now.');
                 showIntro();
               }
             }

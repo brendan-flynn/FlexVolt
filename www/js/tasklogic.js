@@ -425,7 +425,7 @@ angular.module('flexvolt.taskLogic', [])
         ready: function(){return deferred.promise;}
     };
 }])
-.factory('appIntroRecords', ['$q', 'storage', function($q, storage){
+.factory('introRecords', ['$q', 'storage', function($q, storage){
     var deferred = $q.defer();
     var settings = {
       intro: {
@@ -438,7 +438,7 @@ angular.module('flexvolt.taskLogic', [])
       }
     };
 
-    storage.get('appIntroRecords')
+    storage.get('introRecords')
         .then(function(tmp){
             if (tmp){
                 for (var field in tmp){
@@ -451,7 +451,7 @@ angular.module('flexvolt.taskLogic', [])
         });
 
     function updateSettings(){
-        storage.set({generalData:settings});
+        storage.set({introRecords:settings});
     }
 
     return {
