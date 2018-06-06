@@ -51,15 +51,20 @@ if (rootdir) {
                 wwwPath = "platforms/ios/www/";
                 break;
             case "android":
-                wwwPath = "platforms/android/assets/www/";
+                console.log('Found Android build platform');
+                wwwPath = "platforms/android/app/src/main/assets/www/";
                 break;
             default:
                 console.log("Unknown build platform: " + val);
         }
+        console.log('Path to replace: ' + wwwPath);
         var fullfilename = path.join(rootdir, wwwPath + wwwFileToReplace);
         if (fs.existsSync(fullfilename)) {
+            console.log('Found fullfilename: ' + fullfilename);
             replace_string_in_file(fullfilename, "%%VERSION%%", version);
             console.log("Replaced version in file: " + fullfilename);
+        } else {
+            console.log('did not find full file name: ' + fullfilename);
         }
     });
 }
