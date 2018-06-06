@@ -23,26 +23,29 @@
         'flexvolt.appLogic',
         'flexvolt.taskLogic',
         'flexvolt.dsp',
-        // pages
-        'flexvolt.balloon',
-        'flexvolt.connection',
+        // top-level pages
+        'flexvolt.home',
         'flexvolt.demos',
+        'flexvolt.intro',
+        // task pages
+        'flexvolt.balloon',
         'flexvolt.ekg',
         'flexvolt.godot',
-        'flexvolt.home',
         'flexvolt.hrv',
-        'flexvolt.intro',
         'flexvolt.myometer',
         'flexvolt.myometerPlot',
         'flexvolt.relax',
         'flexvolt.rms',
         'flexvolt.rmsPlot',
+        'flexvolt.snake',
+        'flexvolt.trace',
+        // settings pages
         'flexvolt.settings',
+        'flexvolt.connection',
         'flexvolt.hardware',
         'flexvolt.sound',
-        'flexvolt.snake',
-        'flexvolt.trace'
         'flexvolt.scale',
+        'flexvolt.pages'
     ])
 
     .run(function($ionicPlatform, appLogic, BUILD) {
@@ -164,6 +167,16 @@
             templateUrl: 'pages/home/home.html',
             controller: 'HomeCtrl'
         })
+        .state('demos', {
+            url: '/demos',
+            templateUrl: 'pages/demos/demos.html',
+            controller: 'DemoCtrl'
+        })
+        .state('intro', {
+            url: '/intro',
+            templateUrl: 'pages/intro/intro.html',
+            controller: 'IntroCtrl'
+        })
 
         .state('trace', {
             url: '/trace/:demo',
@@ -172,7 +185,6 @@
             onEnter: dataOn,
             onExit: exitFunction
         })
-
         .state('relax', {
             url: '/relax/:demo',
             templateUrl: 'pages/relax/relax.html',
@@ -181,7 +193,6 @@
             //onExit: exitFunction
         })
 
-
         .state('rms', {
             url: '/rms/:demo',
             templateUrl: 'pages/rms/rms.html',
@@ -189,7 +200,6 @@
             onEnter: dataOn,
             onExit: exitFunction
         })
-
         .state('godot', {
             url: '/godot/:demo',
             templateUrl: 'pages/godot/godot.html',
@@ -197,7 +207,6 @@
             onEnter: dataOn,
             onExit: exitFunction
         })
-
         .state('snake', {
             url: '/snake/:demo',
             templateUrl: 'pages/snake/snake.html',
@@ -205,7 +214,6 @@
 //            onEnter: dataOn,
 //            onExit: exitFunction
         })
-
         .state('myometer', {
             url: '/myometer:demo',
             templateUrl: 'pages/myometer/myometer.html',
@@ -213,7 +221,6 @@
             onEnter: dataOn,
             onExit: exitFunction
         })
-
         .state('balloon', {
             url: '/balloon:demo',
             templateUrl: 'pages/balloon/balloon.html',
@@ -221,7 +228,6 @@
             onEnter: dataOn,
             onExit: exitFunction
         })
-
         .state('ekg', {
             url: '/ekg',
             templateUrl: 'pages/ekg/ekg.html',
@@ -229,7 +235,6 @@
 //            onEnter: dataOn,
 //            onExit: exitFunction
         })
-
         .state('hrv', {
             url: '/hrv',
             templateUrl: 'pages/hrv/hrv.html',
@@ -238,30 +243,18 @@
 //            onExit: exitFunction
         })
 
-        .state('demos', {
-            url: '/demos',
-            templateUrl: 'pages/demos/demos.html',
-            controller: 'DemoCtrl'
-        })
-
         .state('help', {
             url: '/help',
             templateUrl: 'pages/help/help.html',
             controller: 'ConnectionCtrl'
         })
 
-        .state('intro', {
-            url: '/intro',
-            templateUrl: 'pages/intro/intro.html',
-            controller: 'IntroCtrl'
-        })
 
         .state('settings', {
             url: '/settings',
             templateUrl: 'pages/settings/settings.html',
             controller: 'SettingsCtrl'
         })
-
         .state('connection', {
             url: '/connection',
             templateUrl: 'pages/settings/connection/connection.html',
@@ -282,7 +275,18 @@
             templateUrl: 'pages/settings/sound/sound.html',
             controller: 'SoundCtrl'
         })
+        .state('rms-settings', {
+            url: '/rms-settings',
+            templateUrl: 'pages/settings/pages/rms-settings/rms-settings.html',
+            controller: 'RMSSettingsCtrl'
         })
+        .state('myometer-settings', {
+            url: '/myometer-settings',
+            templateUrl: 'pages/settings/pages/myometer-settings/myometer-settings.html',
+            controller: 'MyometerSettingsCtrl'
+        })
+
+
 
         ;
 

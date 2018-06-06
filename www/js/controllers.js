@@ -279,10 +279,11 @@
 
         /* ********* */
     }])
-    .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters', 'records', 'hardwareLogic', 'devices',
-    function($scope, flexvolt, appLogic, storage, dataHandler, filters, records, hardwareLogic, devices) {
+    .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters', 'records', 'hardwareLogic', 'devices','generalData',
+    function($scope, flexvolt, appLogic, storage, dataHandler, filters, records, hardwareLogic, devices, generalData) {
         // high level container for app-wide functions/variables
         $scope.flexvolt=flexvolt;
+        $scope.generalData = generalData;
         if (window.cordova) {
             appLogic.isMobile = true;
             console.log('INFO: App Running in a Mobile Device');
@@ -312,5 +313,6 @@
         window.records = records;
         window.hardwareLogic = hardwareLogic;
         window.devices = devices;
+        window.generalData = generalData;
     }]);
 }());
