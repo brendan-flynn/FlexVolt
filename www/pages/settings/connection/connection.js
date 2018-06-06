@@ -20,6 +20,8 @@
                 var batteryLow = 3.2;
                 var batteryHigh = 4.2;
 
+                $scope.batteryLevelAvailable = flexvolt.api.getIsBatteryLevelAvailable();
+
                 function updateIndicator() {
                     if (angular.isDefined(flexvolt.api.connection.batteryVoltage) &&
                         flexvolt.api.connection.batteryVoltage !== null &&
@@ -52,7 +54,7 @@
                 $timeout(updateIndicator, 100); // have to call this every time this indicator is created on each page
                 $timeout(updateIndicator, 500); // have to call this every time this indicator is created on each page
             },
-            templateUrl: 'pages/connection/connection-indicator.html'
+            templateUrl: 'pages/settings/connection/connection-indicator.html'
         };
     })
     .controller('ConnectionCtrl',

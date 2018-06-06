@@ -11,7 +11,7 @@ and open the template in the editor.
         <i ng-if="flexvolt.getConnectionStatus()" class="icon ion-radio-waves positive"></i>
         <i ng-if="!flexvolt.getConnectionStatus()" class="icon ion-radio-waves assertive"></i>
     </button>
-    <div ng-if="flexvolt.getConnectionStatus()" class="battery" id="battery">
+    <div ng-if="batteryLevelAvailable && flexvolt.getConnectionStatus()" class="battery" id="battery">
       <div class="battery-body" id="battery-body"></div>
       <div class="battery-nub" id="battery-nub"></div>
       <div class="battery-level" ng-style="batteryLevelStyle" id="battery-level"></div>

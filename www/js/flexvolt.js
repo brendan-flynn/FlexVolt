@@ -140,6 +140,8 @@ angular.module('flexvolt.flexvolt', [])
         flexvoltPortList: [],
         tryList: undefined,
         currentDevice: undefined,
+        pollBattery: undefined,
+        getIsBatteryLevelAvailable: undefined,
         updateBatteryIndicator: function(newLevel){}, // defined by connection-indicator ctrl
         connection: { // properties dependent on the device connected
             initialWait: undefined,
@@ -753,9 +755,17 @@ angular.module('flexvolt.flexvolt', [])
             }
         };
 
+        api.getIsBatteryLevelAvailable = function(){
+          if (api.connection.version >= BREAKING_CHANGE_POLL_BATTERY) {
+            return true;
+          } else {
+            return false;
+          }
+        };
+
         api.pollBattery = function(){
             deferred.pollingBattery = $q.defer();
-            if (api.connection.version > 3) {
+            if (api.connection.version >= BREAKING_CHANGE_POLL_BATTERY) {
                 if (api.connection.state === 'connected') {
                     api.connection.state = 'polling';
                     bluetoothPlugin.clear(
