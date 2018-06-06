@@ -378,7 +378,20 @@ angular.module('flexvolt.taskLogic', [])
           absolute: [500,500,500,500,500,500,500,500],
           relative:  [50,50,50,50,50,50,50,50]
         },
-        labels: []
+        labels: [],
+        tone: {
+            enable: false,
+            modeList: ['Proportional', 'Threshold'],
+            mode: undefined,
+            thresholdTypeList : ['Below', 'Above'],
+            thresholdType: undefined,
+            proportionalMinFreq: 440,
+            proportionalMaxFreq: 1760,
+            aboveThresholdFreq: 880,
+            aboveThreshold: 500,
+            belowThresholdFreq: 440,
+            belowThreshold: 20
+        }
     };
 
     storage.get('generalData')
@@ -396,6 +409,8 @@ angular.module('flexvolt.taskLogic', [])
                 settings.baselines.push(0);
                 settings.mvcs.push(0);
               }
+              settings.tone.mode = settings.tone.modeList[0];
+              settings.tone.thresholdType = settings.tone.thresholdTypeList[0];
             }
             deferred.resolve();
         });

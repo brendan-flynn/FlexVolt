@@ -1,0 +1,33 @@
+<ion-modal-view ng-click="helpModal.hide()">
+  <ion-header-bar class="bar bar-header bar-balanced">
+    <h1 class="title">Sound Help</h1>
+  </ion-header-bar>
+  <ion-content>
+      <div class="help-modal">
+          <p>The FlexVolt app can generate auditory feedback based on your muscles signals.
+            This can be very useful if you want to monitor your muscle contraction
+            levels without watching them on a screen!</p>
+
+          <p>There are two audio feedback modes:</p>
+          <ul class="list">
+            <li class="item">Proportional - the pitch (frequency) of the tone changes with changes
+              in muscle signal intensity.  Higher pitch means stronger signals.</li>
+            <li class="item">2. Threshold - hear a tone when your muscle signal passes a set level
+              <ul class="list">
+                <li class="item">  * Above Threshold - set a target level in microvolts, uV, and hear a tone when your muscle
+                contraction signal is above that level.</li>
+                <li class="item">  * Below Threshold - set a target level in microvolts, uV, and hear a tone when your muscle
+                  contraction signal is below that level.</li>
+              </ul>
+            </li>
+          </ul>
+
+
+
+
+          <div style="text-align: center;">
+            <button ng-click="helpModal.hide()" class="button button-balanced">Got it!</button>
+          </div>
+      </div>
+  </ion-content>
+</ion-modal-view>

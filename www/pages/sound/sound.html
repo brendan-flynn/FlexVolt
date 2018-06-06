@@ -1,0 +1,98 @@
+<ion-view title="Sound Settings">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+        <!-- <save-panel ng-if="!mobile"></save-panel> -->
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <settings-icon></settings-icon>
+        <connection-status></connection-status>
+    </ion-nav-buttons>
+  <ion-content class="has-header fv-theme" scroll="false">
+    <ul class="list">
+      <li class="item item-toggle">
+        On/Off
+        <label class="toggle">
+          <input type="checkbox" ng-model="tone.isEnabled" ng-change="onChange()">
+          <div class="track">
+            <div class="handle"></div>
+          </div>
+        </label>
+      </li>
+      <li class="item">
+        Mode
+        <div style="display:block; position: absolute; right: 16px; top: 10px;">
+           <button style="line-height:20px; margin:0px;"
+                   class="button button-small button-stable"
+                   ng-repeat="toneModeOption in tone.modeList track by $index"
+                   ng-class="selectedSoundModeStyle($index)"
+                   ng-click="selectSoundMode($index)">{{toneModeOption}}</button>
+        </div>
+      </li>
+      <div ng-if="tone.mode === 'Proportional'">
+        <li class="item item-text-wrap">
+          <p>Proportional Feedback: Plays a feedback tone where pitch increases
+            with increased muscle signal intensity</p>
+        </li>
+        <li class="item">
+          High Frequency
+          <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
+            <input ng-model="tone.proportionalMaxFreq" type="number" ng-change="onChange()"/>
+          </div>
+        </li>
+        <li class="item">
+          Low Frequency
+          <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
+            <input ng-model="tone.proportionalMinFreq" type="number" ng-change="onChange()"/>
+          </div>
+        </li>
+      </div>
+      <div ng-if="tone.mode === 'Threshold'">
+        <li class="item item-text-wrap">
+          <p>Threshold Feedback: Plays a feedback tone when muscle signal is
+            above/below a set threshold</p>
+        </li>
+        <li class="item">
+          Play Sound When Signal is
+          <div style="display:block; position: absolute; right: 16px; top: 10px;">
+             <button style="line-height:20px; margin:0px;"
+                     class="button button-small button-stable"
+                     ng-repeat="toneThresholdType in tone.thresholdTypeList track by $index"
+                     ng-class="selectedThresholdTypeStyle($index)"
+                     ng-click="selectThresholdType($index)">{{toneThresholdType}}</button>
+          </div>
+        </li>
+
+        <div ng-if="tone.thresholdType === 'Above'">
+          <li class="item">
+            Threshold
+            <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
+              <input ng-model="tone.aboveThreshold" type="number" ng-change="onChange()"/>
+            </div>
+          </li>
+          <li class="item">
+            Tone Frequency
+            <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
+              <input ng-model="tone.aboveThresholdFreq" type="number" ng-change="onChange()"/>
+            </div>
+          </li>
+        </div>
+        <div ng-if="tone.thresholdType === 'Below'">
+          <li class="item">
+            Threshold
+            <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
+              <input ng-model="tone.belowThreshold" type="number" ng-change="onChange()"/>
+            </div>
+          </li>
+          <li class="item">
+            Tone Frequency
+            <div style="display:block; position: absolute; right: 16px; top: 10px; text-align:right;">
+              <input ng-model="tone.belowThresholdFreq" type="number" ng-change="onChange()"/>
+            </div>
+          </li>
+        </div>
+
+      </div>
+    </ul>
+
+  </ion-content>
+</ion-view>

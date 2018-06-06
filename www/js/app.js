@@ -38,6 +38,7 @@
         'flexvolt.rms',
         'flexvolt.rmsPlot',
         'flexvolt.settings',
+        'flexvolt.sound',
         'flexvolt.snake',
         'flexvolt.trace'
     ])
@@ -257,6 +258,12 @@
             url: '/settings',
             templateUrl: 'pages/settings/settings.html',
             controller: 'SettingsCtrl'
+        })
+
+        .state('sound', {
+            url: '/sound',
+            templateUrl: 'pages/sound/sound.html',
+            controller: 'SoundCtrl'
         })
 
         .state('connection', {
