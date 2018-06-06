@@ -15,6 +15,179 @@
 
 angular.module('flexvolt.services', [])
 
+.factory('soundPlugin', ['$timeout', function($timeout){
+  // volume range is 0:255
+  // frequency range is __ : __
+
+  var soundPlugin = {
+    play: undefined,
+    setVolume: undefined,
+    setFrequency: undefined,
+    stop: undefined,
+    getCurrentVolume: undefined,
+    getCurrentFrequency: undefined,
+    getIsPlaying: undefined
+  };
+
+  var DEFAULT_FREQUENCY = 440;
+  var DEFAULT_VOLUME = 50;
+  var MAX_VOLUME = 255;
+  var MIN_VOLUME = 0;
+  var MAX_FREQUENCY = 16000;
+  var MIN_FREQUENCY = 140;
+
+  var isPlaying = false;
+  var currentVolume = DEFAULT_VOLUME;
+  var currentFrequency = DEFAULT_FREQUENCY;
+
+  // Chrome specifics
+  var audioCtx, gainNode, oscillator;
+
+  soundPlugin.getCurrentVolume = function(){
+    return currentVolume;
+  };
+  soundPlugin.getCurrentFrequency = function(){
+    return currentFrequency;
+  };
+  soundPlugin.getIsPlaying = function(){
+    return isPlaying;
+  };
+
+  ionic.Platform.ready(function() {
+    if (window.cordova && window.cordova.plugins ) {
+      soundPlugin.play = function(freq, vol) {
+        if (vol === 'undefined') {
+          console.log('WARN: Called soundPlugin.play with no volume specified!');
+          vol = DEFAULT_VOLUME;
+        }
+        if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+        if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+        if (freq === 'undefined') {
+          console.log('WARN: Called soundPlugin.play with no frequency specified!');
+          freq = DEFAULT_FREQUENCY;
+        }
+        if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+        if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+        currentFrequency = freq;
+        currentVolume = vol;
+        if (isPlaying){
+          console.log('WARN: soundPlugin.play called but already playing, updating volume/frequency instead');
+          window.cordova.plugins.tonegenerator.volume(currentVolume);
+          window.cordova.plugins.tonegenerator.frequency(currentFrequency);
+        } else {
+          isPlaying = true;
+          window.cordova.plugins.tonegenerator.play(currentFrequency, currentVolume);
+        }
+      };
+      soundPlugin.setVolume = function(vol) {
+        if (vol === 'undefined') {
+          console.log('WARN: Called soundPlugin.setVolume with no volume specified!');
+          vol = DEFAULT_VOLUME;
+        }
+        if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+        if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+        currentVolume = vol;
+        if (isPlaying){
+          window.cordova.plugins.tonegenerator.volume(currentVolume);
+        } else {
+          console.log('WARN: soundPlugin.setVolume called but not playing, calling play instead');
+          soundPlugin.play(currentFrequency, currentVolume);
+        }
+      };
+      soundPlugin.setFrequency = function(freq) {
+        if (freq === 'undefined') {
+          console.log('WARN: Called soundPlugin.setfrequency with no frequency specified!');
+          freq = DEFAULT_FREQUENCY;
+        }
+        if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+        if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+        currentFrequency = freq;
+        if (isPlaying){
+          window.cordova.plugins.tonegenerator.frequency(currentFrequency);
+        } else {
+          console.log('WARN: soundPlugin.setFrequency called but not playing, calling play instead');
+          soundPlugin.play(currentFrequency, currentVolume);
+        }
+      };
+      soundPlugin.stop = function() {
+        isPlaying = false;
+        window.cordova.plugins.tonegenerator.stop();
+      };
+    } else if (window.chrome) {
+      audioCtx = new window.AudioContext();
+
+      soundPlugin.play = function(freq, vol) {
+        if (vol === 'undefined') {
+          console.log('WARN: Called soundPlugin.play with no volume specified!');
+          vol = DEFAULT_VOLUME;
+        }
+        if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+        if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+        if (freq === 'undefined') {
+          console.log('WARN: Called soundPlugin.play with no frequency specified!');
+          freq = DEFAULT_FREQUENCY;
+        }
+        if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+        if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+        currentFrequency = freq;
+        currentVolume = vol;
+        if (isPlaying){
+          console.log('WARN: soundPlugin.play called but already playing, updating volume/frequency instead');
+          gainNode.gain.value = currentVolume/256;
+          oscillator.frequency.value = currentFrequency;
+        } else {
+          // initialize
+          gainNode = audioCtx.createGain();
+          oscillator = audioCtx.createOscillator();
+          oscillator.type = 'sine';
+          oscillator.connect(gainNode).connect(audioCtx.destination);
+          // set props
+          gainNode.gain.value = currentVolume/256;
+          oscillator.frequency.value = currentFrequency;
+          oscillator.start();
+          isPlaying = true;
+        }
+      };
+      soundPlugin.setVolume = function(vol) {
+        if (vol === 'undefined') {
+          console.log('WARN: Called soundPlugin.setVolume with no volume specified!');
+          vol = DEFAULT_VOLUME;
+        }
+        if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+        if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+        currentVolume = vol;
+        if (isPlaying){
+          gainNode.gain.value = currentVolume/256;
+        } else {
+          console.log('WARN: soundPlugin.setVolume called but not playing, calling play instead');
+          soundPlugin.play(currentFrequency, currentVolume);
+        }
+      };
+      soundPlugin.setFrequency = function(freq) {
+        if (freq === 'undefined') {
+          console.log('WARN: Called soundPlugin.setfrequency with no frequency specified!');
+          freq = DEFAULT_FREQUENCY;
+        }
+        if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+        if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+        currentFrequency = freq;
+        if (isPlaying){
+          oscillator.frequency.value = currentFrequency;
+        } else {
+          console.log('WARN: soundPlugin.setFrequency called but not playing, calling play instead');
+          soundPlugin.play(currentFrequency, currentVolume);
+        }
+      };
+      soundPlugin.stop = function() {
+        isPlaying = false;
+        oscillator.stop();
+      };
+    }
+  });
+
+  return soundPlugin;
+}])
+
 .factory('bluetoothPlugin', ['$timeout','$interval', function($timeout, $interval){
 
     var bluetoothPlugin = {
