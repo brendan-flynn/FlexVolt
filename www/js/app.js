@@ -275,6 +275,11 @@
             templateUrl: 'pages/settings/sound/sound.html',
             controller: 'SoundCtrl'
         })
+        .state('pages', {
+            url: '/pages',
+            templateUrl: 'pages/settings/pages/pages.html',
+            controller: 'PagesCtrl'
+        })
         .state('rms-settings', {
             url: '/rms-settings',
             templateUrl: 'pages/settings/pages/rms-settings/rms-settings.html',

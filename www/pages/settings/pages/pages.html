@@ -1,0 +1,24 @@
+<ion-view title="Settings">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+        <!-- <save-panel ng-if="!mobile"></save-panel> -->
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <settings-icon></settings-icon>
+        <connection-status></connection-status>
+    </ion-nav-buttons>
+  <ion-content class="has-header fv-theme" scroll="false">
+      <div class="list">
+        <div class="item item-text-wrap">
+          Select a page to edit settings specific to that page:
+        </div>
+        <div ng-repeat="page in pageList track by $index" ui-sref="{{page.link}}" class="item item-button-right">
+          {{page.name}}
+          <button class="button button-icon" style="">
+              <i class="icon {{page.icon}} dark"></i>
+          </button>
+        </div>
+      </div>
+
+  </ion-content>
+</ion-view>
