@@ -420,10 +420,15 @@ angular.module('flexvolt.rmsPlot', [])
 
         calculateDownSample(); // number of pixels changed - might need to alter downsampling
 
+        // window start/stop points in time
+        startPos = Date.now();
+        stopPos = startPos + xMax;
+        zeroData();
+
         api.reset();
     };
 
     return api;
-});
+}]);
 
 }());
