@@ -2,7 +2,32 @@
     'use strict';
 
     angular.module('flexvolt.home', [])
-    .controller('HomeCtrl', ['$scope', function($scope){
+    .controller('HomeCtrl', ['$scope','$state','appIntroRecords', function($scope,$state,appIntroRecords){
+        appIntroRecords.ready()
+          .then(function(){
+            function showIntro(){
+              d = new Date();
+              appIntroRecords.settings.intro.hasBeenShown = true;
+              appIntroRecords.settings.intro.dateShown = d;
+              appIntroRecords.updateSettings();
+              $state.go('intro');
+            }
+
+            if (!appIntroRecords.settings.intro.hasBeenShown){
+              console.log('User has not seen intro - going there now.');
+              showIntro();
+            } else if (appIntroRecords.settings.intro.hasBeenShown) {
+              var d = new Date();
+              var lastShown = appIntroRecords.settings.intro.dateShown;
+              var elapsedTimeDays = (d-lastShown)/(1000*60*60*24);
+              if (elapsedTimeDays > 30){
+                console.log('User has not seen intro in ' + elapsedTimeDays + '! going there now.');
+                showIntro();
+              }
+            }
+
+          });
+
         $scope.apps =
             {
                 active: {

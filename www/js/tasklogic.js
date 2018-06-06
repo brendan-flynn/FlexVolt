@@ -424,6 +424,41 @@ angular.module('flexvolt.taskLogic', [])
         ready: function(){return deferred.promise;}
     };
 }])
+.factory('appIntroRecords', ['$q', 'storage', function($q, storage){
+    var deferred = $q.defer();
+    var settings = {
+      intro: {
+        hasBeenShown: false,
+        dateShown: undefined
+      },
+      updateNotes: {
+        lastVersionShown: undefined,
+        dataShown: undefined
+      }
+    };
+
+    storage.get('appIntroRecords')
+        .then(function(tmp){
+            if (tmp){
+                for (var field in tmp){
+                    settings[field] = tmp[field];
+                }
+            } else {
+              // Defaults
+            }
+            deferred.resolve();
+        });
+
+    function updateSettings(){
+        storage.set({generalData:settings});
+    }
+
+    return {
+        settings: settings,
+        updateSettings: updateSettings,
+        ready: function(){return deferred.promise;}
+    };
+}])
 .factory('myometerLogic', ['$q', 'storage', 'logicOptions', function($q, storage, logicOptions) {
 
     var deferred = $q.defer();
