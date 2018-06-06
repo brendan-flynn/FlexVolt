@@ -235,7 +235,7 @@ angular.module('flexvolt.taskLogic', [])
     return api;
 }])
 
-.factory('xyLogic', ['$q', 'storage', function($q, storage) {
+.factory('xyLogic', ['$q', 'storage', 'logicOptions', function($q, storage, logicOptions) {
 
     var deferred = $q.defer();
     var settings = {

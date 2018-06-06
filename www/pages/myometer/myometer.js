@@ -245,8 +245,8 @@
         for (var k = 0; k < myometerLogic.settings.nChannels; k++){
           var sum = 0;
           if (dataIn[k].length > 0){
-            for (var i = 0; i < dataIn[k].length; i++){
-              sum += Math.abs(dataIn[k][i]);
+            for (var iSum = 0; iSum < dataIn[k].length; iSum++){
+              sum += Math.abs(dataIn[k][iSum]);
             }
             if ($scope.pageLogic.settings.baselineMode === 'absolute'){
               dataOut[k] = sum/dataIn[k].length - $scope.pageLogic.settings.baselines[k]; // adjusting to actual
