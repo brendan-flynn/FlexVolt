@@ -58,7 +58,7 @@ angular.module('flexvolt.directives', [])
 .directive('settingsPopover', function(){
     return {
         restrict: 'E',
-        template: '<button class="button button-icon" ng-click="popover.show($event)"><i class="icon ion-gear-b dark"></i></button>'
+        template: '<button class="button button-icon" ng-click="popover.show($event)"><i class="icon ion-levels dark"></i></button>'
     };
 })
 .directive('filtersPopover', function(){
