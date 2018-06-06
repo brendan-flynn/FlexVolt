@@ -252,7 +252,8 @@ angular.module('flexvolt.taskLogic', [])
             useRandom: true,
             x: 0.75,
             y: 0.75
-        }
+        },
+        filters:[]
     };
 
     storage.get('xySettings')
