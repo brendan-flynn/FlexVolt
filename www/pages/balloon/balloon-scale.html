@@ -1,0 +1,23 @@
+<ion-modal-view>
+  <ion-header-bar class="bar bar-header bar-balanced">
+    <h1 class="title">Set Scale</h1>
+  </ion-header-bar>
+  <ion-content>
+      <div class="list">
+        <div class="item row"
+             ng-repeat="scaleOption in generalData.settings.scaleList track by $index"
+             ng-class="selectedScaleStyle($index)"
+             ng-click="selectScale($index)">
+          <div class="col"> 0 - {{scaleOption}}uV</div>
+        </div>
+      </div>
+      <div class="row" style="padding-bottom: 10px;">
+        <div class="col">
+            <button class="button button-balanced" ng-click="cancelChangeScale()">Cancel</button>
+        </div>
+        <div class="col">
+            <button class="button button-balanced" ng-click="confirmChangeScale()">OK</button>
+        </div>
+      </div>
+  </ion-content>
+</ion-modal-view>

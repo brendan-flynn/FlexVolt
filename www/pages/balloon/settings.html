@@ -1,18 +1,10 @@
 <ion-popover-view>
   <ion-header-bar>
-    <h1 class="title">XY Settings</h1>
+    <h1 class="title">Balloon Settings</h1>
   </ion-header-bar>
   <ion-content>
     <form name="setForm">
       <div style="padding: 8px 8px">
-          <div class="item item-divider">
-            <center>Motion Mode</center>
-          </div>
-
-          <div class="item item-divider">
-            <center>Horizontal X: Chan 1</center>
-          </div>
-
           <label>Intensity Threshold: {{settings.intensity.threshold}}</label><br/>
           {{settings.intensity.min}}% <input type="range" step="{{settings.intensity.step}}" min="{{settings.intensity.min}}" max="{{settings.intensity.max}}" ng-model="settings.intensity.threshold" style="vertical-align:middle"> {{settings.intensity.max}}%<br/>
           <label>Time Threshold: {{settings.time.threshold}}ms</label><br/>

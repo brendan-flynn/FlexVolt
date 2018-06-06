@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.balloon', [])
 
-    .controller('BalloonCtrl', ['$stateParams', '$scope', '$state', '$ionicPopover', '$ionicModal', 'flexvolt', 'balloonLogic', 'customPopover','dataHandler',
-    function($stateParams, $scope, $state, $ionicPopover, $ionicModal, flexvolt, balloonLogic, customPopover, dataHandler) {
+    .controller('BalloonCtrl', ['$stateParams', '$scope', '$state', '$ionicPopover', '$ionicModal', 'flexvolt', 'balloonLogic', 'customPopover','dataHandler','generalData',
+    function($stateParams, $scope, $state, $ionicPopover, $ionicModal, flexvolt, balloonLogic, customPopover, dataHandler, generalData) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
         $scope.demo = $stateParams.demo;
@@ -12,6 +12,7 @@
 
         $scope.settings = balloonLogic.settings;
         $scope.updating = false;
+        $scope.balloonLogic = balloonLogic;
 
         var afID;
         var frameCounts = 0;
@@ -19,6 +20,40 @@
 
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/balloon/settings.html',balloonLogic.updateSettings);
         customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/balloon/balloon-help.html');
+
+        $scope.selectedScaleStyle = function(index) {
+          if (generalData.settings.scaleList[index] === $scope.selectedScale) {
+            return "active";
+          }
+        };
+
+        $scope.cancelChangeScale = function() {
+            // do nothing
+            $scope.scaleModal.hide();
+        };
+
+        $scope.confirmChangeScale = function() {
+            generalData.settings.scale = $scope.selectedScale;
+            if (generalData.settings.scale < 10) { generalData.settings.scale = 10;}
+            if (generalData.settings.scale > 1500) {generalData.settings.scale = 1500;}
+            generalData.updateSettings();
+            $scope.scaleModal.hide();
+        };
+
+        $scope.selectScale = function(index) {
+            console.log('selected scale: ' + generalData.settings.scaleList[index] + ', via index: ' + index);
+            $scope.selectedScale = generalData.settings.scaleList[index];
+        };
+
+        $scope.changeScale = function() {
+            $scope.selectedScale = generalData.settings.scale;
+            $ionicModal.fromTemplateUrl('pages/balloon/balloon-scale.html', {
+                scope: $scope
+            }).then(function(modal){
+                $scope.scaleModal = modal;
+                $scope.scaleModal.show();
+            });
+        };
 
         var marginTop = 100;
 
@@ -41,6 +76,7 @@
         var STATE_BULGED = 4;
         var flexThresholdTimeout, bulgeThresholdTimeout, flexStart, bulgeStart;
         var flexState = STATE_BELOW_THRESHOLD;
+        window.balloonLogic = balloonLogic;
 
         var balloonContainerEl, balloonDriftXContainerEl, balloonDriftYContainerEl, balloonBodyEl, balloonKnotEl, balloonStringEl, balloonStringSVGEl;
 
@@ -52,6 +88,8 @@
             ret = Math.sqrt(ret/arr.length);
             return ret;
         }
+
+        $scope.CurrentVal = 0;
 
         function updateAnimate(demo){
             if ($scope.updating)return; // don't try to draw any graphics while the settings are being changed
@@ -73,35 +111,38 @@
             }
             // console.log(dataIn);
 
+            window.flexState = flexState;
+
             var tmp = rms(dataIn[0]);
             // console.log(tmp);
-            if (tmp > balloonLogic.settings.intensity.threshold/100){
+            $scope.currentVal = tmp;
+            if (tmp > generalData.settings.scale*balloonLogic.settings.intensity.threshold/100){
                 if (flexState === STATE_BELOW_THRESHOLD || flexState === STATE_ABOVE_BULGE_THRESHOLD) {
                   if (flexThresholdTimeout) {clearTimeout(flexThresholdTimeout);}
-                  // console.log('transition to flexed');
+                  console.log('transition to flexed');
                   flexState = STATE_ABOVE_FLEX_THRESHOLD;
                   flexStart = Math.round(performance.now());
                   flexThresholdTimeout = setTimeout(function(){
                     if (flexState === STATE_ABOVE_FLEX_THRESHOLD) {
-                      // console.log('flex still flexed - inflate');
+                      console.log('flex still flexed - inflate');
                       flexState = STATE_FLEXED;
                       $scope.inflate();
                     } else if (flexState === STATE_ABOVE_BULGE_THRESHOLD) {
-                      // console.log('flex dropped to bulge - bulge');
+                      console.log('flex dropped to bulge - bulge');
                       flexState = STATE_BULGED;
                       $scope.bulge();
                     }
                   }, balloonLogic.settings.time.threshold*1000);
                 }
-            } else if (tmp > balloonLogic.settings.intensity.threshold/2/100) {
+            } else if (tmp > generalData.settings.scale*balloonLogic.settings.intensity.threshold/2/100) {
                 if (flexState === STATE_BELOW_THRESHOLD) {
                   if (bulgeThresholdTimeout) {clearTimeout(bulgeThresholdTimeout);}
-                  // console.log('transition to bulged');
+                  console.log('transition to bulged');
                   flexState = STATE_ABOVE_BULGE_THRESHOLD;
                   bulgeStart = Math.round(performance.now());
                   bulgeThresholdTimeout = setTimeout(function(){
                     if (flexState === STATE_ABOVE_BULGE_THRESHOLD) {
-                      // console.log('bulge still bulged - bulge');
+                      console.log('bulge still bulged - bulge');
                       flexState = STATE_BULGED;
                       $scope.bulge();
                     }
@@ -110,7 +151,7 @@
                   if (flexThresholdTimeout) {clearTimeout(flexThresholdTimeout);}
                   var t1 = Math.round(performance.now());
                   if (angular.isDefined(bulgeStart) && (t1-bulgeStart > balloonLogic.settings.time.threshold*1000)) {
-                    // console.log('bulge went to flex and back - bulge');
+                    console.log('bulge went to flex and back - bulge');
                     flexState = STATE_BULGED;
                     $scope.bulge();
                   }
@@ -121,14 +162,14 @@
                 if (flexState === STATE_ABOVE_BULGE_THRESHOLD || flexState === STATE_ABOVE_FLEX_THRESHOLD) {
                   var t2 = Math.round(performance.now());
                   if (angular.isDefined(flexStart) && t2-flexStart > balloonLogic.settings.time.threshold*1000/2) {
-                    // console.log('flex or bulge only made it halfway - bulge');
+                    console.log('flex or bulge only made it halfway - bulge');
                     flexState = STATE_BULGED;
                     $scope.bulge();
                   }
                   flexStart = undefined; bulgeStart = undefined;
                   flexState = STATE_BELOW_THRESHOLD;
                 } else if (flexState === STATE_FLEXED || flexState === STATE_BULGED) {
-                  // console.log('already flexed or bulged - reset');
+                  console.log('already flexed or bulged - reset');
                   flexStart = undefined; bulgeStart = undefined;
                   flexState = STATE_BELOW_THRESHOLD;
                 }
