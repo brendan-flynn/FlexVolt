@@ -179,8 +179,10 @@ angular.module('flexvolt.services', [])
         }
       };
       soundPlugin.stop = function() {
+        if (oscillator) {
+          oscillator.stop();
+        }
         isPlaying = false;
-        oscillator.stop();
       };
     }
   });
