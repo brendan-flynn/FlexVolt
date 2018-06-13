@@ -37,9 +37,12 @@
             </p>
         </li>
         <li class="item">
-          <i class="icon ion-volume-low"></i>
-          <input type="range" ng-model="tone.volume" ng-change="onChangeVolume()" name="volume" min="0" max="150">
-          <i class="icon ion-volume-high"></i>
+          Volume &nbsp;&nbsp;
+          <span style="float: right;">
+            <i class="icon ion-volume-low"></i>
+            <input type="range" ng-model="tone.volume" ng-change="onChangeVolume()" name="volume" min="0" max="150">
+            <i class="icon ion-volume-high"></i>
+          </span>
         </li>
         <li class="item">
           Large Muscle Signal

@@ -1,4 +1,4 @@
-<ion-view title="Settings">
+<ion-view title="Scale">
     <ion-nav-buttons side="left">
         <help-popover></help-popover>
         <!-- <save-panel ng-if="!mobile"></save-panel> -->
@@ -8,18 +8,18 @@
         <settings-icon></settings-icon>
     </ion-nav-buttons>
   <ion-content class="has-header fv-theme" scroll="false">
-      <div class="list">
-        <div class="item item-text-wrap">
+      <ul class="list">
+        <li class="item item-text-wrap">
           Select the range to use for visual and auditory feedback.  Select a
           smaller range for smaller signals.
-        </div>
-        <div class="item row"
+        </li>
+        <li class="item"
              ng-repeat="scaleOption in generalData.settings.scaleList track by $index"
              ng-class="selectedScaleStyle($index)"
-             ng-click="selectScale($index)">
-          <div class="col"> 0 - {{scaleOption}}uV</div>
-        </div>
-      </div>
+             ng-click="selectScale($index)"
+             style="text-align:center;">0 - {{scaleOption}}uV
+        </li>
+      </ul>
 
   </ion-content>
 </ion-view>
