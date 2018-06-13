@@ -899,10 +899,24 @@ angular.module('flexvolt.flexvolt', [])
                 console.log('INFO: Updating Settings');
                 api.connection.state = 'updating settings';
                 waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+            } else if (api.connection.state === 'polling') {
+                var msg1 = 'Cannot Update Settings - polling.  Trying again in 200ms.';
+                console.log('WARNING' + msg1);
+                $timeout(function(){
+                  if (api.connection.state === 'connected'){
+                    console.log('INFO: Updating Settings');
+                    api.connection.state = 'updating settings';
+                    waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                  } else {
+                    var msg2 = 'Cannot Update Settings - still polling or not connected';
+                    console.log('WARNING' + msg2);
+                    deferred.updateSettings.reject(msg2);
+                  }
+                }, 200);
             } else {
-                var msg = 'Cannot Update Settings - not connected';
-                console.log('WARNING' + msg);
-                deferred.updateSettings.reject(msg);
+                var msg3 = 'Cannot Update Settings - not connected';
+                console.log('WARNING' + msg3);
+                deferred.updateSettings.reject(msg3);
             }
 
             return deferred.updateSettings.promise;
@@ -1075,13 +1089,17 @@ angular.module('flexvolt.flexvolt', [])
                         }
                     }
                     console.log('INFO: Updated settings, read params: '+JSON.stringify(api.readParams));
-                    if (api.connection.dataOnRequested){
-                        console.log('DEBUG: dataOnRequested');
-                        turnDataOn();
-                    }
+                    checkIsDataOnRequested();
                 }
             }
         };
+
+        function checkIsDataOnRequested() {
+          if (api.connection.dataOnRequested){
+              console.log('DEBUG: dataOnRequested');
+              turnDataOn();
+          }
+        }
 
         function turnDataOn(){
             console.log('DEBUG: turning data on');
@@ -1251,7 +1269,8 @@ angular.module('flexvolt.flexvolt', [])
                   if (api.connection.data === 'on') {
                     return;
                   } else {
-                    api.pollBattery();
+                    api.pollBattery()
+                      .then(checkIsDataOnRequested);
                   }
                 }
             }, 60000);
