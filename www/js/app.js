@@ -45,7 +45,9 @@
         'flexvolt.hardware',
         'flexvolt.sound',
         'flexvolt.scale',
-        'flexvolt.pages'
+        'flexvolt.pages',
+        'flexvolt.about',
+        'flexvolt.troubleshooting'
     ])
 
     .run(function($ionicPlatform, appLogic, BUILD) {
@@ -280,6 +282,16 @@
             url: '/pages',
             templateUrl: 'pages/settings/pages/pages.html',
             controller: 'PagesCtrl'
+        })
+        .state('about', {
+            url: '/about',
+            templateUrl: 'pages/settings/about/about.html',
+            controller: 'AboutCtrl'
+        })
+        .state('troubleshooting', {
+            url: '/troubleshooting',
+            templateUrl: 'pages/settings/troubleshooting/troubleshooting.html',
+            controller: 'TroubleshootingCtrl'
         })
         .state('rms-settings', {
             url: '/rms-settings',

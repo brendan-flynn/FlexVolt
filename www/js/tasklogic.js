@@ -493,9 +493,9 @@ angular.module('flexvolt.taskLogic', [])
                 }
             } else {
               // Defaults - high pass to remove DC, RMS to downsample
-              var Filter1 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.name === 'Frequency - High Pass';})[0]);
-              Filter1.params.f1.value = 5;
-              settings.filters.push(Filter1);
+              // var Filter1 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.name === 'Frequency - High Pass';})[0]);
+              // Filter1.params.f1.value = 5;
+              // settings.filters.push(Filter1);
             }
             deferred.resolve();
         });
@@ -540,12 +540,12 @@ angular.module('flexvolt.taskLogic', [])
                 }
             } else {
               // Defaults - high pass to remove DC, RMS to downsample
-              var filter1 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.name === 'Frequency - High Pass';})[0]);
-              filter1.params.f1.value = 5;
-              settings.filters.push(filter1);
-              var filter2 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.type === 'RMS';})[0]);
-              filter2.params.windowSize.value = 21;
-              settings.filters.push(filter2);
+              // var filter1 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.name === 'Frequency - High Pass';})[0]);
+              // filter1.params.f1.value = 5;
+              // settings.filters.push(filter1);
+              // var filter2 = angular.copy(logicOptions.filterOptions.filter(function(item){ return item.type === 'RMS';})[0]);
+              // filter2.params.windowSize.value = 21;
+              // settings.filters.push(filter2);
             }
             deferred.resolve();
         });
@@ -603,12 +603,8 @@ angular.module('flexvolt.taskLogic', [])
     var availableChannelList = channelList8;
 
     var frequencyList = [
-        {text: '50',  value: 50},
-        {text: '100',  value: 100},
-        {text: '200',  value: 200},
         {text: '500',  value: 500},
         {text: '1000', value: 1000},
-        {text: '1500', value: 1500},
         {text: '2000', value: 2000}
     ];
 

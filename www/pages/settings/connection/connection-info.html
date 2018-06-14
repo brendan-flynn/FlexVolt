@@ -1,0 +1,36 @@
+<ion-modal-view>
+    <ion-header-bar class="bar bar-header bar-balanced">
+        <button class="button button-icon" style=""
+                ng-click="connectionInfoModal.hide()">
+                <i class="icon ion-arrow-left-c dark"></i>Back
+        </button>
+        <h1 class="title">Connection Info</h1>
+    </ion-header-bar>
+    <ion-content>
+      <ul class="list">
+        <li class="item">
+          Device:<span style="float:right">{{con.flexvoltName}}</span>
+        </li>
+        <li class="item">
+          Model:<span style="float:right">{{con.model.name}}</span>
+        </li>
+        <li class="item">
+          Version:<span style="float:right">{{con.version}}</span>
+        </li>
+        <li class="item">
+          S/N:<span style="float:right">{{con.serialNumber}}</span>
+        </li>
+        <li class="item" ng-if="con.batteryVoltage">
+          Battery:<span style="float:right">{{con.batteryVoltage | number:2}} V</span>
+        </li>
+        <li class="item item-button-right">
+          Disconnect
+          <button class="button button-icon"
+                  ng-click="disconnectCurrentDevice()">
+            <i class="icon ion-close-circled dark"></i>
+          </button>
+        </li>
+      </ul>
+
+    </ion-content>
+</ion-modal-view>

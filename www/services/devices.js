@@ -41,8 +41,37 @@
       }
 
       devices.add = function(device){
+        if (window.chrome) {
+          device.id = device.path; // chrome uses path, android uses id
+          var mCU = '/dev/cu.';
+          var mTTY = '/dev/tty.';
+          var shortName;
+          if (device.id.indexOf(mCU) === 0) {
+            // if /dev/tty is already here, don't add /dev/cu
+            shortName = device.id.slice(mCU.length);
+            if (devices.get(mTTY+shortName)){
+              console.log('INFO: Already added '+mTTY+shortName+'.  Discarding '+device.id);
+              return;
+            }
+          } else if (device.id.indexOf(mTTY) === 0) {
+            // if this is tty and cu already exists, toss cu
+            shortName = device.id.slice(mTTY.length);
+            device.name = shortName;
+            if (devices.get(mCU+shortName)){
+              console.log('INFO: Already added '+mCU+shortName+'.  Replacing with '+device.id);
+              devices.remove(mCU+shortName);
+            }
+          }
+        }
         deviceList.push(device);
         console.log('INFO: Added device: ' +JSON.stringify(device));
+      };
+
+      devices.remove = function(id) {
+        var index = deviceList.findIndex(function(elem){
+          return elem.id === id;
+        });
+        if (index >= 0) {deviceList.splice(index,1);}
       };
 
       devices.get = function(id){

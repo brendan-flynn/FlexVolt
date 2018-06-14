@@ -20,11 +20,14 @@
         </div>
         <div ng-show="demo || flexvolt.api.connection.state === 'connected'">
           <div class="row">
-            <div class="col">Current Muscle Level: {{currentVal | number:0}}uV in a
-              0-{{generalData.settings.scale}}uV range.  Threshold
+            <div class="col">
+              Range 0-{{generalData.settings.scale}}uV.  Threshold
               {{balloonLogic.settings.intensity.threshold}}% =
               {{generalData.settings.scale*balloonLogic.settings.intensity.threshold/100|number:0}}uV</div>
             <div class="col"><button class="button button-small button-balanced" title="Set Scale" ng-click="changeScale()">Change Range</button></div>
+          </div>
+          <div class="row">
+            Current Muscle Level: {{currentVal | number:0}}uV
           </div>
           <div id="balloonContainer">
             <div id="balloonDriftYContainer">

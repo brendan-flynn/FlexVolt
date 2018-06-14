@@ -285,27 +285,27 @@
         $scope.flexvolt=flexvolt;
         $scope.generalData = generalData;
         if (window.cordova) {
-            appLogic.isMobile = true;
+            appLogic.dm.isMobile = true;
             console.log('INFO: App Running in a Mobile Device');
         } else {
-            appLogic.isMobile = false;
+            appLogic.dm.isMobile = false;
             console.log('INFO: App Running in Chrome');
         }
-        $scope.mobile = appLogic.isMobile;
+        $scope.mobile = appLogic.dm.isMobile;
 
         var platform = ionic.Platform.platform();
-        appLogic.platform = 'unknown';
+        appLogic.dm.platform = 'unknown';
         if (platform.toLowerCase().indexOf('ios') > -1) {
-            appLogic.platform = 'ios';
+            appLogic.dm.platform = 'ios';
         } else if (platform.toLowerCase().indexOf('android') > -1) {
-            appLogic.platform = 'android';
+            appLogic.dm.platform = 'android';
         } else if (platform.toLowerCase().indexOf('mac') > -1) {
-            appLogic.platform = 'mac';
+            appLogic.dm.platform = 'mac';
         } else if (platform.toLowerCase().indexOf('win') > -1) {
-            appLogic.platform = 'windows';
+            appLogic.dm.platform = 'windows';
         }
-        $scope.platform = appLogic.platform;
-        console.log('platform: ' + appLogic.platform);
+        $scope.platform = appLogic.dm.platform;
+        console.log('platform: ' + appLogic.dm.platform);
 
         window.flexvolt = flexvolt;
         window.dataHandler = dataHandler;
@@ -315,5 +315,6 @@
         window.devices = devices;
         window.generalData = generalData;
         window.introRecords = introRecords;
+        window.appLogic = appLogic;
     }]);
 }());

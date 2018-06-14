@@ -1,37 +1,51 @@
-<ion-view title="Settings">
+<ion-view title="Hardware Settings">
     <ion-nav-buttons side="right">
         <connection-status></connection-status>
         <settings-icon></settings-icon>
     </ion-nav-buttons>
 
-    <ion-content class="has-header padding fv-theme">
-        <h3 align="center">App Version: {{app.version}}</h3>
+    <ion-content class="has-header fv-theme">
+      <ul class="list">
+        <li class="item">
+          Sensor Resolution
+          <div style="display:block; position: absolute; right: 16px; top: 10px;">
+             <button style="line-height:20px; margin:0px;"
+                     class="button button-small button-stable"
+                     ng-class="{'active':!settings.bitDepth10}"
+                     ng-click="toggleBitDepth10(false)">8-Bit</button>
+             <button style="line-height:20px; margin:0px;"
+                     class="button button-small button-stable"
+                     ng-class="{'active':settings.bitDepth10}"
+                     ng-click="toggleBitDepth10(true)">10-bit</button>
+          </div>
+        </li>
+        <li class="item item-toggle">
+          Hardware smoothing filter
+          <span style="float:right;" ng-if="settings.smoothFilterFlag">On</span>
+          <span style="float:right;" ng-if="!settings.smoothFilterFlag">Off</span>
+          <label class="toggle">
+            <input type="checkbox" ng-model="settings.smoothFilterFlag" ng-change="onChange()">
+            <div class="track">
+              <div class="handle"></div>
+            </div>
+          </label>
+        </li>
+        <li class="item item-button-right">
+          RMS Window Size
+          <span style="float:right;">{{rmsWindowSize}}ms</span>
+          <button class="button button-icon" style="" ng-click="showRmsWindowSizeModal()">
+                  <i class="icon ion-edit dark"></i>
+          </button>
+        </li>
+        <li class="item item-button-right">
+          Channels
+          <span style="float:right;">{{settings.nChannels}}</span>
+          <button class="button button-icon" style="" ng-click="showChannelModal()">
+                  <i class="icon ion-edit dark"></i>
+          </button>
+        </li>
+      </ul>
 
-        <h3 align="center">Sensor-Based Processing</h3>
-        <div ng-if="version >= versionMinimumOnboardRMS">
-            <h5 align="center">The sensor can apply a smoothing filter prior to transmitting data</h5>
-            <ion-toggle ng-model="settings.smoothFilterFlag" ng-change="onChange()" ng-checked="settings.smoothFilterFlag">
-                <span ng-if="settings.smoothFilterFlag"> Send RMS Data </span>
-                <span ng-if="!settings.smoothFilterFlag"> Send Raw Data </span>
-            </ion-toggle>
-            <h3 ng-if="settings.smoothFilterFlag" align="center">RMS Window Size (samples): {{rmsWindowSize}}</h3>
-            <p ng-if="settings.smoothFilterFlag" >&nbsp;&nbsp;&nbsp;
-                <label ng-repeat="item in rmsWindowList">
-                    <input type="radio" ng-model="settings.rmsWindowSizePower" ng-change="onChange()" ng-value="item.value"/>&nbsp;{{item.text}}&nbsp;&nbsp;
-                </label>
-            </p>
-        </div>
-        <div ng-if="version < versionMinimumOnboardRMS">
-            <h5 align="center">The sensor can apply a smoothing filter (moving average) prior to transmitting data</h5>
-            <ion-toggle ng-model="settings.smoothFilterFlag" ng-change="onChange()" ng-checked="settings.smoothFilterFlag">
-                <span ng-if="settings.smoothFilterFlag"> Send Smoothed Data </span>
-                <span ng-if="!settings.smoothFilterFlag"> Send Raw Data </span>
-            </ion-toggle>
-            <h3 ng-if="settings.smoothFilterFlag" align="center">Smoothing Level: {{settings.smoothFilterVal}}</h3>
-            <p ng-if="settings.smoothFilterFlag" >&nbsp;&nbsp;&nbsp;
-                0&nbsp;&nbsp;<input type="range" min=0 max=10 step=1 ng-model="settings.smoothFilterVal" ng-change="onChange()" style="vertical-align:middle">&nbsp;&nbsp;10<br/>
-            </p>
-        </div>
 
         <div ng-if="!mobile">
           <h3 align="center">Data Export</h3>
@@ -48,24 +62,5 @@
           </p>
         </div>
 
-        <h3 align="center">Channels</h3>
-        <p>&nbsp;&nbsp;&nbsp;
-            <label ng-repeat="item in channelList">
-                <input type="radio" ng-model="settings.nChannels" ng-change="onChange()" ng-value="item.value"/>&nbsp;{{item.text}}&nbsp;&nbsp;
-            </label>
-        </p>
-        <h3 align="center">Sampling Frequency</h3>
-        <p>&nbsp;&nbsp;&nbsp;
-            <label ng-repeat="item in frequencyList">
-                <input type="radio" ng-model="settings.frequency" ng-change="onChange()" ng-value="item.value"/>&nbsp;{{item.text}}&nbsp;&nbsp;
-            </label>
-        </p>
-        <div ng-if="!settings.smoothFilterFlag || version >= versionMinimumOnboardRMS">
-            <h3 align="center">Sampling Depth</h3>
-            <ion-toggle ng-model="settings.bitDepth10" ng-change="onChange()" ng-checked="settings.bitDepth10">
-                <span ng-if="settings.bitDepth10"> High Res - 10 bits </span>
-                <span ng-if="!settings.bitDepth10"> Low Res - 8 bits </span>
-            </ion-toggle>
-        </div>
     </ion-content>
 </ion-view>

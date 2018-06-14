@@ -1,0 +1,30 @@
+<ion-view title="About FlexVolt">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+        <!-- <save-panel ng-if="!mobile"></save-panel> -->
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+        <settings-icon></settings-icon>
+    </ion-nav-buttons>
+  <ion-content class="has-header fv-theme" scroll="false">
+      <ul class="list">
+        <li class="item">
+          App Version:
+          <span style="float:right;">
+            {{app.version}}
+          </span>
+        </li>
+        <li class="item">
+          Platform:
+          <span style="float:right;">{{app.platform}}</span>
+        </li>
+        <li class="item">
+          Mobile Device:
+          <span ng-if="app.isMobile" style="float:right;">Yes</span>
+          <span ng-if="!app.isMobile" style="float:right;">No</span>
+        </li>
+      </ul>
+
+  </ion-content>
+</ion-view>

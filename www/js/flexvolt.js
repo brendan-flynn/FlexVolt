@@ -897,12 +897,37 @@ angular.module('flexvolt.flexvolt', [])
             deferred.updateSettings = $q.defer();
             if (api.connection.state === 'connected'){
                 console.log('INFO: Updating Settings');
-                api.connection.state = 'updating settings';
-                waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                if (api.connection.data === 'on' || api.connection.data === 'turningOn') {
+                  // need to turn data off first!  Set dataOnRequested so it
+                  // gets turned back on after settings update
+                  api.connection.dataOnRequested = true;
+                  turnDataOff()
+                    .then(function(){
+                      api.connection.state = 'updating settings';
+                      waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                    });
+                } else {
+                  api.connection.state = 'updating settings';
+                  waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                }
+            } else if (api.connection.state === 'polling') {
+                var msg1 = 'Cannot Update Settings - polling.  Trying again in 200ms.';
+                console.log('WARNING' + msg1);
+                $timeout(function(){
+                  if (api.connection.state === 'connected'){
+                    console.log('INFO: Updating Settings');
+                    api.connection.state = 'updating settings';
+                    waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                  } else {
+                    var msg2 = 'Cannot Update Settings - still polling or not connected';
+                    console.log('WARNING' + msg2);
+                    deferred.updateSettings.reject(msg2);
+                  }
+                }, 200);
             } else {
-                var msg = 'Cannot Update Settings - not connected';
-                console.log('WARNING' + msg);
-                deferred.updateSettings.reject(msg);
+                var msg3 = 'Cannot Update Settings - not connected';
+                console.log('WARNING' + msg3);
+                deferred.updateSettings.reject(msg3);
             }
 
             return deferred.updateSettings.promise;
@@ -1075,13 +1100,18 @@ angular.module('flexvolt.flexvolt', [])
                         }
                     }
                     console.log('INFO: Updated settings, read params: '+JSON.stringify(api.readParams));
-                    if (api.connection.dataOnRequested){
-                        console.log('DEBUG: dataOnRequested');
-                        turnDataOn();
-                    }
+                    deferred.updateSettings.resolve();
+                    checkIsDataOnRequested();
                 }
             }
         };
+
+        function checkIsDataOnRequested() {
+          if (api.connection.dataOnRequested){
+              console.log('DEBUG: dataOnRequested');
+              turnDataOn();
+          }
+        }
 
         function turnDataOn(){
             console.log('DEBUG: turning data on');
@@ -1112,14 +1142,21 @@ angular.module('flexvolt.flexvolt', [])
         }
         function turnDataOff(){ // 113 = 'q'
             console.log('DEBUG: turning data off');
+            deferred.turnDataOff = $q.defer();
             if (api.connection.data === 'on'){
                 api.connection.data = 'turningOff';
                 dIn = [];
                 waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,function(){
                     console.log('DEBUG: data off.');
                     api.connection.data = 'off';
+                    deferred.turnDataOff.resolve();
                 });
-            }  else {console.log('DEBUG: dataOff failed - data not on');}
+            }  else {
+              console.log('DEBUG: dataOff failed - data not on');
+              deferred.turnDataOff.resolve();
+            }
+
+            return deferred.turnDataOff.promise;
         }
         api.getDataParsed = function(){
             var tmpLow, tmpLow2, iChan;
@@ -1251,7 +1288,8 @@ angular.module('flexvolt.flexvolt', [])
                   if (api.connection.data === 'on') {
                     return;
                   } else {
-                    api.pollBattery();
+                    api.pollBattery()
+                      .then(checkIsDataOnRequested);
                   }
                 }
             }, 60000);
@@ -1275,25 +1313,33 @@ angular.module('flexvolt.flexvolt', [])
         },
         getDetailedConnectionStatus: function(){
             if (api.connection.state === 'begin'){
-                return 'Waiting for Input.  Tap button below to try to connect.';
+                return 'Not Connected.  Try \'Scan\' or select device below.';
             } else if (api.connection.state === 'searching'){
                 return 'Scanning available ports for FlexVolts.' + dots;
             } else if (api.connection.state === 'connecting'){
-                return 'Attempting to establish a connection with device: ' + api.currentDevice.name + '. ' + dots;
+                return 'Connecting to ' + api.currentDevice.name + '. ' + dots;
             } else if (api.connection.state === 'reconnecting'){
-                return 'Attempting to re-establish a connection with device: ' + api.connection.flexvoltName + '. ' + dots;
+                return 'Reconnecting with ' + api.connection.flexvoltName + '. ' + dots;
             } else if (api.connection.state === 'connected'){
-                return 'Connected.';
+                return 'Connected';
             } else if (api.connection.state === 'polling'){
-                return 'Polling Version. ' + dots;
+                return 'Getting device info' + dots;
             } else if (api.connection.state === 'updating settings'){
-                return 'Updating Settings. ' + dots;
+                return 'Updating device settings' + dots;
             } else if (api.connection.state === 'no flexvolts found'){
                 return 'No FlexVolt devices found.  Is your FlexVolt powered on and paired/connected?';
             } else {return 'Info not avaiable.';}
         },
         getPortList: function(){
-            return devices.getAll();
+            if (api.connection.state === 'connected' ||
+                api.connection.state === 'polling' ||
+                api.connection.state === 'updating settings') {
+                  var list = devices.getAll().slice(0);
+                  list.splice(list.findIndex(function(elem){return elem.name === api.connection.flexvoltName;}),1);
+                  return list;
+            } else {
+              return devices.getAll();
+            }
         },
         getPrefPortList: function(){
             return devices.getPreferred();
