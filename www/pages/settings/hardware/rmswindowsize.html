@@ -1,0 +1,23 @@
+<ion-modal-view>
+    <ion-header-bar class="bar bar-header bar-balanced">
+        <button class="button button-icon" style=""
+                ng-click="rmsWindowSizeModal.hide()">
+                <i class="icon ion-arrow-left-c dark"></i>Back
+        </button>
+        <h1 class="title">Hardware Filter Settings</h1>
+    </ion-header-bar>
+    <ion-content>
+      <ul class="list">
+        <li class="item item-text-wrap">
+          Select the window size to use for the hardware RMS filter.
+        </li>
+        <li class="item"
+             ng-repeat="item in rmsWindowList track by $index"
+             ng-class="selectedRMSWindowSizeStyle($index)"
+             ng-click="selectRMSWindowSize($index)"
+             style="text-align:center;">{{item.text}}ms
+        </li>
+      </ul>
+
+    </ion-content>
+</ion-modal-view>
