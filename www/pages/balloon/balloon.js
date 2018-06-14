@@ -96,20 +96,15 @@
             //console.log('updating, demo:'+$stateParams.demo);
             //console.log('updating, threshmode:'+settings.plot.mode);
             var speed = 4;
-            var dataIn;
-            if (demo) {
-                dataIn = dataHandler.getData();
-            } else {
-                //if (!flexvolt.api.isConnected){return;}  BROKEN?!
-                var dataBundle = flexvolt.api.getDataParsed(); // [timestamps, dataIn]
-                if (dataBundle === null || dataBundle === angular.undefined || dataBundle[0] === angular.undefined){return;}
-                dataIn = dataBundle[1];
-                if (dataIn === null || dataIn === angular.undefined || dataIn[0] === angular.undefined){return;}
 
-                var n = dataIn[0].length;
-                if (n <= 0){return;}
-            }
-            // console.log(dataIn);
+            var dataBundle = dataHandler.getData();
+            if (dataBundle === null || dataBundle === angular.undefined || dataBundle[0] === angular.undefined){return;}
+            var dataIn = dataBundle[1];
+            if (dataIn === null || dataIn === angular.undefined || dataIn[0] === angular.undefined){return;}
+
+            var n = dataIn[0].length;
+            if (n <= 0){return;}
+            console.log(dataIn);
 
             window.flexState = flexState;
 
