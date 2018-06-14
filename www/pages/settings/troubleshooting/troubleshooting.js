@@ -164,11 +164,11 @@
         $ionicModal.fromTemplateUrl('templates/logmessages.html', {
             scope: $scope
         }).then(function(modal){
-            $scope.modal = modal;
+            $scope.logModal = modal;
         });
 
         $scope.showLog = function(){
-            $scope.modal.show();
+            $scope.logModal.show();
         };
 
 

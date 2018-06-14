@@ -1,9 +1,21 @@
 <ion-modal-view>
     <ion-header-bar class="bar bar-header bar-balanced">
+        <button class="button button-icon" style=""
+                ng-click="logModal.hide()">
+                <i class="icon ion-arrow-left-c dark"></i>Back
+        </button>
         <h1 class="title">Logs Messages</h1>
-        <button class="button button-clear button-primary" ng-click="modal.hide()">Back</button>
     </ion-header-bar>
     <ion-content class="padding">
+        <div ng-if="platform === mac">
+          Copy these logs (command-a, command-c).  Then paste (command-v) them into an email to software@flexvoltbiosensor.com
+        </div>
+        <div ng-if="platform === windows">
+          Copy these logs (ctrl-a, ctrl-c).  Then paste (ctrl-v) them into an email to software@flexvoltbiosensor.com
+        </div>
+        <div ng-if="platform === android">
+          Copy these logs (tap and hold down anywhere in this window, 'select-all', 'copy').  Then paste (hold down, 'paste') them into an email to software@flexvoltbiosensor.com
+        </div>
         <pre><span class="log-class">{{dm.logs}}</span></pre>
     </ion-content>
 </ion-modal-view>
