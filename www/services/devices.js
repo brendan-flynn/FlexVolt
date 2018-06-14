@@ -46,25 +46,19 @@
           var mCU = '/dev/cu.';
           var mTTY = '/dev/tty.';
           var shortName;
-          console.log('path: ' + device.id);
-          console.log('all devices: ' + JSON.stringify(devices.getAll()));
           if (device.id.indexOf(mCU) === 0) {
-            console.log('found cu');
             // if /dev/tty is already here, don't add /dev/cu
             shortName = device.id.slice(mCU.length);
-            console.log('shortName: ' + shortName);
             if (devices.get(mTTY+shortName)){
-              console.log('INFO: Already added the tty.  discarding the cu');
+              console.log('INFO: Already added '+mTTY+shortName+'.  Discarding '+device.id);
               return;
             }
           } else if (device.id.indexOf(mTTY) === 0) {
-            console.log('found tty');
             // if this is tty and cu already exists, toss cu
             shortName = device.id.slice(mTTY.length);
             device.name = shortName;
-            console.log('shortName: ' + shortName);
             if (devices.get(mCU+shortName)){
-              console.log('INFO: Replacing cu with tty');
+              console.log('INFO: Already added '+mCU+shortName+'.  Replacing with '+device.id);
               devices.remove(mCU+shortName);
             }
           }
