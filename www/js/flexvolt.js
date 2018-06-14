@@ -1294,25 +1294,33 @@ angular.module('flexvolt.flexvolt', [])
         },
         getDetailedConnectionStatus: function(){
             if (api.connection.state === 'begin'){
-                return 'Waiting for Input.  Tap button below to try to connect.';
+                return 'Not Connected.  Try \'Scan\' or select device below.';
             } else if (api.connection.state === 'searching'){
                 return 'Scanning available ports for FlexVolts.' + dots;
             } else if (api.connection.state === 'connecting'){
-                return 'Attempting to establish a connection with device: ' + api.currentDevice.name + '. ' + dots;
+                return 'Connecting to ' + api.currentDevice.name + '. ' + dots;
             } else if (api.connection.state === 'reconnecting'){
-                return 'Attempting to re-establish a connection with device: ' + api.connection.flexvoltName + '. ' + dots;
+                return 'Reconnecting with ' + api.connection.flexvoltName + '. ' + dots;
             } else if (api.connection.state === 'connected'){
-                return 'Connected.';
+                return 'Connected';
             } else if (api.connection.state === 'polling'){
-                return 'Polling Version. ' + dots;
+                return 'Getting device info' + dots;
             } else if (api.connection.state === 'updating settings'){
-                return 'Updating Settings. ' + dots;
+                return 'Updating device settings' + dots;
             } else if (api.connection.state === 'no flexvolts found'){
                 return 'No FlexVolt devices found.  Is your FlexVolt powered on and paired/connected?';
             } else {return 'Info not avaiable.';}
         },
         getPortList: function(){
-            return devices.getAll();
+            if (api.connection.state === 'connected' ||
+                api.connection.state === 'polling' ||
+                api.connection.state === 'updating settings') {
+                  var list = devices.getAll().slice(0);
+                  list.splice(list.findIndex(function(elem){return elem.name === api.connection.flexvoltName;}),1);
+                  return list;
+            } else {
+              return devices.getAll();
+            }
         },
         getPrefPortList: function(){
             return devices.getPreferred();

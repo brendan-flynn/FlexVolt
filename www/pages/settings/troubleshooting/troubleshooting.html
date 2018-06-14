@@ -1,0 +1,41 @@
+<ion-view title="Troubleshooting">
+    <ion-nav-buttons side="left">
+        <help-popover></help-popover>
+        <!-- <save-panel ng-if="!mobile"></save-panel> -->
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <connection-status></connection-status>
+        <settings-icon></settings-icon>
+    </ion-nav-buttons>
+
+    <ion-content class="has-header fv-theme" scroll="false">
+      <ul class="list">
+        <li class="item item-text-wrap">
+          Having trouble using the app?  Use one of the options below to let
+          us know so we can fix the problem!
+        </li>
+        <li class="item item-button-right"
+            ng-click="createBugReportEmail()">
+          Generate a bug report email
+          <button class="button button-icon" style="">
+                  <i class="icon ion-bug dark"></i>
+          </button>
+        </li>
+        <li class="item item-button-right"
+            ng-click="showLog()">
+          View log messages
+          <button class="button button-icon" style="">
+                  <i class="icon ion-clipboard dark"></i>
+          </button>
+        </li>
+        <li class="item item-button-right"
+            ng-if="flexvolt.getConnectionStatus() && flexvolt.api.connection.version >= flexvolt.api.versionMinimums.resetBluetoothModule">
+          Reset Bluetooth Module (advanced users only!)
+          <button class="button button-icon" style=""
+                  ng-click="resetBluetoothModule()">
+                  <i class="icon ion-loop dark"></i>
+          </button>
+        </li>
+      </ul>
+    </ion-content>
+</ion-view>
