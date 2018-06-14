@@ -897,8 +897,19 @@ angular.module('flexvolt.flexvolt', [])
             deferred.updateSettings = $q.defer();
             if (api.connection.state === 'connected'){
                 console.log('INFO: Updating Settings');
-                api.connection.state = 'updating settings';
-                waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                if (api.connection.data === 'on' || api.connection.data === 'turningOn') {
+                  // need to turn data off first!  Set dataOnRequested so it
+                  // gets turned back on after settings update
+                  api.connection.dataOnRequested = true;
+                  turnDataOff()
+                    .then(function(){
+                      api.connection.state = 'updating settings';
+                      waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                    });
+                } else {
+                  api.connection.state = 'updating settings';
+                  waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                }
             } else if (api.connection.state === 'polling') {
                 var msg1 = 'Cannot Update Settings - polling.  Trying again in 200ms.';
                 console.log('WARNING' + msg1);
@@ -1089,6 +1100,7 @@ angular.module('flexvolt.flexvolt', [])
                         }
                     }
                     console.log('INFO: Updated settings, read params: '+JSON.stringify(api.readParams));
+                    deferred.updateSettings.resolve();
                     checkIsDataOnRequested();
                 }
             }
@@ -1130,14 +1142,21 @@ angular.module('flexvolt.flexvolt', [])
         }
         function turnDataOff(){ // 113 = 'q'
             console.log('DEBUG: turning data off');
+            deferred.turnDataOff = $q.defer();
             if (api.connection.data === 'on'){
                 api.connection.data = 'turningOff';
                 dIn = [];
                 waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,function(){
                     console.log('DEBUG: data off.');
                     api.connection.data = 'off';
+                    deferred.turnDataOff.resolve();
                 });
-            }  else {console.log('DEBUG: dataOff failed - data not on');}
+            }  else {
+              console.log('DEBUG: dataOff failed - data not on');
+              deferred.turnDataOff.resolve();
+            }
+
+            return deferred.turnDataOff.promise;
         }
         api.getDataParsed = function(){
             var tmpLow, tmpLow2, iChan;
