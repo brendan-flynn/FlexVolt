@@ -345,6 +345,42 @@
 
       init();
 
+      function initializeHardware(){
+        var s = hardwareLogic.settings;
+        var defaults = {
+          frequency: 1000,
+          bitDepth10: true,
+          smoothFilterFlag: true,
+          smoothFilterMode: 1,
+          smoothFilterVal: 7,
+          downSampleCount: 10,
+          rmsWindowSizePower: 7
+        };
+        var updateFlag = false;
+
+        for (var field in defaults) {
+          if (hardwareLogic.settings[field] !== defaults[field]) {
+            updateFlag = true;
+            hardwareLogic.settings[field] = defaults[field];
+          }
+        }
+        if (updateFlag){hardwareLogic.updateSettings();}
+        return updateFlag;
+      }
+
+      function initPage(){
+        var updateFlag = initializeHardware();
+        if (updateFlag){
+          flexvolt.api.updateSettings()
+            .then(init);
+        } else {
+          init();
+        }
+
+      }
+
+      initPage();
+
       // need to reset page and turn data back on when navigating back to the
       // page from other pages like settings, connection, etc.  But don't
       // want to init twice on first load!

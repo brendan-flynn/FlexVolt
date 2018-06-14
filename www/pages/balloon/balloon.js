@@ -3,8 +3,8 @@
 
     angular.module('flexvolt.balloon', [])
 
-    .controller('BalloonCtrl', ['$stateParams', '$scope', '$state', '$ionicPopover', '$ionicModal', 'flexvolt', 'balloonLogic', 'customPopover','dataHandler','generalData',
-    function($stateParams, $scope, $state, $ionicPopover, $ionicModal, flexvolt, balloonLogic, customPopover, dataHandler, generalData) {
+    .controller('BalloonCtrl', ['$stateParams', '$scope', '$state', '$ionicPopover', '$ionicModal', 'flexvolt', 'balloonLogic', 'customPopover','dataHandler','generalData','hardwareLogic',
+    function($stateParams, $scope, $state, $ionicPopover, $ionicModal, flexvolt, balloonLogic, customPopover, dataHandler, generalData, hardwareLogic) {
         var currentUrl = $state.current.url;
         console.log('currentUrl = '+currentUrl);
         $scope.demo = $stateParams.demo;
@@ -104,11 +104,12 @@
 
             var n = dataIn[0].length;
             if (n <= 0){return;}
-            console.log(dataIn);
+            //console.log(dataIn);
 
             window.flexState = flexState;
 
-            var tmp = rms(dataIn[0]);
+            // var tmp = rms(dataIn[0]);
+            var tmp = dataIn[0][0];
             // console.log(tmp);
             $scope.currentVal = tmp;
             if (tmp > generalData.settings.scale*balloonLogic.settings.intensity.threshold/100){
@@ -515,10 +516,50 @@
           balloonDriftYContainerEl.style.transform = "translate(0," + driftY + "px)";
         }
 
-        setTimeout(function() {
-          init();
-          paintStep();
-        },100);
+        function initializeHardware(){
+          var s = hardwareLogic.settings;
+          var defaults = {
+            frequency: 1000,
+            bitDepth10: true,
+            smoothFilterFlag: true,
+            smoothFilterMode: 1,
+            smoothFilterVal: 7,
+            downSampleCount: 10,
+            rmsWindowSizePower: 7
+          };
+          var updateFlag = false;
+
+          for (var field in defaults) {
+            if (hardwareLogic.settings[field] !== defaults[field]) {
+              updateFlag = true;
+              hardwareLogic.settings[field] = defaults[field];
+            }
+          }
+          if (updateFlag){hardwareLogic.updateSettings();}
+          return updateFlag;
+        }
+
+        function initPage(){
+          var updateFlag = initializeHardware();
+          if (updateFlag){
+            flexvolt.api.updateSettings()
+              .then(function(){
+                setTimeout(function() {
+                  init();
+                  paintStep();
+                },100);
+              });
+          } else {
+            setTimeout(function() {
+              init();
+              paintStep();
+            },100);
+          }
+
+        }
+
+        initPage();
+
     }]);
 
 }());
