@@ -603,12 +603,8 @@ angular.module('flexvolt.taskLogic', [])
     var availableChannelList = channelList8;
 
     var frequencyList = [
-        {text: '50',  value: 50},
-        {text: '100',  value: 100},
-        {text: '200',  value: 200},
         {text: '500',  value: 500},
         {text: '1000', value: 1000},
-        {text: '1500', value: 1500},
         {text: '2000', value: 2000}
     ];
 
