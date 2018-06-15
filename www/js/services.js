@@ -15,7 +15,7 @@
 
 angular.module('flexvolt.services', [])
 
-.factory('soundPlugin', ['$timeout', function($timeout){
+.factory('soundPlugin', ['$timeout','appLogic', function($timeout,appLogic){
   // volume range is 0:255
   // frequency range is __ : __
 
@@ -55,64 +55,79 @@ angular.module('flexvolt.services', [])
 
   ionic.Platform.ready(function() {
     if (window.cordova && window.cordova.plugins ) {
-      soundPlugin.play = function(freq, vol) {
-        if (vol === 'undefined') {
-          console.log('WARN: Called soundPlugin.play with no volume specified!');
-          vol = DEFAULT_VOLUME;
-        }
-        if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
-        if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
-        if (freq === 'undefined') {
-          console.log('WARN: Called soundPlugin.play with no frequency specified!');
-          freq = DEFAULT_FREQUENCY;
-        }
-        if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
-        if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
-        currentFrequency = freq;
-        currentVolume = vol;
-        if (isPlaying){
-          console.log('WARN: soundPlugin.play called but already playing, updating volume/frequency instead');
-          window.cordova.plugins.tonegenerator.volume(currentVolume);
-          window.cordova.plugins.tonegenerator.frequency(currentFrequency);
-        } else {
-          isPlaying = true;
-          window.cordova.plugins.tonegenerator.play(currentFrequency, currentVolume);
-        }
-      };
-      soundPlugin.setVolume = function(vol) {
-        if (vol === 'undefined') {
-          console.log('WARN: Called soundPlugin.setVolume with no volume specified!');
-          vol = DEFAULT_VOLUME;
-        }
-        if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
-        if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
-        currentVolume = vol;
-        if (isPlaying){
-          window.cordova.plugins.tonegenerator.volume(currentVolume);
-        } else {
-          console.log('WARN: soundPlugin.setVolume called but not playing, calling play instead');
-          soundPlugin.play(currentFrequency, currentVolume);
-        }
-      };
-      soundPlugin.setFrequency = function(freq) {
-        if (freq === 'undefined') {
-          console.log('WARN: Called soundPlugin.setfrequency with no frequency specified!');
-          freq = DEFAULT_FREQUENCY;
-        }
-        if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
-        if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
-        currentFrequency = freq;
-        if (isPlaying){
-          window.cordova.plugins.tonegenerator.frequency(currentFrequency);
-        } else {
-          console.log('WARN: soundPlugin.setFrequency called but not playing, calling play instead');
-          soundPlugin.play(currentFrequency, currentVolume);
-        }
-      };
-      soundPlugin.stop = function() {
-        isPlaying = false;
-        window.cordova.plugins.tonegenerator.stop();
-      };
+      if (appLogic.dm.platform === 'android') {
+        soundPlugin.play = function(freq, vol) {
+          if (vol === 'undefined') {
+            console.log('WARN: Called soundPlugin.play with no volume specified!');
+            vol = DEFAULT_VOLUME;
+          }
+          if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+          if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+          if (freq === 'undefined') {
+            console.log('WARN: Called soundPlugin.play with no frequency specified!');
+            freq = DEFAULT_FREQUENCY;
+          }
+          if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+          if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+          currentFrequency = freq;
+          currentVolume = vol;
+          if (isPlaying){
+            console.log('WARN: soundPlugin.play called but already playing, updating volume/frequency instead');
+            window.cordova.plugins.tonegenerator.volume(currentVolume);
+            window.cordova.plugins.tonegenerator.frequency(currentFrequency);
+          } else {
+            isPlaying = true;
+            window.cordova.plugins.tonegenerator.play(currentFrequency, currentVolume);
+          }
+        };
+        soundPlugin.setVolume = function(vol) {
+          if (vol === 'undefined') {
+            console.log('WARN: Called soundPlugin.setVolume with no volume specified!');
+            vol = DEFAULT_VOLUME;
+          }
+          if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+          if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+          currentVolume = vol;
+          if (isPlaying){
+            window.cordova.plugins.tonegenerator.volume(currentVolume);
+          } else {
+            console.log('WARN: soundPlugin.setVolume called but not playing, calling play instead');
+            soundPlugin.play(currentFrequency, currentVolume);
+          }
+        };
+        soundPlugin.setFrequency = function(freq) {
+          if (freq === 'undefined') {
+            console.log('WARN: Called soundPlugin.setfrequency with no frequency specified!');
+            freq = DEFAULT_FREQUENCY;
+          }
+          if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+          if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+          currentFrequency = freq;
+          if (isPlaying){
+            window.cordova.plugins.tonegenerator.frequency(currentFrequency);
+          } else {
+            console.log('WARN: soundPlugin.setFrequency called but not playing, calling play instead');
+            soundPlugin.play(currentFrequency, currentVolume);
+          }
+        };
+        soundPlugin.stop = function() {
+          isPlaying = false;
+          window.cordova.plugins.tonegenerator.stop();
+        };
+      } else if (appLogic.dm.platform === 'ios') {
+        soundPlugin.play = function(freq, vol) {
+          console.log('WARN: Called soundPlugin.play for ios!');
+        };
+        soundPlugin.setVolume = function(vol) {
+          //console.log('WARN: Called soundPlugin.setVolume for ios!');
+        };
+        soundPlugin.setFrequency = function(freq) {
+          //console.log('WARN: Called soundPlugin.setFrequency for ios!');
+        };
+        soundPlugin.stop = function() {
+          console.log('WARN: Called soundPlugin.stop for ios!');
+        };
+      }
     } else if (window.chrome) {
       audioCtx = new window.AudioContext();
 
@@ -381,8 +396,8 @@ angular.module('flexvolt.services', [])
                                             errFunc('Connection info was empty 2nd time');
                                             return;
                                         } else {
-                                            //console.log('connected with info:');
-                                            console.log(info);
+                                            //console.log('DEBUG: Connected with info:');
+                                            //console.log(info);
                                             // save the Id for future write calls
                                             bluetoothPlugin.connectionId = info.connectionId;
                                             callback();
@@ -391,8 +406,8 @@ angular.module('flexvolt.services', [])
                                 },errFunc);
                             },50);
                         } else {
-                            //console.log('connected with info:');
-                            console.log(info);
+                            //console.log('DEBUG: Connected with info:');
+                            //console.log(info);
                             // save the Id for future write calls
                             bluetoothPlugin.connectionId = info.connectionId;
                             callback();
@@ -404,7 +419,7 @@ angular.module('flexvolt.services', [])
                 console.log('DEBUG: bluetoothPlugin.disconnect');
                 try {
                     // find and disconnect all existing connections
-                    console.log('In disconnect, connectionId: '+bluetoothPlugin.connectionId);
+                    console.log('DEBUG: In disconnect, connectionId: '+bluetoothPlugin.connectionId);
                     if (bluetoothPlugin.connectionId) {
                       chrome.serial.getConnections( function(connectionInfos){
                           if (chrome.runtime.lastError) {
@@ -423,7 +438,7 @@ angular.module('flexvolt.services', [])
                           callback();
                       });
                     } else {
-                        console.log('connectionId undefined, skipping the disconnect step.');
+                        console.log('DEBUG: In disconnect, connectionId undefined, skipping disconnect step.');
                         callback();
                     }
                 } catch (err) {errFunc(err);}
@@ -625,12 +640,12 @@ angular.module('flexvolt.services', [])
         if (window.cordova) {
             if (window.plugins && window.plugins.insomnia) {
                 insomnia.keepAwake = function(){
-                    console.log('keep awake');
+                    //console.log('DEBUG: insomnia keep awake');
                     window.plugins.insomnia.keepAwake();
                 };
                 insomnia.allowSleepAgain = function(){
                     window.plugins.insomnia.allowSleepAgain();
-                    console.log('go to sleep');
+                    //console.log('DEBUG insomnia go to sleep');
                 };
             }
         } else if (chrome) {
@@ -800,7 +815,7 @@ angular.module('flexvolt.services', [])
           });
         };
         file.getFile = function(){
-          console.log('WARN: cordova does not have or use a getFile api point for file service.');    
+          console.log('WARN: cordova does not have or use a getFile api point for file service.');
         };
         $ionicPlatform.ready(file.getDirectory); // there's no user choice, so don't show it to them!
 
