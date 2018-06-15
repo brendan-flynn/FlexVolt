@@ -26,9 +26,7 @@
         $scope.rmsWindowSize = Math.pow(2, hardwareLogic.settings.rmsWindowSizePower);
 
         $scope.onChange = function(){
-            flexvolt.api.validateSettings();
             console.log('settings now: '+angular.toJson(hardwareLogic.settings));
-            hardwareLogic.updateSettings();
             flexvolt.api.updateSettings();
         };
 

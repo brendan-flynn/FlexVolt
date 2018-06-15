@@ -821,6 +821,13 @@ angular.module('flexvolt.flexvolt', [])
                 hardwareLogic.settings.timer0PartialCount = hardwareLogic.timerAdjustments.defaultTimer0PartialCount;
             }
 
+            // Downsample adjustments
+            // Firmware won't downsample in 'raw' mode.  Only in 'filtered' mode
+            if (!hardwareLogic.settings.smoothFilterFlag) {
+                //console.log('fixing downSampleCount');
+                hardwareLogic.settings.downSampleCount = 1;
+            }
+
             // Version specific Validations
             if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION){
                 // new settings
@@ -831,6 +838,9 @@ angular.module('flexvolt.flexvolt', [])
                     hardwareLogic.settings.bitDepth10 = false;
                 }
             }
+
+            // store changes
+            hardwareLogic.updateSettings();
         };
 
         api.updateSettings = function(){
