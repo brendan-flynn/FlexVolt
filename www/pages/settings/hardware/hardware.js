@@ -20,13 +20,13 @@
         $scope.frequencyList = hardwareLogic.frequencyList;
         $scope.rmsWindowList = hardwareLogic.rmsWindowList;
         $scope.settings = hardwareLogic.settings;
-        console.log('hardware settings: '+angular.toJson(hardwareLogic.settings));
+        console.log('INFO: hardware settings: '+angular.toJson(hardwareLogic.settings));
 
         $scope.file = file;
         $scope.rmsWindowSize = Math.pow(2, hardwareLogic.settings.rmsWindowSizePower);
 
         $scope.onChange = function(){
-            console.log('settings now: '+angular.toJson(hardwareLogic.settings));
+            console.log('INFO: hardware settings changed to: '+angular.toJson(hardwareLogic.settings));
             flexvolt.api.updateSettings();
         };
 
@@ -51,7 +51,7 @@
         };
 
         $scope.selectRMSWindowSize = function(index) {
-            console.log('selected scale: ' + hardwareLogic.rmsWindowList[index] + ', via index: ' + index);
+            //console.log('selected rmsWindowSize: ' + hardwareLogic.rmsWindowList[index] + ', via index: ' + index);
             hardwareLogic.settings.rmsWindowSizePower = hardwareLogic.rmsWindowList[index].value;
             hardwareLogic.settings.smoothFilterVal = hardwareLogic.settings.rmsWindowSizePower;
             $scope.rmsWindowSize = Math.pow(2, hardwareLogic.settings.rmsWindowSizePower);
@@ -76,7 +76,7 @@
         };
 
         $scope.selectChannel = function(index) {
-            console.log('selected scale: ' + hardwareLogic.channelList[index] + ', via index: ' + index);
+            //console.log('selected channel: ' + hardwareLogic.channelList[index] + ', via index: ' + index);
             hardwareLogic.settings.nChannels = hardwareLogic.channelList[index].value;
             $scope.onChange();
         };

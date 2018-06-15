@@ -834,7 +834,7 @@ angular.module('flexvolt.flexvolt', [])
             } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
                 // older versions don't send 10-bit with filter, even if asked for 10 bit
                 if (hardwareLogic.settings.smoothFilterFlag) {
-                    console.log('fixing bitDepth10');
+                    //console.log('fixing bitDepth10');
                     hardwareLogic.settings.bitDepth10 = false;
                 }
             }

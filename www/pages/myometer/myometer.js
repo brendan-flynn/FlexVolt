@@ -15,7 +15,7 @@
       customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/myometer/myometer-help.html');
 
       $scope.$on('$ionicView.beforeLeave', function(){
-        console.log('leaving - stop audio');
+        //console.log('leaving - stop audio');
         soundPlugin.stop();
       });
 
@@ -73,7 +73,7 @@
       };
 
       $scope.$on('$destroy', function(e){
-        console.log('DEBUG: $destroy: '+angular.toJson(e));
+        //console.log('DEBUG: $destroy: '+angular.toJson(e));
         $scope.cancelBaseline();
       });
 

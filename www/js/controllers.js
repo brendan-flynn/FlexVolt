@@ -242,7 +242,7 @@
     }])
     .controller('FiltersCtrl', ['$scope', 'logicOptions', function($scope, logicOptions){
         /*******Filter Control*********/
-        console.log('filtersCtrl loaded with: '+angular.toJson($scope.pageLogic));
+        console.log('DEBUG: filtersCtrl loaded with: '+angular.toJson($scope.pageLogic));
 
         $scope.data = {
             state: undefined,
@@ -260,7 +260,7 @@
 
         $scope.addFilter = function(){
             $scope.pageLogic.settings.filters.push(angular.copy($scope.data.newFilter));
-            console.log('added filter: '+angular.toJson($scope.data.newFilter));
+            console.log('DEBUG: added filter: '+angular.toJson($scope.data.newFilter));
             $scope.resetNewFilter();
             $scope.onChange();
         };
@@ -305,7 +305,7 @@
             appLogic.dm.platform = 'windows';
         }
         $scope.platform = appLogic.dm.platform;
-        console.log('platform: ' + appLogic.dm.platform);
+        console.log('DEBUG: platform: ' + appLogic.dm.platform);
 
         window.flexvolt = flexvolt;
         window.dataHandler = dataHandler;
