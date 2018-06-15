@@ -9,7 +9,7 @@
         console.log('currentUrl = '+currentUrl);
 
         customPopover.add($ionicPopover, $scope, 'popover', 'pages/rms/rms-settings.html',rmsTimeLogic.updateSettings);
-        customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',rmsTimeLogic.updateSettings);
+        // customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html',rmsTimeLogic.updateSettings);
         // customPopover.add($ionicPopover, $scope, 'helpover','pages/rms/rms-help.html');
         customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/rms/rms-help.html');
 

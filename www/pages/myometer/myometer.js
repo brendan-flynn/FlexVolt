@@ -10,7 +10,7 @@
       console.log('currentUrl = '+currentUrl);
 
       customPopover.add($ionicPopover, $scope, 'popover', 'pages/myometer/myometer-settings.html', myometerLogic.updateSettings);
-      customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html', myometerLogic.updateSettings);
+      // customPopover.add($ionicPopover, $scope, 'filterpopover', 'templates/filter-popover.html', myometerLogic.updateSettings);
       // customPopovers.add($ionicPopover, $scope, 'helpover','pages/myometer/myometer-help.html');
       customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/myometer/myometer-help.html');
 
