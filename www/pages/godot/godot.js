@@ -131,7 +131,42 @@
         };
 
         xyDot.init('#xyWindow');
-        paintStep();
+
+        function initializeHardware(){
+          var s = hardwareLogic.settings;
+          var defaults = {
+            frequency: 1000,
+            bitDepth10: true,
+            smoothFilterFlag: true,
+            smoothFilterMode: 1,
+            smoothFilterVal: 7,
+            downSampleCount: 10,
+            rmsWindowSizePower: 7
+          };
+          var updateFlag = false;
+
+          for (var field in defaults) {
+            if (hardwareLogic.settings[field] !== defaults[field]) {
+              updateFlag = true;
+              hardwareLogic.settings[field] = defaults[field];
+            }
+          }
+          if (updateFlag){hardwareLogic.updateSettings();}
+          return updateFlag;
+        }
+
+        function initPage(){
+          var updateFlag = initializeHardware();
+          if (updateFlag){
+            flexvolt.api.updateSettings()
+              .then(paintStep);
+          } else {
+            paintStep();
+          }
+
+        }
+
+        initPage();
 
     }]);
 
