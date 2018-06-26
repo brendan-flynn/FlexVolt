@@ -49,6 +49,7 @@ angular.module('flexvolt.flexvolt', [])
     var receivedData;
     var waitingForResponse = false;
     var waitingForMessage;
+    var waitingForBytes;
     var waitingForFunction;
     var DEFAULT_WAIT_MS = 5000, DEFAULT_CONNECTED_WAIT_MS = 5000, DISCOVER_DELAY_MS = 500;
     var MODEL_LIST = [];
@@ -97,6 +98,8 @@ angular.module('flexvolt.flexvolt', [])
     var SMOOTH_FILTER_MODE_SHIFT = 0; //    0b00000000;
     var ENABLE_BATTERY_TEST = 1; //         0b00000001;
 
+    // Settings Update Controls
+    var updateSettingsCurrentRegisterIndex = 0;
 
     var dots = '';
     // flag to make sure we don't end up with multipe async read calls at once!
@@ -141,7 +144,7 @@ angular.module('flexvolt.flexvolt', [])
         tryList: undefined,
         currentDevice: undefined,
         pollBattery: undefined,
-        getIsBatteryLevelAvailable: undefined,
+        getIsBatteryLevelAvailable: function(){return false;},
         updateBatteryIndicator: function(newLevel){}, // defined by connection-indicator ctrl
         connection: { // properties dependent on the device connected
             initialWait: undefined,
@@ -282,6 +285,33 @@ angular.module('flexvolt.flexvolt', [])
             }
         }
 
+        function parseBluetoothModuleDetails(tmp) {
+            var returnedFlagJYMCU = tmp[1];
+            var testFlagU = tmp[3];
+            var tmpTriedToProgramJYMCU = tmp[4];
+            var triedToProgramJYMCU;
+            if (tmpTriedToProgramJYMCU === 1){
+                triedToProgramJYMCU = true;
+            } else if (tmpTriedToProgramJYMCU === 2) {
+                triedToProgramJYMCU = false;
+            }
+            var testFlagW = tmp[5];
+            var tmpProgrammedJYMCU = tmp[6];
+            var programmedJYMCU;
+            if (tmpProgrammedJYMCU === 3) {
+                programmedJYMCU = true;
+            } else if (tmpProgrammedJYMCU === 4) {
+                programmedJYMCU = false;
+            }
+            console.log('DEBUG: JYMCU flag: ' + returnedFlagJYMCU +
+                        // ', testFlagU: ' + testFlagU +
+                        // ', triedToProgram value: ' + tmpTriedToProgramJYMCU +
+                        ', triedToProgram: ' + triedToProgramJYMCU +
+                        // ', testFlagW: ' + testFlagW +
+                        // ', programmedJYMCU value: ' + tmpProgrammedJYMCU +
+                        ', programmedJYMCU: ' + programmedJYMCU);
+        }
+
         // FOR TIMING DEBUGGING
         // var rCount = 0;
         // var itt = $interval(function(){
@@ -292,105 +322,98 @@ angular.module('flexvolt.flexvolt', [])
 
         // Async event listener function to pass to subscribe/addListener
         function onDataReceived(d){
-            // basically everything but actual data.
-            if (api.connection.data === 'off' || api.connection.data === 'turningOn') {
-              console.log('State: ' + api.connection.state +
-                          '. Received: ' + JSON.stringify(d));
-            }
-            // rCount += d.length;
             receivedData = true;
-            var runSpecial = false;
 
-            var tmp = [];
             for (var key in d) {
                 if (d.hasOwnProperty(key)) {
-                    tmp.push(d[key]);
+                    dIn.push(d[key]);
                 }
             }
-            // console.log('received: ' + tmp.length);
 
+            // basically everything but actual data.
+            if (api.connection.data === 'off' || api.connection.data === 'turningOn') {
+              console.log('DEBUG: State: ' + api.connection.state +
+                          '. Input: ' + JSON.stringify(dIn));
+            }
+
+            // if waiting for a communications response, look for it
             if (waitingForResponse) {
-                while(tmp.length > 0){
-                    //console.log('dIn.length = '+dIn.length);
-                    var b = tmp.splice(0,1);
-                    if (api.connection.data !== 'turningOff'){
-                        console.log('INPUT: realtime ' + b + ', expecting: ' + waitingForMessage + ', n = ' + tmp.length);
-                    }
-                    if (b[0] === waitingForMessage){
-                      console.log('DEBUG: found the expected message in realtime: ' + waitingForMessage);
-                      if (waitingForMessage === 97) {
-                          // initial handshake - get status bits from JYMCU programming
-                          if (tmp.length >= 6) {
-                              var returnedFlagJYMCU = tmp[0];
-                              var testFlagU = tmp[2];
-                              var tmpTriedToProgramJYMCU = tmp[3];
-                              var triedToProgramJYMCU;
-                              if (tmpTriedToProgramJYMCU === 1){
-                                  triedToProgramJYMCU = true;
-                              } else if (tmpTriedToProgramJYMCU === 2) {
-                                  triedToProgramJYMCU = false;
-                              }
-                              var testFlagW = tmp[4];
-                              var tmpProgrammedJYMCU = tmp[5];
-                              var programmedJYMCU;
-                              if (tmpProgrammedJYMCU === 3) {
-                                  programmedJYMCU = true;
-                              } else if (tmpProgrammedJYMCU === 4) {
-                                  programmedJYMCU = false;
-                              }
-                              console.log('DEBUG: JYMCU flag: ' + returnedFlagJYMCU +
-                                          ', testFlagU: ' + testFlagU +
-                                          ', triedToProgram value: ' + tmpTriedToProgramJYMCU +
-                                          ', triedToProgram: ' + triedToProgramJYMCU +
-                                          ', testFlagW: ' + testFlagW +
-                                          ', programmedJYMCU value: ' + tmpProgrammedJYMCU +
-                                          ', programmedJYMCU: ' + programmedJYMCU);
-                          } else {
-                              console.log('DEBUG: JYMCU status may not available.  '+
-                              'The characters may have been sent after flexvolt.js moved on in the connection handshake process.  ' +
-                              'This could also be because the sensor firmware is a version before JYMCU status was sent.');
-                          }
+                checkForMessage();
+            }
+        }
 
-                      }
-                      waitingForResponse = false;
-                      runSpecial = true;
-                      dIn = []; // reset this - don't need any of the past values
-                      cancelTimeout();
-                      break;
+        function checkForMessage(){
+            if (waitingForMessage.length !== undefined && waitingForMessage.length > 0){
+                // waiting for an array.  look for first member.
+                //console.log('DEBUG: waiting for: ' + waitingForMessage + ', total received: ' + JSON.stringify(dIn));
+                var msgLen = waitingForMessage.length + waitingForBytes;
+                while (dIn.length > 0 && dIn[0] !== waitingForMessage[0]){
+                    dIn.splice(0,1); // throw away non-matching vals
+                }
+
+                if (dIn.length > 0 && dIn[0] === waitingForMessage[0]){
+                    // found a potential match.  compare the rest of the values
+                    // console.log('DEBUG: found start of message');
+
+                    if (dIn.length >= msgLen) {
+                        // console.log('DEBUG: got correct length for entire message');
+                        var match = true;
+                        for (var iM = 0; iM < waitingForMessage.length; iM++){
+                            if (dIn[iM] === waitingForMessage[iM]){
+                                // still a match
+                            } else {
+                                // missing something
+                                match = false;
+                            }
+                        }
+                        if (match) {
+                            console.log('DEBUG: found the expected message in realtime: ' + JSON.stringify(waitingForMessage));
+                            cancelTimeout();
+                            waitingForResponse = false;
+                            if (waitingForMessage[0] === 97) {
+                                // initial handshake - get status bits from JYMCU programming if available
+                                if (dIn.length >= 7) {
+                                    parseBluetoothModuleDetails(dIn);
+                                }
+                            }
+                            // if found the message, run the follow on
+                            waitingForFunction();
+                            return true;
+                        }
                     }
                 }
+            } else {
+                console.log('ERROR: waiting for response, but no message defined!  waitingForMessage: ' + JSON.stringify(waitingForMessage));
             }
-
-            for (var i = 0; i < tmp.length; i++){
-                dIn.push(tmp[i]);
-            }
-            //console.log('DEBUG: dIn ended up containing: ' + JSON.stringify(dIn));
-
-            if (runSpecial){
-                console.log('DEBUG: running next function');
-                waitingForFunction();
-            }
+            return false;
         }
 
         var connectionRepeat = 10;
         var connectedRepeat = 5;
 
         // Send a command, wait for nBytes, check received bytes against inMsg, call nextFunc!
-        function waitForInput(outMsg, repeat, repeatN, waitTime, inMsg, nextFunc){
-            console.log('DEBUG: writing ' + outMsg + ', waiting ' + waitTime + ' for ' + inMsg);
+        function waitForInput(outMsg, repeat, repeatN, waitTime, inMsg, expectedBytes, nextFunc){
+            console.log('DEBUG: writing ' + outMsg + ', waiting ' + waitTime + ' for ' + inMsg + ' and ' + expectedBytes + ' data bytes.');
             if (outMsg !== null){
-                console.log('OUTPUT: '+outMsg);
+                // console.log('OUTPUT: '+outMsg);
                 write(outMsg);
                 if (repeat) {
                   pollingInterval = $interval(function() {
-                    console.log('OUTPUT: '+outMsg);
+                    console.log('DEBUG: resending: '+outMsg);
                     write(outMsg);
                 },400,repeatN);
                 }
             }
 
+            // set global fields for use in onDataReceived and checkForMessage
             waitingForResponse = true;
+            // inMsg = {matchArray, additionalBytesExpected}
+            if (inMsg.length === undefined || inMsg.length <= 0){
+              inMsg = [inMsg];
+            }
             waitingForMessage = inMsg;
+            if (expectedBytes === undefined) {expectedBytes = 0;}
+            waitingForBytes = expectedBytes;
             waitingForFunction = nextFunc;
 
             // wait for data to come back
@@ -398,31 +421,23 @@ angular.module('flexvolt.flexvolt', [])
                 cancelTimeout();
                 console.log('DEBUG: timed out waiting for response');
                 if (waitingForResponse) {
-                    while(dIn.length > 0){
-                        var b = dIn.splice(0,1);
-                        if (api.connection.data !== 'turningOff'){
-                            console.log('INPUT: '+b+', exp: '+waitingForMessage+', n = '+dIn.length);
-                        }
-                        if (b[0] === waitingForMessage){
-                            console.log('DEBUG: found expected message after timing out: ' + waitingForMessage);
-                            nextFunc();
-                            return;
-                        }
-                    }
-                    waitingForResponse = false;
-                    if (api.connection.state === 'updating settings'){
-                      console.log('ERROR - did not get expected message 122 after updating settings.  Giving user option of continuing.');
-                      var alertPopup = $ionicPopup.alert({
-                          title: 'Error Updating Settings',
-                          template: 'Hardware settings may not have been properly updated.  Try out \'RMS\' page, and if you are not getting data, try turning your FlexVolt sensor off, then back on, then reset the connection.  (use the connection icon top right).'
-                      });
-                      console.log('WARNING: pretending the proper message was received after updating settings to try to limp along.');
-                      nextFunc();
-                      return;
-                    } else {
-                      connectionErr('Expected '+inMsg);
-                    }
+                    var success = checkForMessage();
 
+                    if (!success){
+                        waitingForResponse = false;
+                        // if (api.connection.state === 'updating settings'){
+                        //   console.log('ERROR - did not get expected message 122 after updating settings.  Giving user option of continuing.');
+                        //   var alertPopup = $ionicPopup.alert({
+                        //       title: 'Error Updating Settings',
+                        //       template: 'Hardware settings may not have been properly updated.  Try out \'RMS\' page, and if you are not getting data, try turning your FlexVolt sensor off, then back on, then reset the connection.  (use the connection icon top right).'
+                        //   });
+                        //   console.log('WARNING: pretending the proper message was received after updating settings to try to limp along.');
+                        //   nextFunc();
+                        //   return;
+                        // } else {
+                          connectionErr('Expected '+inMsg);
+                        // }
+                    }
                 }
             },waitTime);
         }
@@ -597,7 +612,7 @@ angular.module('flexvolt.flexvolt', [])
         function handshake1() {
             if (api.connection.state === 'connecting'){
             // pollingTimeout = $timeout(function(){
-                waitForInput('A',true,connectionRepeat,api.connection.initialWait,97,handshake2);
+                waitForInput('A',true,connectionRepeat,api.connection.initialWait,97,0,handshake2);
             // },2000);
             } else {
                 console.log('DEBUG: Handshake1, but wrong state, probably cancelled');
@@ -606,7 +621,7 @@ angular.module('flexvolt.flexvolt', [])
         function handshake2(){
             if (api.connection.state === 'connecting'){
                 console.log('DEBUG: Received "a", writing "1".  (FlexVolt found!)');
-                waitForInput('1',true,connectionRepeat,api.connection.initialWait,98,handshake3);
+                waitForInput('1',true,connectionRepeat,api.connection.initialWait,98,0,handshake3);
             } else {
                 console.log('DEBUG: Handshake2, but wrong state, probably cancelled');
             }
@@ -629,7 +644,7 @@ angular.module('flexvolt.flexvolt', [])
              }
         }
         function testHandshake(cb){
-            waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,cb);
+            waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,0,cb);
         }
 
         api.resetBluetoothModule = function() {
@@ -640,7 +655,7 @@ angular.module('flexvolt.flexvolt', [])
                     bluetoothPlugin.clear(
                         api.currentDevice,
                         function () {
-                            waitForInput('R',false,connectedRepeat,api.connection.connectedWait,114,confirmResetBluetoothModule);
+                            waitForInput('R',false,connectedRepeat,api.connection.connectedWait,114,0,confirmResetBluetoothModule);
                         },
                         function(){console.log('ERROR: Error clearing bluetoothPlugin in resetBluetoothModule');}
                     );
@@ -661,7 +676,7 @@ angular.module('flexvolt.flexvolt', [])
                     bluetoothPlugin.clear(
                         api.currentDevice,
                         function () {
-                            waitForInput('!',false,connectedRepeat,api.connection.connectedWait,35,finalizeResetBluetoothModule);
+                            waitForInput('!',false,connectedRepeat,api.connection.connectedWait,35,0,finalizeResetBluetoothModule);
                         },
                         function(){
                             var msg2 = 'Error clearing bluetoothPlugin in confirmResetBluetoothModule';
@@ -693,7 +708,7 @@ angular.module('flexvolt.flexvolt', [])
                 bluetoothPlugin.clear(
                     api.currentDevice,
                     function () {
-                        waitForInput('V',false,connectedRepeat,api.connection.connectedWait,118,parseVersion);
+                        waitForInput('V',false,connectedRepeat,api.connection.connectedWait,118,4,parseVersion);
                     },
                     function(){console.log('ERROR: Error clearing bluetoothPlugin in pollVersion');}
                 );
@@ -705,20 +720,21 @@ angular.module('flexvolt.flexvolt', [])
             return deferred.polling.promise;
 
             function parseVersion(){
-                console.log('DEBUG: parsing version');
+                console.log('DEBUG: parsing version. dIn: ' + JSON.stringify(dIn));
                 write('Q');
                 $timeout(function(){
                     if (deferred.polling) {
-                        console.log('DEBUG: deferred polling');
-                        if (dIn.length >= 4){
-                            console.log('DEBUG: version parsing input: ' + JSON.stringify(dIn));
+                        // console.log('DEBUG: deferred polling dIn: ' + JSON.stringify(dIn));
+                        if (dIn.length >= 5 && dIn[0] === 118){
+                            // console.log('DEBUG: version parsing input: ' + JSON.stringify(dIn));
                             api.connection.state = 'connected';
-                            var data = dIn.slice(0,4);
+                            // dIn[0] = 118
+                            var data = dIn.slice(1,5);
                             api.connection.version = Number(data[0]);
                             api.connection.serialNumber = Number((data[1]*(2^8))+data[2]);
                             api.connection.modelNumber = Number(data[3]);
-                            var voltageTemp = Number(data[4]);
-                            updateBatteryVoltage(voltageTemp);
+                            // var voltageTemp = Number(data[4]);
+                            // updateBatteryVoltage(voltageTemp);
                             api.connection.model = MODEL_LIST[api.connection.modelNumber];
                             if (api.connection.modelNumber <= 2) {
                               // It's a USB connection - 5 Volts
@@ -771,7 +787,7 @@ angular.module('flexvolt.flexvolt', [])
                     bluetoothPlugin.clear(
                         api.currentDevice,
                         function () {
-                            waitForInput('T',false,connectedRepeat,api.connection.connectedWait,116,parseBatteryInfo);
+                            waitForInput('T',false,connectedRepeat,api.connection.connectedWait,116,1,parseBatteryInfo);
                         },
                         function(){console.log('ERROR: Error clearing bluetoothPlugin in pollBattery');}
                     );
@@ -914,11 +930,11 @@ angular.module('flexvolt.flexvolt', [])
                   turnDataOff()
                     .then(function(){
                       api.connection.state = 'updating settings';
-                      waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                      waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,0,updateSettings2);
                     });
                 } else {
                   api.connection.state = 'updating settings';
-                  waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                  waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,0,updateSettings2);
                 }
             } else if (api.connection.state === 'polling') {
                 var msg1 = 'Cannot Update Settings - polling.  Trying again in 200ms.';
@@ -927,7 +943,7 @@ angular.module('flexvolt.flexvolt', [])
                   if (api.connection.state === 'connected'){
                     console.log('INFO: Updating Settings');
                     api.connection.state = 'updating settings';
-                    waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,updateSettings2);
+                    waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,0,updateSettings2);
                   } else {
                     var msg2 = 'Cannot Update Settings - still polling or not connected';
                     console.log('WARNING' + msg2);
@@ -1051,15 +1067,33 @@ angular.module('flexvolt.flexvolt', [])
                     }
                     console.log('DEBUG: Updated Settings to: REG='+msg);
 
-                    writeArray(REG);
+                    // writeArray(REG);
                       // .then(updateSettings3);
-                    waitForInput(null,false,connectedRepeat,api.connection.connectedWait,121,updateSettings3);
+                    // waitForInput(null,false,connectedRepeat,api.connection.connectedWait,121,0,updateSettings3);
+
+                    updateSettingsCurrentRegisterIndex = 0;
+
+                    var sendNextRegisterValue = function() {
+                        var val = REG[updateSettingsCurrentRegisterIndex];
+                        console.log('DEBUG: Sending register val[' + updateSettingsCurrentRegisterIndex + '] = ' + val);
+                        var correctResponse = [val,updateSettingsCurrentRegisterIndex,val];
+                        updateSettingsCurrentRegisterIndex ++;
+                        dIn = [];
+                        if (updateSettingsCurrentRegisterIndex < REG.length) {
+                          waitForInput(val,false,connectedRepeat,api.connection.connectedWait,correctResponse,0,sendNextRegisterValue);
+                        } else {
+                          correctResponse.push(121); // add the value we expect when done
+                          waitForInput(val,false,connectedRepeat,api.connection.connectedWait,correctResponse,0,updateSettings3);
+                        }
+                    };
+
+                    sendNextRegisterValue();
                 }
             }
             function updateSettings3(){
                 if (deferred.updateSettings) {
                     console.log('DEBUG: Update Settings 3');
-                    waitForInput('Y',false,connectedRepeat,api.connection.connectedWait,122,updateDataSettings);
+                    waitForInput('Y',false,connectedRepeat,api.connection.connectedWait,122,0,updateDataSettings);
                 }
             }
             function updateDataSettings(){
@@ -1109,7 +1143,8 @@ angular.module('flexvolt.flexvolt', [])
                             api.readParams.expectedBytes = 11;
                         }
                     }
-                    console.log('INFO: Updated settings, read params: '+JSON.stringify(api.readParams));
+                    console.log('INFO: Updated settings');
+                    console.log('DEBUG: read params: '+JSON.stringify(api.readParams));
                     deferred.updateSettings.resolve();
                     checkIsDataOnRequested();
                 }
@@ -1132,7 +1167,7 @@ angular.module('flexvolt.flexvolt', [])
                     api.currentDevice,
                     function () {
                         console.log('DEBUG: Cleared in turnDataOn.');
-                        waitForInput('G',true,connectedRepeat,api.connection.connectedWait,103,function(){
+                        waitForInput('G',true,connectedRepeat,api.connection.connectedWait,103,0,function(){
                             console.log('INFO: Turned data on');
                             api.connection.data = 'on';
                         });
@@ -1156,8 +1191,8 @@ angular.module('flexvolt.flexvolt', [])
             if (api.connection.data === 'on'){
                 api.connection.data = 'turningOff';
                 dIn = [];
-                waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,function(){
-                    console.log('DEBUG: data off.');
+                waitForInput('Q',true,connectedRepeat,api.connection.connectedWait,113,0,function(){
+                    console.log('INFO: Turned data off.');
                     api.connection.data = 'off';
                     deferred.turnDataOff.resolve();
                 });
