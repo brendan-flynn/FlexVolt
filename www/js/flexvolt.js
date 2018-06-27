@@ -100,6 +100,7 @@ angular.module('flexvolt.flexvolt', [])
 
     // Settings Update Controls
     var updateSettingsCurrentRegisterIndex = 0;
+    var updateSettingsAgainRequested = false;
 
     var dots = '';
     // flag to make sure we don't end up with multipe async read calls at once!
@@ -921,7 +922,10 @@ angular.module('flexvolt.flexvolt', [])
             api.validateSettings();
 
             deferred.updateSettings = $q.defer();
-            if (api.connection.state === 'connected'){
+            if (api.connection.state === 'updating settings'){
+                console.log('DEBUG: already updating settings.  Will update again when done in case changes were made during udpate process');
+                updateSettingsAgainRequested = true;
+            } else if (api.connection.state === 'connected'){
                 console.log('INFO: Updating Settings');
                 if (api.connection.data === 'on' || api.connection.data === 'turningOn') {
                   // need to turn data off first!  Set dataOnRequested so it
@@ -938,7 +942,7 @@ angular.module('flexvolt.flexvolt', [])
                 }
             } else if (api.connection.state === 'polling') {
                 var msg1 = 'Cannot Update Settings - polling.  Trying again in 200ms.';
-                console.log('WARNING' + msg1);
+                console.log('WARNING: ' + msg1);
                 $timeout(function(){
                   if (api.connection.state === 'connected'){
                     console.log('INFO: Updating Settings');
@@ -946,13 +950,13 @@ angular.module('flexvolt.flexvolt', [])
                     waitForInput('S',false,connectedRepeat,api.connection.connectedWait,115,0,updateSettings2);
                   } else {
                     var msg2 = 'Cannot Update Settings - still polling or not connected';
-                    console.log('WARNING' + msg2);
+                    console.log('WARNING: ' + msg2);
                     deferred.updateSettings.reject(msg2);
                   }
                 }, 200);
             } else {
                 var msg3 = 'Cannot Update Settings - not connected';
-                console.log('WARNING' + msg3);
+                console.log('WARNING: ' + msg3);
                 deferred.updateSettings.reject(msg3);
             }
 
@@ -1145,8 +1149,15 @@ angular.module('flexvolt.flexvolt', [])
                     }
                     console.log('INFO: Updated settings');
                     console.log('DEBUG: read params: '+JSON.stringify(api.readParams));
-                    deferred.updateSettings.resolve();
-                    checkIsDataOnRequested();
+                    if (updateSettingsAgainRequested) {
+                        updateSettingsAgainRequested = false;
+                        console.log('DEBUG: User changed hardware settings while running sensor update process.  Running again.');
+                        api.updateSettings();
+                    } else {
+                        deferred.updateSettings.resolve();
+                        checkIsDataOnRequested();
+                    }
+
                 }
             }
         };
