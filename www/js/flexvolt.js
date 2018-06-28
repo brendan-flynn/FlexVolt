@@ -29,8 +29,8 @@ angular.module('flexvolt.flexvolt', [])
 /**
  * Abstracts the flexvolt, deals with bluetooth communications, etc.
  */
-.factory('flexvolt', ['$q', '$timeout', '$interval', '$ionicPopup', 'bluetoothPlugin', 'hardwareLogic', 'devices',
-  function($q, $timeout, $interval, $ionicPopup, bluetoothPlugin, hardwareLogic, devices) {
+.factory('flexvolt', ['$q', '$timeout', '$interval', '$ionicPopup', 'bluetoothPlugin', 'hardwareLogic', 'devices','generalData',
+  function($q, $timeout, $interval, $ionicPopup, bluetoothPlugin, hardwareLogic, devices, generalData) {
     // Breaking Changes
 
     // Firmware version 5 introduces on-board RMS and HP filters.
@@ -102,6 +102,7 @@ angular.module('flexvolt.flexvolt', [])
     // Settings Update Controls
     var updateSettingsCurrentRegisterIndex = 0;
     var updateSettingsAgainRequested = false;
+    var showBLEDataRateWarningFlag = true;
 
     var dots = '';
     // flag to make sure we don't end up with multipe async read calls at once!
@@ -633,6 +634,7 @@ angular.module('flexvolt.flexvolt', [])
                 console.log('DEBUG: Received "b", handshake complete.');
                 api.flexvoltPortList.push(api.currentDevice);
                 api.connection.flexvoltName = api.currentDevice.name;
+                api.connection.bluetoothType = api.currentDevice.bluetoothLE ? 'ble':'classic';
                 api.connection.state = 'connected';
                 connectionTestInterval = $interval(checkConnection,1000);
                 console.log('INFO: Connected to ' + JSON.stringify(api.currentDevice));
@@ -826,6 +828,28 @@ angular.module('flexvolt.flexvolt', [])
             }
         };
 
+        function showBLEDataRateWarning(n) {
+            if (generalData.settings.userChoices.showBLEDataRateWarning) {
+                var iOSDataRatePopup = $ionicPopup.confirm({
+                    title: 'Warning - Inappropriate Settings',
+                    template: 'Current setting of ' + hardwareLogic.settings.nChannels +
+                      ' channels in \'unfiltered\' data mode may not function properly.  '+
+                      'Your sensor uses bluetooth low energy, which does not support the necessary data rate.  '+
+                      'Data rate will be reduced by a factor of ' + n + '.',
+                    buttons: [
+                      { text: 'OK'},
+                      {
+                          text: 'Stop Showing This Message',
+                          onTap: function(e){
+                              generalData.settings.userChoices.showBLEDataRateWarning = false;
+                              generalData.updateSettings();
+                          }
+                      }
+                    ]
+                });
+            }
+        }
+
         api.validateSettings = function() {
             // General Validations
 
@@ -864,6 +888,41 @@ angular.module('flexvolt.flexvolt', [])
                     hardwareLogic.settings.bitDepth10 = false;
                 }
             }
+
+            // downsampling
+            if (hardwareLogic.settings.smoothFilterFlag) {
+                if (api.connection.bluetoothType === 'ble') {
+                    // BLE max rate is ~2kSps.  downsample by 16 to achieve ~1ksPs for 8 channels.
+                    if (hardwareLogic.settings.downSampleCount < 10) {
+                        hardwareLogic.settings.downSampleCount = 10;
+                    }
+                } else if (api.connection.bluetoothType === 'classic') {
+                    // Bluetooth Classic can handle full data rate for 8 channels at 1kHz
+                    if (hardwareLogic.settings.downSampleCount < 10) {
+                        hardwareLogic.settings.downSampleCount = 10;
+                    }
+                }
+
+            } else {
+                // raw mode.  If not BLE, reset downSampleCount to 1.
+                if (api.connection.bluetoothType === 'ble') {
+                    if (hardwareLogic.settings.nChannels === 1) {
+                        // iOS BLE can handle 1 channel at 1kHz.
+                        hardwareLogic.settings.downSampleCount = 1;
+                    } else {
+                        // set downSampleCount to the same value as nChannels.
+                        if (hardwareLogic.settings.downSampleCount < hardwareLogic.settings.nChannels){
+                            showBLEDataRateWarning(hardwareLogic.settings.nChannels);
+                            hardwareLogic.settings.downSampleCount = hardwareLogic.settings.nChannels;
+                        }
+                    }
+                } else {
+                    // Bluetooth Classic can handle full data rate for 8 channels at 1kHz
+                    hardwareLogic.settings.downSampleCount = 1;
+                }
+            }
+
+            console.log('INFO: hardware settings validation resolved to: '+angular.toJson(hardwareLogic.settings));
 
             // store changes
             hardwareLogic.updateSettings();

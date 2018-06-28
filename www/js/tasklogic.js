@@ -393,6 +393,9 @@ angular.module('flexvolt.taskLogic', [])
             aboveThreshold: 500,
             belowThresholdFreq: 440,
             belowThreshold: 20
+        },
+        userChoices: {
+            showBLEDataRateWarning: true
         }
     };
 
