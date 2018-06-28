@@ -37,6 +37,7 @@ angular.module('flexvolt.flexvolt', [])
     // The RMS filter uses the same command interface as the previous smoothing filter
     // The HP filter uses control bits in the former custom frequency command bytes
     var BREAKING_CHANGE_ONBOARD_RMS_VERSION = 5;
+    var ONBOARD_RMS_MAX_CHANNELS = 4; // PIC isn't fast enough to run RMS for 8 channels
 
     // Firmware version 5 introduces ability to trigger bluetooth module reprogram
     // by clearing flash bit the FlexVolt sensor checks on startup.
@@ -847,7 +848,15 @@ angular.module('flexvolt.flexvolt', [])
 
             // Version specific Validations
             if (api.connection.version >= BREAKING_CHANGE_ONBOARD_RMS_VERSION){
-                // new settings
+                // new settings.  Only allow smoothFilterMode_RMS if nChannels <= 4
+                // the PIC doesn't operate fast enough to perform RMS for 8 channels.
+                if (hardwareLogic.settings.nChannels > ONBOARD_RMS_MAX_CHANNELS) {
+                    console.log('DEBUG: 8 channels and smoothing requested.  Dropping smooth filter mode to \'shift\'.');
+                    hardwareLogic.settings.smoothFilterMode = hardwareLogic.constants.smoothFilterMode_Shift;
+                } else if (hardwareLogic.settings.nChannels <= ONBOARD_RMS_MAX_CHANNELS) {
+                    console.log('DEBUG: < 8 channels and smoothing requested.  Setting smooth filter mode to \'RMS\'.');
+                    hardwareLogic.settings.smoothFilterMode = hardwareLogic.constants.smoothFilterMode_RMS;
+                }
             } else if (api.connection.version < BREAKING_CHANGE_ONBOARD_RMS_VERSION) {
                 // older versions don't send 10-bit with filter, even if asked for 10 bit
                 if (hardwareLogic.settings.smoothFilterFlag) {
