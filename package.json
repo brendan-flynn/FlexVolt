@@ -20,7 +20,7 @@
     "cordova-plugin-ionic-webview": "^1.2.1",
     "cordova-plugin-splashscreen": "~4.0.3",
     "cordova-plugin-statusbar": "~2.2.3",
-    "cordova-plugin-tonegenerator": "git+https://github.com/CatabeeScienceAndDesign/cordova-plugin-tonegenerator.git#1.0.0",
+    "cordova-plugin-tonegenerator": "git+https://github.com/CatabeeScienceAndDesign/cordova-plugin-tonegenerator.git#2.1.0",
     "cordova-plugin-whitelist": "~1.3.2",
     "gulp": "^3.9.1",
     "gulp-clean-css": "^2.0.10",

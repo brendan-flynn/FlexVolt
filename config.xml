@@ -93,6 +93,6 @@
     <plugin name="cordova-plugin-device" spec="^2.0.2" />
     <plugin name="cordova-plugin-file" spec="^4.3.3" />
     <plugin name="cordova-plugin-compat" spec="^1.2.0" />
-    <plugin name="cordova-plugin-tonegenerator" spec="https://github.com/CatabeeScienceAndDesign/cordova-plugin-tonegenerator#1.0.0" />
+    <plugin name="cordova-plugin-tonegenerator" spec="https://github.com/CatabeeScienceAndDesign/cordova-plugin-tonegenerator#2.1.0" />
     <engine name="android" spec="7.0.0" />
 </widget>
