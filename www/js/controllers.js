@@ -279,8 +279,8 @@
 
         /* ********* */
     }])
-    .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters', 'records', 'hardwareLogic', 'devices','generalData','introRecords',
-    function($scope, flexvolt, appLogic, storage, dataHandler, filters, records, hardwareLogic, devices, generalData, introRecords) {
+    .controller('MainCtrl', ['$scope', 'flexvolt', 'appLogic', 'storage', 'dataHandler', 'filters', 'records', 'hardwareLogic', 'devices','generalData','introRecords','soundPlugin',
+    function($scope, flexvolt, appLogic, storage, dataHandler, filters, records, hardwareLogic, devices, generalData, introRecords, soundPlugin) {
         // high level container for app-wide functions/variables
         $scope.flexvolt=flexvolt;
         $scope.generalData = generalData;
@@ -316,5 +316,6 @@
         window.generalData = generalData;
         window.introRecords = introRecords;
         window.appLogic = appLogic;
+        window.soundPlugin = soundPlugin;
     }]);
 }());

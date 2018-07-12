@@ -31,6 +31,7 @@
         $scope.updating = false;
 
         $scope.onChange = function(){
+            soundPlugin.stop();
             if (afID){
               window.cancelAnimationFrame(afID);
             }
@@ -38,6 +39,10 @@
             $scope.updating  = true;
             if (dataHandler.controls.live) {
                 init();
+
+                for (var iCh = 0; iCh < rmsTimeLogic.settings.nChannels; iCh++) {
+                  soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
+                }
             } else if (!dataHandler.controls.live) {
                 initPlayBack();
             }
@@ -100,14 +105,16 @@
 
             if (generalData.settings.tone.isEnabled) {
               if (generalData.settings.tone.mode === 'Proportional') {
-                var soundSum = 0;
-                for (var i = 0; i < dataIn[0].length; i++){
-                  soundSum += dataIn[0][i];
+                for (var iCh = 0; iCh < rmsTimeLogic.settings.nChannels; iCh++) {
+                  var soundSum = 0;
+                  for (var i = 0; i < dataIn[iCh].length; i++){
+                    soundSum += dataIn[iCh][i];
+                  }
+                  var avg = soundSum/dataIn[iCh].length;
+                  var diff = generalData.settings.tone.proportionalMaxFreq - generalData.settings.tone.proportionalMinFreq;
+                  var f = generalData.settings.tone.proportionalMinFreq + diff*avg/generalData.settings.scale;
+                  soundPlugin.setFrequencyForChannel(iCh, f);
                 }
-                var avg = soundSum/dataIn[0].length;
-                var diff = generalData.settings.tone.proportionalMaxFreq - generalData.settings.tone.proportionalMinFreq;
-                var f = generalData.settings.tone.proportionalMinFreq + diff*avg/generalData.settings.scale;
-                soundPlugin.setFrequency(f);
               }
             }
 
@@ -172,6 +179,9 @@
                     if (dataHandler.controls.live) {
                       console.log('rms standard init');
                         rmsTimePlot.init('rmsTimeWindow', rmsTimeLogic.settings, hardwareLogic.settings);
+                        for (var iCh = 0; iCh < rmsTimeLogic.settings.nChannels; iCh++) {
+                          soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
+                        }
                         updateMetrics(); // so they start at 0 instead of blank
                         paintStep();
                     } else {

@@ -24,8 +24,17 @@ angular.module('flexvolt.services', [])
     setVolume: undefined,
     setFrequency: undefined,
     stop: undefined,
-    getCurrentVolume: undefined,
-    getCurrentFrequency: undefined,
+    setFadeTime: undefined,
+    setRampTime: undefined,
+    startChannel: undefined,
+    setVolumeForChannel: undefined,
+    setFrequencyForChannel: undefined,
+    stopChannel: undefined,
+    stopAllChannels: undefined,
+    getVolume: undefined,
+    getVolumeForChannel: undefined,
+    getFrequency: undefined,
+    getFrequencyForChannel: undefined,
     getIsPlaying: undefined
   };
 
@@ -35,19 +44,54 @@ angular.module('flexvolt.services', [])
   var MIN_VOLUME = 0;
   var MAX_FREQUENCY = 16000;
   var MIN_FREQUENCY = 140;
+  var MAX_CHANNELS = 8;
 
   var isPlaying = false;
   var currentVolume = DEFAULT_VOLUME;
   var currentFrequency = DEFAULT_FREQUENCY;
 
   // Chrome specifics
-  var audioCtx, gainNode, oscillator;
+  var audioCtx, gainNode, oscillator, startChannel;
+  var gainNodes = [], oscillators = [];
+  var channels = [];
+  for (var iCh = 0; iCh < MAX_CHANNELS; iCh++){
+    channels[iCh] = {
+      vol: DEFAULT_VOLUME,
+      freq: DEFAULT_FREQUENCY,
+      isPlaying: false
+    };
+  }
 
-  soundPlugin.getCurrentVolume = function(){
+  function updateVolumeForChannel(ch, vol){
+    if (vol === 'undefined') {
+      console.log('WARN: Called soundPlugin updateVolume with volume undefined!');
+      vol = DEFAULT_VOLUME;
+    }
+    if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+    if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+    channels[ch].vol = vol;
+  }
+  function updateFrequencyForChannel(ch, freq){
+    if (freq === 'undefined') {
+      console.log('WARN: Called soundPlugin updateFrequency with frequency undefined!');
+      freq = DEFAULT_FREQUENCY;
+    }
+    if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+    if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+    channels[ch].freq = freq;
+  }
+
+  soundPlugin.getVolume = function(){
     return currentVolume;
   };
-  soundPlugin.getCurrentFrequency = function(){
+  soundPlugin.getVolumeForChannel = function(ch){
+    return channels[ch].vol;
+  };
+  soundPlugin.getFrequency = function(){
     return currentFrequency;
+  };
+  soundPlugin.getFrequencyForChannel = function(ch){
+    return channels[ch].freq;
   };
   soundPlugin.getIsPlaying = function(){
     return isPlaying;
@@ -56,63 +100,43 @@ angular.module('flexvolt.services', [])
   ionic.Platform.ready(function() {
     if (window.cordova && window.cordova.plugins ) {
       if (appLogic.dm.platform === 'android') {
-        soundPlugin.play = function(freq, vol) {
-          if (vol === 'undefined') {
-            console.log('WARN: Called soundPlugin.play with no volume specified!');
-            vol = DEFAULT_VOLUME;
-          }
-          if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
-          if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
-          if (freq === 'undefined') {
-            console.log('WARN: Called soundPlugin.play with no frequency specified!');
-            freq = DEFAULT_FREQUENCY;
-          }
-          if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
-          if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
-          currentFrequency = freq;
-          currentVolume = vol;
-          if (isPlaying){
-            console.log('WARN: soundPlugin.play called but already playing, updating volume/frequency instead');
-            window.cordova.plugins.tonegenerator.volume(currentVolume);
-            window.cordova.plugins.tonegenerator.frequency(currentFrequency);
-          } else {
-            isPlaying = true;
-            window.cordova.plugins.tonegenerator.play(currentFrequency, currentVolume);
-          }
-        };
-        soundPlugin.setVolume = function(vol) {
-          if (vol === 'undefined') {
-            console.log('WARN: Called soundPlugin.setVolume with no volume specified!');
-            vol = DEFAULT_VOLUME;
-          }
-          if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
-          if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
-          currentVolume = vol;
-          if (isPlaying){
-            window.cordova.plugins.tonegenerator.volume(currentVolume);
-          } else {
-            console.log('WARN: soundPlugin.setVolume called but not playing, calling play instead');
-            soundPlugin.play(currentFrequency, currentVolume);
-          }
-        };
-        soundPlugin.setFrequency = function(freq) {
-          if (freq === 'undefined') {
-            console.log('WARN: Called soundPlugin.setfrequency with no frequency specified!');
-            freq = DEFAULT_FREQUENCY;
-          }
-          if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
-          if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
-          currentFrequency = freq;
-          if (isPlaying){
-            window.cordova.plugins.tonegenerator.frequency(currentFrequency);
-          } else {
-            console.log('WARN: soundPlugin.setFrequency called but not playing, calling play instead');
-            soundPlugin.play(currentFrequency, currentVolume);
-          }
-        };
         soundPlugin.stop = function() {
           isPlaying = false;
           window.cordova.plugins.tonegenerator.stop();
+        };
+        soundPlugin.setFadeTime = function(fadeTime) {
+          if (fadeTime === 'undefined') {
+            console.log('WARN: Called soundPlugin.setFadeTime with no fadeTime defined!');
+            fadeTime = DEFAULT_FADE_TIME;
+          }
+          if (fadeTime < MIN_FADE_TIME) { fadeTime = MIN_FADE_TIME;}
+          if (fadeTime > MAX_FADE_TIME) { fadeTime = MAX_FADE_TIME;}
+          soundPlugin.setFadeTime(fadeTime);
+        };
+        soundPlugin.setRampTime = function(rampTime) {
+          if (rampTime === 'undefined') {
+            console.log('WARN: Called soundPlugin.setRampTime with no rampTime defined!');
+            fadeTime = DEFAULT_FADE_TIME;
+          }
+          if (fadeTime < MIN_FADE_TIME) { fadeTime = MIN_FADE_TIME;}
+          if (fadeTime > MAX_FADE_TIME) { fadeTime = MAX_FADE_TIME;}
+          soundPlugin.setRampTime(rampTime);
+        };
+        soundPlugin.startChannel = function(ch, freq, vol) {
+          updateVolumeForChannel(ch, vol);
+          updateFrequencyForChannel(ch, freq);
+          soundPlugin.startChannel(ch, channels[ch].freq, channels[ch].vol);
+        };
+        soundPlugin.setVolumeForChannel = function(ch, vol) {
+          updateVolumeForChannel(ch, vol);
+          soundPlugin.setVolumeForChannel(ch, channels[ch].vol);
+        };
+        soundPlugin.setFrequencyForChannel = function(ch, freq) {
+          updateFrequencyForChannel(ch, freq);
+          soundPlugin.setFrequencyForChannel(ch, channels[ch].freq);
+        };
+        soundPlugin.stopChannel = function(ch) {
+          soundPlugin.stopChannel(ch);
         };
       } else if (appLogic.dm.platform === 'ios') {
         soundPlugin.play = function(freq, vol) {
@@ -126,6 +150,12 @@ angular.module('flexvolt.services', [])
         };
         soundPlugin.stop = function() {
           console.log('WARN: Called soundPlugin.stop for ios!');
+        };
+        soundPlugin.setFadeTime = function(fadeTime) {
+          console.log('WARN: Called soundPlugin.setFadeTime for ios!');
+        };
+        soundPlugin.setRampTime = function(rampTime) {
+          console.log('WARN: Called soundPlugin.setRampTime for ios!');
         };
       }
     } else if (window.chrome) {
@@ -194,10 +224,71 @@ angular.module('flexvolt.services', [])
         }
       };
       soundPlugin.stop = function() {
+        // stop everything, single channel and multichannel
         if (oscillator) {
           oscillator.stop();
         }
         isPlaying = false;
+
+        for (var iCh = 0; iCh < MAX_CHANNELS; iCh++){
+          if (oscillators[iCh]) {
+            oscillators[iCh].stop();
+          }
+          channels[iCh].isPlaying = false;
+        }
+      };
+      soundPlugin.setFadeTime = function(fadeTime) {
+        console.log('WARN: called soundPlugin.setFadeTime for chrome');
+      };
+      soundPlugin.setRampTime = function(rampTime) {
+        console.log('WARN: called soundPlugin.setRampTime for chrome');
+      };
+      startChannel = function(ch){
+        gainNodes[ch] = audioCtx.createGain();
+        oscillators[ch] = audioCtx.createOscillator();
+        oscillators[ch].type = 'sine';
+        oscillators[ch].connect(gainNodes[ch]).connect(audioCtx.destination);
+        // set props
+        gainNodes[ch].gain.value = channels[ch].vol/256;
+        oscillators[ch].frequency.value = channels[ch].freq;
+        oscillators[ch].start();
+        channels[ch].isPlaying = true;
+      };
+      soundPlugin.startChannel = function(ch, freq, vol) {
+        updateVolumeForChannel(ch, vol);
+        updateFrequencyForChannel(ch, freq);
+        if (channels[ch].isPlaying){
+          console.log('WARN: soundPlugin.play called but already playing, updating volume/frequency instead');
+          gainNodes[ch].gain.value = channels[ch].vol/256;
+          oscillators[ch].frequency.value = channels[ch].freq;
+        } else {
+          // initialize
+          startChannel(ch);
+        }
+      };
+      soundPlugin.setVolumeForChannel = function(ch, vol) {
+        updateVolumeForChannel(ch, vol);
+        if (channels[ch].isPlaying){
+          gainNodes[ch].gain.value = channels[ch].vol/256;
+        } else {
+          console.log('WARN: soundPlugin.setVolume called but not playing, calling play instead');
+          startChannel(ch);
+        }
+      };
+      soundPlugin.setFrequencyForChannel = function(ch, freq) {
+        updateFrequencyForChannel(ch, freq);
+        if (channels[ch].isPlaying){
+          oscillators[ch].frequency.value = channels[ch].freq;
+        } else {
+          console.log('WARN: soundPlugin.setFrequency called but not playing, calling play instead');
+          startChannel(ch);
+        }
+      };
+      soundPlugin.stopChannel = function(ch) {
+        if (oscillators[ch]) {
+          oscillators[ch].stop();
+        }
+        channels[ch].isPlaying = false;
       };
     }
   });
