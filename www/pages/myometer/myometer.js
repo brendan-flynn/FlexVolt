@@ -75,9 +75,11 @@
       $scope.$on('$destroy', function(e){
         //console.log('DEBUG: $destroy: '+angular.toJson(e));
         $scope.cancelBaseline();
+        soundPlugin.stop();
       });
 
       $scope.onChange = function(){
+        soundPlugin.stop();
         if (afID){
           window.cancelAnimationFrame(afID);
         }
@@ -224,14 +226,16 @@
 
         if (generalData.settings.tone.isEnabled) {
           if (generalData.settings.tone.mode === 'Proportional') {
-            var soundSum = 0;
-            for (var i = 0; i < dataIn[0].length; i++){
-              soundSum += dataIn[0][i];
+            for (var iCh = 0; iCh < myometerLogic.settings.nChannels; iCh++) {
+              var soundSum = 0;
+              for (var i = 0; i < dataIn[iCh].length; i++){
+                soundSum += dataIn[iCh][i];
+              }
+              var avg = soundSum/dataIn[iCh].length;
+              var diff = generalData.settings.tone.proportionalMaxFreq - generalData.settings.tone.proportionalMinFreq;
+              var f = generalData.settings.tone.proportionalMinFreq + diff*avg/generalData.settings.scale;
+              soundPlugin.setFrequencyForChannel(iCh, f);
             }
-            var avg = soundSum/dataIn[0].length;
-            var diff = generalData.settings.tone.proportionalMaxFreq - generalData.settings.tone.proportionalMinFreq;
-            var f = generalData.settings.tone.proportionalMinFreq + diff*avg/generalData.settings.scale;
-            soundPlugin.setFrequency(f);
           }
         }
 
@@ -269,7 +273,7 @@
         if ($state.current.url === currentUrl){
           afID = window.requestAnimationFrame(paintStep);
           frameCounts++;
-          if (frameCounts > 5){
+          if (frameCounts > 0){
             frameCounts = 0;
             updateAnimate();
           }
@@ -290,6 +294,11 @@
                 }
     //            dataHandler.setMetrics(60);
                 myometerPlot.init('#myometerWindow', myometerLogic.settings, generalData.settings.scale, generalData.settings.targets, updateTargets);
+
+                for (var iCh = 0; iCh < myometerLogic.settings.nChannels; iCh++) {
+                  soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
+                }
+
                 paintStep();
             });
         }
@@ -339,11 +348,14 @@
           $scope.updating  = true;
           //console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
           myometerPlot.resize();
+          for (var iCh = 0; iCh < myometerLogic.settings.nChannels; iCh++) {
+            soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
+          }
           $scope.updating  = false;
           paintStep();
       };
 
-      init();
+      // init();
 
       function initializeHardware(){
         var s = hardwareLogic.settings;

@@ -39,10 +39,6 @@
             $scope.updating  = true;
             if (dataHandler.controls.live) {
                 init();
-
-                for (var iCh = 0; iCh < rmsTimeLogic.settings.nChannels; iCh++) {
-                  soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
-                }
             } else if (!dataHandler.controls.live) {
                 initPlayBack();
             }

@@ -271,7 +271,7 @@ angular.module('flexvolt.services', [])
         if (channels[ch].isPlaying){
           gainNodes[ch].gain.value = channels[ch].vol/256;
         } else {
-          console.log('WARN: soundPlugin.setVolume called but not playing, calling play instead');
+          console.log('WARN: soundPlugin.setVolumeForChannel called but not playing, calling play instead');
           startChannel(ch);
         }
       };
@@ -280,7 +280,7 @@ angular.module('flexvolt.services', [])
         if (channels[ch].isPlaying){
           oscillators[ch].frequency.value = channels[ch].freq;
         } else {
-          console.log('WARN: soundPlugin.setFrequency called but not playing, calling play instead');
+          console.log('WARN: soundPlugin.setFrequencyForChannel called but not playing, calling play instead');
           startChannel(ch);
         }
       };
