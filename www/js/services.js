@@ -953,7 +953,7 @@ angular.module('flexvolt.services', [])
     if (window.cordova) {
         file.getDirectory = function(){
           console.log('cordova file getDirectory');
-          window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
+          window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function(dir) {
             file.currentEntry = dir;
             file.path = dir.fullPath;
           });
@@ -1007,9 +1007,9 @@ angular.module('flexvolt.services', [])
 
               reader.readAsText(theFile);
             });
-        }, function(e){console.log('DEBUG: Could not get file ' + filename + '.  Returned error: ' + JSON.stringify(e));});
-          return deferred.promise;
-      };
+          }, function(e){console.log('DEBUG: Could not get file ' + filename + '.  Returned error: ' + JSON.stringify(e));});
+            return deferred.promise;
+        };
 
         file.readFile = function(filename){
           console.log('cordova file readFile');
