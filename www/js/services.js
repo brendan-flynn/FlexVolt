@@ -98,8 +98,45 @@ angular.module('flexvolt.services', [])
   };
 
   ionic.Platform.ready(function() {
-    if (window.cordova && window.cordova.plugins ) {
+    if (window.cordova && window.cordova.plugins && window.cordova.plugins.tonegenerator) {
       if (appLogic.dm.platform === 'android') {
+        soundPlugin.play = function(freq, vol) {
+          if (vol === 'undefined') {
+            console.log('WARN: Called soundPlugin.play with no volume specified!');
+            vol = DEFAULT_VOLUME;
+          }
+          if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+          if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+          if (freq === 'undefined') {
+            console.log('WARN: Called soundPlugin.play with no frequency specified!');
+            freq = DEFAULT_FREQUENCY;
+          }
+          if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+          if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+          currentFrequency = freq;
+          currentVolume = vol;
+          window.cordova.plugins.tonegenerator.play(freq, vol);
+        };
+        soundPlugin.setVolume = function(vol) {
+          if (vol === 'undefined') {
+            console.log('WARN: Called soundPlugin.setVolume with no volume specified!');
+            vol = DEFAULT_VOLUME;
+          }
+          if (vol < MIN_VOLUME) { vol = MIN_VOLUME;}
+          if (vol > MAX_VOLUME) { vol = MAX_VOLUME;}
+          currentVolume = vol;
+          window.cordova.plugins.tonegenerator.volume(vol);
+        };
+        soundPlugin.setFrequency = function(freq) {
+          if (freq === 'undefined') {
+            console.log('WARN: Called soundPlugin.setfrequency with no frequency specified!');
+            freq = DEFAULT_FREQUENCY;
+          }
+          if (freq < MIN_FREQUENCY) { freq = MIN_FREQUENCY;}
+          if (freq > MAX_FREQUENCY) { freq = MAX_FREQUENCY;}
+          currentFrequency = freq;
+          window.cordova.plugins.tonegenerator.frequency(freq);
+        };
         soundPlugin.stop = function() {
           isPlaying = false;
           window.cordova.plugins.tonegenerator.stop();
@@ -111,7 +148,7 @@ angular.module('flexvolt.services', [])
           }
           if (fadeTime < MIN_FADE_TIME) { fadeTime = MIN_FADE_TIME;}
           if (fadeTime > MAX_FADE_TIME) { fadeTime = MAX_FADE_TIME;}
-          soundPlugin.setFadeTime(fadeTime);
+          window.cordova.plugins.tonegenerator.setFadeTime(fadeTime);
         };
         soundPlugin.setRampTime = function(rampTime) {
           if (rampTime === 'undefined') {
@@ -120,27 +157,27 @@ angular.module('flexvolt.services', [])
           }
           if (fadeTime < MIN_FADE_TIME) { fadeTime = MIN_FADE_TIME;}
           if (fadeTime > MAX_FADE_TIME) { fadeTime = MAX_FADE_TIME;}
-          soundPlugin.setRampTime(rampTime);
+          window.cordova.plugins.tonegenerator.setRampTime(rampTime);
         };
         soundPlugin.startChannel = function(ch, freq, vol) {
           updateVolumeForChannel(ch, vol);
           updateFrequencyForChannel(ch, freq);
-          soundPlugin.startChannel(ch, channels[ch].freq, channels[ch].vol);
+          window.cordova.plugins.tonegenerator.startChannel(ch, channels[ch].freq, channels[ch].vol);
         };
         soundPlugin.setVolumeForChannel = function(ch, vol) {
           updateVolumeForChannel(ch, vol);
-          soundPlugin.setVolumeForChannel(ch, channels[ch].vol);
+          window.cordova.plugins.tonegenerator.setVolumeForChannel(ch, channels[ch].vol);
         };
         soundPlugin.setFrequencyForChannel = function(ch, freq) {
           updateFrequencyForChannel(ch, freq);
-          soundPlugin.setFrequencyForChannel(ch, channels[ch].freq);
+          window.cordova.plugins.tonegenerator.setFrequencyForChannel(ch, channels[ch].freq);
         };
         soundPlugin.stopChannel = function(ch) {
-          soundPlugin.stopChannel(ch);
+          window.cordova.plugins.tonegenerator.stopChannel(ch);
         };
       } else if (appLogic.dm.platform === 'ios') {
         soundPlugin.play = function(freq, vol) {
-          console.log('WARN: Called soundPlugin.play for ios!');
+          //console.log('WARN: Called soundPlugin.play for ios!');
         };
         soundPlugin.setVolume = function(vol) {
           //console.log('WARN: Called soundPlugin.setVolume for ios!');
@@ -149,13 +186,29 @@ angular.module('flexvolt.services', [])
           //console.log('WARN: Called soundPlugin.setFrequency for ios!');
         };
         soundPlugin.stop = function() {
-          console.log('WARN: Called soundPlugin.stop for ios!');
+          //console.log('WARN: Called soundPlugin.stop for ios!');
         };
         soundPlugin.setFadeTime = function(fadeTime) {
-          console.log('WARN: Called soundPlugin.setFadeTime for ios!');
+          //console.log('WARN: Called soundPlugin.setFadeTime for ios!');
         };
         soundPlugin.setRampTime = function(rampTime) {
-          console.log('WARN: Called soundPlugin.setRampTime for ios!');
+          //console.log('WARN: Called soundPlugin.setRampTime for ios!');
+        };
+        soundPlugin.startChannel = function(ch, freq, vol) {
+          updateVolumeForChannel(ch, vol);
+          updateFrequencyForChannel(ch, freq);
+          //soundPlugin.startChannel(ch, channels[ch].freq, channels[ch].vol);
+        };
+        soundPlugin.setVolumeForChannel = function(ch, vol) {
+          updateVolumeForChannel(ch, vol);
+          //window.cordova.plugins.tonegenerator.setVolumeForChannel(ch, channels[ch].vol);
+        };
+        soundPlugin.setFrequencyForChannel = function(ch, freq) {
+          updateFrequencyForChannel(ch, freq);
+          //window.cordova.plugins.tonegenerator.setFrequencyForChannel(ch, channels[ch].freq);
+        };
+        soundPlugin.stopChannel = function(ch) {
+          //soundPlugin.stopChannel(ch);
         };
       }
     } else if (window.chrome) {
