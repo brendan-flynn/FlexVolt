@@ -19,6 +19,11 @@
         var task = $state.current.name;
         $scope.demo = $stateParams.demo;
 
+        $scope.app = {
+          isMobile: appLogic.dm.isMobile,
+          platform: appLogic.dm.platform
+        };
+
         customPopover.addHelp($ionicModal, $scope, 'helpModal','pages/settings/sound/sound-help.html');
 
         $scope.tone = generalData.settings.tone;
