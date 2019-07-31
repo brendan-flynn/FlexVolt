@@ -119,8 +119,12 @@
             appLogic.dm.version = 'unavailable'; //
           }
 
-        } else if (window.chrome && window.chrome.runtime && window.chrome.runtime.getManifest) {
-          appLogic.dm.version = chrome.runtime.getManifest().version;
+        } else if (window.chrome) {
+          if (window.chrome.runtime && window.chrome.runtime.getManifest) {
+            appLogic.dm.version = chrome.runtime.getManifest().version;
+          } else {
+            appLogic.dm.version = 'unavailable';
+          }
         }
       });
     })

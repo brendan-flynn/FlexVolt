@@ -719,7 +719,10 @@ angular.module('flexvolt.services', [])
             };
             bluetoothPlugin.getDevices = function(singleDeviceCallback,errFunc){
                 console.log('DEBUG: browser bluetoothPlugin.list');
-                device.name = 'fakeDevice';
+                var device = {
+                  path: 'fakePath',
+                  name: 'fakeDevice'
+                };
                 singleDeviceCallback(device);
             };
             bluetoothPlugin.subscribe = function(device, callback, errFunc){
