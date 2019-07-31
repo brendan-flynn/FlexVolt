@@ -381,7 +381,7 @@ angular.module('flexvolt.taskLogic', [])
         scale: 100,
         scaleList: [10, 20, 50, 100, 500, 1000, 1500],
         tone: {
-            enable: false,
+            isEnabled: false,
             modeList: ['Proportional', 'Threshold'],
             mode: 'Proportional',
             volume: 50,

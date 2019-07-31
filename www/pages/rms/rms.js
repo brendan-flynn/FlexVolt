@@ -166,6 +166,16 @@
             rmsTimePlot.initPlayback('rmsTimeWindow', rmsTimeLogic.settings, hardwareLogic.settings, dataBundle);
         }
 
+        function initSound(){
+          if (generalData.settings.tone.isEnabled) {
+            if (generalData.settings.tone.mode === 'Proportional') {
+              for (var iCh = 0; iCh < rmsTimeLogic.settings.nChannels; iCh++) {
+                soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
+              }
+            }
+          }
+        }
+
         function init(){
             rmsTimeLogic.ready()
                 .then(function(){
@@ -175,9 +185,7 @@
                     if (dataHandler.controls.live) {
                       console.log('rms standard init');
                         rmsTimePlot.init('rmsTimeWindow', rmsTimeLogic.settings, hardwareLogic.settings);
-                        for (var iCh = 0; iCh < rmsTimeLogic.settings.nChannels; iCh++) {
-                          soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
-                        }
+                        initSound();
                         updateMetrics(); // so they start at 0 instead of blank
                         paintStep();
                     } else {
@@ -229,7 +237,6 @@
                 if (afID){
                   window.cancelAnimationFrame(afID);
                 }
-                soundPlugin.stop();
                 afID = undefined;
                 $scope.updating  = true;
                 console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);

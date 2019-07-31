@@ -280,6 +280,16 @@
         }
       }
 
+      function initSound(){
+        if (generalData.settings.tone.isEnabled) {
+          if (generalData.settings.tone.mode === 'Proportional') {
+            for (var iCh = 0; iCh < myometerLogic.settings.nChannels; iCh++) {
+              soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
+            }
+          }
+        }
+      }
+
       function init() {
         if($state.current.url === currentUrl){
           myometerLogic.ready()
@@ -295,10 +305,7 @@
     //            dataHandler.setMetrics(60);
                 myometerPlot.init('#myometerWindow', myometerLogic.settings, generalData.settings.scale, generalData.settings.targets, updateTargets);
 
-                for (var iCh = 0; iCh < myometerLogic.settings.nChannels; iCh++) {
-                  soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
-                }
-
+                initSound();
                 paintStep();
             });
         }
@@ -344,13 +351,11 @@
             window.cancelAnimationFrame(afID);
           }
           afID = undefined;
-          soundPlugin.stop();
+          // soundPlugin.stop();
           $scope.updating  = true;
           //console.log('INFO: Resize w:'+window.innerWidth+', h:'+window.innerHeight);
           myometerPlot.resize();
-          for (var iCh = 0; iCh < myometerLogic.settings.nChannels; iCh++) {
-            soundPlugin.startChannel(iCh, generalData.settings.tone.proportionalMinFreq, generalData.settings.tone.volume);
-          }
+          // initSound();
           $scope.updating  = false;
           paintStep();
       };
