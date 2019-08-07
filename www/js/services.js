@@ -956,7 +956,13 @@ angular.module('flexvolt.services', [])
     if (window.cordova) {
         file.getDirectory = function(){
           console.log('cordova file getDirectory');
-          window.resolveLocalFileSystemURL(cordova.file.externalDataDirectory, function(dir) {
+          var directoryType;
+          if (appLogic.dm.platform === 'android') {
+            directoryType = cordova.file.externalDataDirectory;
+          } else if (appLogic.dm.platform === 'ios') {
+            directoryType = cordova.file.syncedDataDirectory;
+          }
+          window.resolveLocalFileSystemURL(directoryType, function(dir) {
             file.currentEntry = dir;
             file.path = dir.fullPath;
           });
